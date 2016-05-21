@@ -1,3 +1,5 @@
 Just wanted to summarise my TILs from doing HackerRank problems up to now.
 
-The most important skill is to remember the implemented solution and how you turned the problem into something solvable by your algorithm. When you are dealing with weighted edges, but know that a breadth-first search is neccessary (test for bipartiteness)
+The most important skill is to remember the implemented solution and how you turned the problem into something solvable by your algorithm. eg. When you are dealing with weighted edges, but know that a breadth-first search is neccessary (test for bipartiteness), estimate the complexity and see how you can turn the graph into unweighted. 
+
+In [this problem](https://www.hackerrank.com/challenges/beautiful-path), you need to calculate the minimum path between nodes in a weighted graph, with a custom binary operation (AND product) to calculate the overall cost of the path. This particular problems has not too many nodes, so you can create A<sub>i</sub> versions of each node, where i = 0...1024 and reconnect such A<sub>i</sub> -- B<sub>j</sub>, where j is the binary value of the decimal cost of the original edge between A and B in the first graph. Once you see that and redraw the graph, you can implement an easy bfs, which will find all paths and use each nodes index to keep track of the AND product
