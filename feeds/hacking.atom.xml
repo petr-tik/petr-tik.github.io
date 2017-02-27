@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2017-02-27T10:20:00+00:00</updated><entry><title>Setting up custom CI</title><link href="/setting-up-custom-ci.html" rel="alternate"></link><updated>2017-02-27T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-02-27:setting-up-custom-ci.html</id><summary type="html">&lt;p&gt;Spent the day working on a plan to build custom CI pipeline for &lt;a href="https://github.com/solent-eng/solent"&gt;solent&lt;/a&gt;. The design encourages and relies on GitHub-workflow using Pull Requests for all changes - even small ones made by the creator/admin. Will run test suites on different VMs and only allow PR to be merged, if all tests pass. Adding a new VM (for BSD, OSX, minix or other platform) should be: 1) easy, 2) independent of others and independent of the code on master.&lt;/p&gt;
+&lt;h2&gt;Pull Request workflow&lt;/h2&gt;
+&lt;p&gt;As an OSS project developed in 2017, Solent-eng should have a contributor-friendly way of reviewing issues, pushing changes and testing code. Using the GitHub webhook API, an event loop will notify the master slave of all changes to any Pull Requests (new or existing). This combined with the repo settings preventing from direct pushes to master will make everyone's commits go through the CI suite. This will also apply for the admin, as he is equally human and can make mistakes. Such culture of testing early, often and meritocratically, will help maintain the quality of code with hopefully few regressions. &lt;/p&gt;
+&lt;h2&gt;CI master server&lt;/h2&gt;
+&lt;p&gt;Lives on a VM in the cloud. In charge of listening to GitHub hooks, keeps a queue of jobs. Starts and monitors OS-specific VMs that run the test suite as of a given commit. Communicates the outcome of all test runners to the GitHub commit's status API.&lt;/p&gt;
+&lt;h2&gt;GitHub webhook&lt;/h2&gt;
+&lt;p&gt;A server will listen to events from the GitHub webhook, which in their payload will carry the refs and commit hashes of the PR. Initially, we will consider 3 scenarios:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;New pull request&lt;/li&gt;
+&lt;li&gt;Changes to a currently open PR&lt;/li&gt;
+&lt;li&gt;Closed and merged a Pull Request&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;New PR or changes to current PR&lt;/h3&gt;
+&lt;p&gt;First prototype - tear down current VMs of out-of-date commit hash. Start a new set of VMs with the new commit.&lt;/p&gt;
+&lt;p&gt;Long-term plan: add the new commit hash to the job queue. Run all suites for all commits. &lt;/p&gt;
+&lt;h3&gt;Closed and merged a Pull Request&lt;/h3&gt;
+&lt;p&gt;Each test VM, if test suite exits with 0 errors, should build its executable. The CI master will tell each VM to upload the artefact to a location. TODO: hardwire the address inside the VM test runner or pass it as part of the request from the master.&lt;/p&gt;
+&lt;h2&gt;Test suite VMs&lt;/h2&gt;
+&lt;p&gt;Plans to support linux, BSD, OSX and Windows. All test suites will be run in VMs either in the cloud or on-premises. If tests fail, logs of terminal output should be forwarded to master. TODO: decide how CI-master will show it to GitHub users.&lt;/p&gt;</summary><category term="python"></category><category term="solent"></category><category term="ci"></category></entry><entry><title>Getting clojure with Lisp</title><link href="/getting-clojure-with-lisp.html" rel="alternate"></link><updated>2016-02-20T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2016-02-20:getting-clojure-with-lisp.html</id><summary type="html">&lt;p&gt;I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.&lt;/p&gt;
+&lt;p&gt;It's definitely a great exercise and even if I will never get to write a single line of code in a functional language in my life, I will be more confident using map, filter and reduce in python. &lt;/p&gt;
+&lt;p&gt;Adopting the immutable data approach, makes me really concentrate on the quality and good compositionality of the functions, where I really think through how to make a series of pure functions, whose output will feed into the next one's input well. WHile REPL-based development is helpful to try defn functions on the fly to experiment, my python background is annoyed that I cannot just print the state of the programme at every step: 
+i) pure functions are stateless
+ii) pure functions have no side effect like printing to the stdout&lt;/p&gt;
+&lt;p&gt;As this is an exercise in thinking and writing pure functions, printing to stdout is betraying the clojure way and would involve a helper function that needs to wrap each function and print the arguments and output. &lt;/p&gt;
+&lt;p&gt;Going forward, I've been told 4Clojure is a good source of problems and the TDD framework is very thorough. Another upside of pure functions I hope to experience soon is the ease of unit testing them. If you write all helper functions and main the UNIX way, you should be able to test each of them separately and when composed with easy input. &lt;/p&gt;
+&lt;p&gt;A good exercise, which lends itself nicely to Clojure is checking if a given word and any word from a vector of words have are anagrams. &lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;anagram?&lt;/span&gt;
+&lt;span class="s"&gt;&amp;quot;Takes 2 words - returns True if they are anagrams, false otherwise&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;word1&lt;/span&gt; &lt;span class="nv"&gt;word2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;= &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;frequencies&lt;/span&gt; &lt;span class="nv"&gt;word1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;frequencies&lt;/span&gt; &lt;span class="nv"&gt;word2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="nv"&gt;true&lt;/span&gt;
+        &lt;span class="nv"&gt;false&lt;/span&gt;
+        &lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;anagrams&lt;/span&gt;
+&lt;span class="s"&gt;&amp;quot;Takes a target word and a vector of words &lt;/span&gt;
+&lt;span class="s"&gt;Returns a list of anagrams of the target from the vector&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;target-word&lt;/span&gt; &lt;span class="nv"&gt;list-of-words&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;filter &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;fn &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;candidate-word&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;anagram?&lt;/span&gt; &lt;span class="nv"&gt;target-word&lt;/span&gt; &lt;span class="nv"&gt;candidate-word&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="nv"&gt;list-of-words&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</summary><category term="clojure"></category></entry></feed>

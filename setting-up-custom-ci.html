@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>Setting up custom CI // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="links"><a href="/pages/about">About</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Setting up custom CI</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/python.html">python</a>
+                                <a class="post-category" href="/tag/solent.html">solent</a>
+                                <a class="post-category" href="/tag/ci.html">ci</a>
+                        </p>
+                </header>
+            </section>
+            <p>Spent the day working on a plan to build custom CI pipeline for <a href="https://github.com/solent-eng/solent">solent</a>. The design encourages and relies on GitHub-workflow using Pull Requests for all changes - even small ones made by the creator/admin. Will run test suites on different VMs and only allow PR to be merged, if all tests pass. Adding a new VM (for BSD, OSX, minix or other platform) should be: 1) easy, 2) independent of others and independent of the code on master.</p>
+<h2>Pull Request workflow</h2>
+<p>As an OSS project developed in 2017, Solent-eng should have a contributor-friendly way of reviewing issues, pushing changes and testing code. Using the GitHub webhook API, an event loop will notify the master slave of all changes to any Pull Requests (new or existing). This combined with the repo settings preventing from direct pushes to master will make everyone's commits go through the CI suite. This will also apply for the admin, as he is equally human and can make mistakes. Such culture of testing early, often and meritocratically, will help maintain the quality of code with hopefully few regressions. </p>
+<h2>CI master server</h2>
+<p>Lives on a VM in the cloud. In charge of listening to GitHub hooks, keeps a queue of jobs. Starts and monitors OS-specific VMs that run the test suite as of a given commit. Communicates the outcome of all test runners to the GitHub commit's status API.</p>
+<h2>GitHub webhook</h2>
+<p>A server will listen to events from the GitHub webhook, which in their payload will carry the refs and commit hashes of the PR. Initially, we will consider 3 scenarios:</p>
+<ul>
+<li>New pull request</li>
+<li>Changes to a currently open PR</li>
+<li>Closed and merged a Pull Request</li>
+</ul>
+<h3>New PR or changes to current PR</h3>
+<p>First prototype - tear down current VMs of out-of-date commit hash. Start a new set of VMs with the new commit.</p>
+<p>Long-term plan: add the new commit hash to the job queue. Run all suites for all commits. </p>
+<h3>Closed and merged a Pull Request</h3>
+<p>Each test VM, if test suite exits with 0 errors, should build its executable. The CI master will tell each VM to upload the artefact to a location. TODO: hardwire the address inside the VM test runner or pass it as part of the request from the master.</p>
+<h2>Test suite VMs</h2>
+<p>Plans to support linux, BSD, OSX and Windows. All test suites will be run in VMs either in the cloud or on-premises. If tests fail, logs of terminal output should be forwarded to master. TODO: decide how CI-master will show it to GitHub users.</p>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>

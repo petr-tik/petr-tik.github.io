@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>Effect of language on hackerrank performance // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="links"><a href="/pages/about">About</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Effect of language on hackerrank performance</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/algorithms.html">algorithms</a>
+                                <a class="post-category" href="/tag/hackerrank.html">hackerrank</a>
+                        </p>
+                </header>
+            </section>
+            <h1>Language effect on HackerRank solution performance</h1>
+<p>This blogpost examines how the choice of language used in HackerRank tests might affect the pass/fail status of your solution. The same algorithmic puzzle is solved with python and JavaScript to highlight the  of different languages as a tool for quick algo problems. This post is for candidates considering what language to do the problem in as well as hiring managers to assess how much language choice affects candidates' performance. </p>
+<h2>Tl;dr</h2>
+<ul>
+<li>
+<p>Candidates: If your job application includes a HackerRank test, choose a language that has native support for concepts you will use in the puzzle (recursive functions need tail call optimisation). Choose the best tool for the job, even if the job is to implement a breadth-first search.</p>
+</li>
+<li>
+<p>Hiring Managers: Check how many false negatives you had by rejecting solutions, where the language isn't efficient enough for the problem</p>
+</li>
+</ul>
+<h2>HackerRank</h2>
+<p>HackerRank is an online platform used to screen candidates applying for software developer positions. It presents the candidate with several puzzles (usually from the algorithms and data structures domains), a solved test case and a text editor to interactively try your solution in a chosen language. The solved testcase is usually simple enough for you can to work out the basic algorithm with pen and paper. Once you've ensured that your solution works on the test case, you submit it to an AWS-hosted environment, which compiles/interprets your program using the determined <a href="https://www.hackerrank.com/environment">environment</a> to see if you get the right answer for previously unseen test cases. HackerRank measures the correctness and algorithmic complexity of your solution, which it estimates from your memory footprint and running time. There are 3 possible outcomes: pass, wrong answer and timeout. </p>
+<h2>Problem statement and solution</h2>
+<p>The solution uses a recursive function, which is exactly where JavaScript outperforms Python, due to ongoing work to optimise tail calling in the V8 engine. The python interpreter doesn't have tail call optimisation. </p>
+<p><a href="http://www.2ality.com/2015/06/tail-call-optimization.html"></a></p>
+<h2>Thanks</h2>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
