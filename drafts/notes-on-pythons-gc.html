@@ -7,7 +7,7 @@
 
         <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
 
-        <title>Unexpected bfs // My blog // </title>
+        <title>Notes on python's GC // My blog // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -51,24 +51,29 @@
         <div class="content">
             <section class="post">
                 <header class="post-header">
-                    <h1>Unexpected bfs</h1>
+                    <h1>Notes on python's GC</h1>
                         <p class="post-meta">
                             // under                                 <a class="post-category" href="/tag/python.html">python</a>
-                                <a class="post-category" href="/tag/algorithms.html">algorithms</a>
-                                <a class="post-category" href="/tag/hackerrank.html">hackerrank</a>
+                                <a class="post-category" href="/tag/gc.html">gc</a>
+                                <a class="post-category" href="/tag/memory.html">memory</a>
                         </p>
                 </header>
             </section>
-            <p>This <a href="https://www.hackerrank.com/challenges/candies">puzzle</a> is in the DP section of HackerRank. A recursive solution is expected, but it usually has higher memory usage. Therefore, you should find a way to memoize/cache results of previous calculations to make it pass. </p>
-<p>Problem statement:
-    Given an array of students' grades (ints) in the same order as they sit. Return the minimal number of candies all students receive, such that:</p>
-<ul>
-<li>out of 2 adjacent students, the one with a higher grade receives more candy</li>
-<li>each student receives at least 1 piece of candy</li>
-</ul>
-<p>Alternatively, you can look at the problem as a graph theory problem. </p>
-<p>Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount. Start several breadth-first searches from each of the node without incoming edges (he will be the local start, he only has 1 candy). If the child node hasn't been visited, add it to the next_generation iteration of nodes.</p>
-<p>The code is <a href="https://github.com/petr-tik/misc/blob/master/candies.py">here</a></p>
+            <p>Notes on <a href="https://www.youtube.com/watch?v=arxWaw-E8QQ">Memory Management in Python - YouTube</a></p>
+<p>GC is a mechanism for managing memory at runtime. There are 2 methods: mark-and-sweep and reference counting. Different python interpreters can use different GC mechanisms - I will be discussing CPython and call it python for brevity (saving a character is very important).</p>
+<p>Java uses mark-and-sweep, which runs less frequently. CPython uses reference counting with an optimisation to eliminate cyclic references, hence slower runtime. Similarly to pointers in C, the variable name is created on the stack and the pointer on the heap.</p>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">y</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="mi">35590272</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="bp">True</span>
+</pre></div>
+
+
+<p>Python creates an int object on the heap. If a new variable is created on the stack and assigned to a value, python sets up a reference between the new variable and the already existing object. </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
