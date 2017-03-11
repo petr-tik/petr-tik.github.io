@@ -67,7 +67,9 @@
 <li>each student receives at least 1 piece of candy</li>
 </ul>
 <p>Alternatively, you can look at the problem as a graph theory problem. </p>
-<p>Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount. Start several breadth-first searches from each of the node without incoming edges (he will be the local start, he only has 1 candy). If the child node hasn't been visited, add it to the next_generation iteration of nodes.</p>
+<p>Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount - 1. One way to solve it is to start several breadth-first searches from each of the node without incoming edges (he will be the local start, he only has 1 candy). If the child node hasn't been visited, add it to the next_generation iteration of nodes. Visit node and increment the value at its index in the candies array. </p>
+<h3>Complexity</h3>
+<p>The prepare_for_bfs method takes linear O(n) time and bfs takes maximum O(V + E)</p>
 <p>The code is <a href="https://github.com/petr-tik/misc/blob/master/candies.py">here</a></p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
