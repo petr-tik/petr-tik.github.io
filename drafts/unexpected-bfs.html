@@ -59,18 +59,29 @@
                         </p>
                 </header>
             </section>
-            <p>This <a href="https://www.hackerrank.com/challenges/candies">puzzle</a> is in the DP section of HackerRank. A recursive solution is expected, but it usually has higher memory usage. Therefore, you should find a way to memoize/cache results of previous calculations to make it pass. </p>
-<p>Problem statement:
-    Given an array of students' grades (ints) in the same order as they sit. Return the minimal number of candies all students receive, such that:</p>
+            <p>This <a href="https://www.hackerrank.com/challenges/candies">puzzle</a> is in the DP section of HackerRank. With DP, you expect a recursive solution is expected, which is less memory efficient. Therefore, you should find a way to memoize/cache results of previous calculations to make it pass. </p>
+<h2>Problem statement:</h2>
+<div class="highlight"><pre>Given an array of students&#39; grades (ints) in the same order as they sit. Return the minimal number of candies all students receive, such that:
+</pre></div>
+
+
 <ul>
 <li>out of 2 adjacent students, the one with a higher grade receives more candy</li>
 <li>each student receives at least 1 piece of candy</li>
 </ul>
+<h3>Plot twist</h3>
 <p>Alternatively, you can look at the problem as a graph theory problem. </p>
-<p>Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount - 1. One way to solve it is to start several breadth-first searches from each of the node without incoming edges (he will be the local start, he only has 1 candy). If the child node hasn't been visited, add it to the next_generation iteration of nodes. Visit node and increment the value at its index in the candies array. </p>
+<p>Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount - 1. Now start several breadth-first searches from each of the nodes without incoming edges (they will be the local start points). Visit node and increment the value at its index in the candies array. Differently to normal breadth-first search, you don't need to keep track of previously visited nodes and you can revisit them to increment the counter. In case you have a peak around a point 8 (index = 3) eg</p>
+<p>grades
+1 2 4 8 6 5 3 2 1</p>
+<p>candies (illegal) - if you don't revisit nodes to update counter. 
+1 2 3 4 5 4 3 2 1 </p>
+<p>candies (solution)
+1 2 3 6 5 4 3 2 1</p>
 <h3>Complexity</h3>
 <p>The prepare_for_bfs method takes linear O(n) time and bfs takes maximum O(V + E)</p>
 <p>The code is <a href="https://github.com/petr-tik/misc/blob/master/candies.py">here</a></p>
+<p>If you see a problem in description or the code, please open issues, send PRs</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
