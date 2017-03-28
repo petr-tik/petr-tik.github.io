@@ -46,7 +46,34 @@
 &lt;h3&gt;Closed and merged a Pull Request&lt;/h3&gt;
 &lt;p&gt;Each test VM, if test suite exits with 0 errors, should build its executable. The CI master will tell each VM to upload the artefact to a location. TODO: hardwire the address inside the VM test runner or pass it as part of the request from the master.&lt;/p&gt;
 &lt;h2&gt;Test suite VMs&lt;/h2&gt;
-&lt;p&gt;Plans to support linux, BSD, OSX and Windows. All test suites will be run in VMs either in the cloud or on-premises. If tests fail, logs of terminal output should be forwarded to master. TODO: decide how CI-master will show it to GitHub users.&lt;/p&gt;</summary><category term="python"></category><category term="solent"></category><category term="ci"></category></entry><entry><title>Getting clojure with Lisp</title><link href="/getting-clojure-with-lisp.html" rel="alternate"></link><updated>2016-02-20T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2016-02-20:getting-clojure-with-lisp.html</id><summary type="html">&lt;p&gt;I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.&lt;/p&gt;
+&lt;p&gt;Plans to support linux, BSD, OSX and Windows. All test suites will be run in VMs either in the cloud or on-premises. If tests fail, logs of terminal output should be forwarded to master. TODO: decide how CI-master will show it to GitHub users.&lt;/p&gt;</summary><category term="python"></category><category term="solent"></category><category term="ci"></category></entry><entry><title>Unexpected bfs</title><link href="/unexpected-bfs.html" rel="alternate"></link><updated>2017-02-27T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-02-27:unexpected-bfs.html</id><summary type="html">&lt;!-- Status: draft --&gt;
+
+&lt;p&gt;Tags: python, algorithms, hackerrank
+Author: Petr Tikilyaynen
+Summary: Uncovering the graph theory problem&lt;/p&gt;
+&lt;p&gt;This &lt;a href="https://www.hackerrank.com/challenges/candies"&gt;puzzle&lt;/a&gt; is in the DP section of HackerRank. With DP, you expect a recursive solution is expected, which is less memory efficient. Therefore, you should find a way to memoize/cache results of previous calculations to make it pass. &lt;/p&gt;
+&lt;h2&gt;Problem statement:&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;Given an array of students&amp;#39; grades (ints) in the same order as they sit. Return the minimal number of candies all students receive, such that:
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;out of 2 adjacent students, the one with a higher grade receives more candy&lt;/li&gt;
+&lt;li&gt;each student receives at least 1 piece of candy&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Plot twist&lt;/h3&gt;
+&lt;p&gt;Alternatively, you can look at the problem as a graph theory problem. &lt;/p&gt;
+&lt;p&gt;Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount - 1. Now start several breadth-first searches from each of the nodes without incoming edges (they will be the local start points). Visit node and increment the value at its index in the candies array. Differently to normal breadth-first search, you don't need to keep track of previously visited nodes and you can revisit them to increment the counter. In case you have a peak around a point 8 (index = 3) eg&lt;/p&gt;
+&lt;p&gt;grades
+1 2 4 8 6 5 3 2 1&lt;/p&gt;
+&lt;p&gt;candies (illegal) - if you don't revisit nodes to update counter. 
+1 2 3 4 5 4 3 2 1 &lt;/p&gt;
+&lt;p&gt;candies (solution)
+1 2 3 6 5 4 3 2 1&lt;/p&gt;
+&lt;h3&gt;Complexity&lt;/h3&gt;
+&lt;p&gt;The prepare_for_bfs method takes linear O(n) time and bfs takes maximum O(V + E)&lt;/p&gt;
+&lt;p&gt;The code is &lt;a href="https://github.com/petr-tik/misc/blob/master/candies.py"&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;If you see a problem in description or the code, please open issues, send PRs&lt;/p&gt;</summary></entry><entry><title>Getting clojure with Lisp</title><link href="/getting-clojure-with-lisp.html" rel="alternate"></link><updated>2016-02-20T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2016-02-20:getting-clojure-with-lisp.html</id><summary type="html">&lt;p&gt;I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.&lt;/p&gt;
 &lt;p&gt;It's definitely a great exercise and even if I will never get to write a single line of code in a functional language in my life, I will be more confident using map, filter and reduce in python. &lt;/p&gt;
 &lt;p&gt;Adopting the immutable data approach, makes me really concentrate on the quality and good compositionality of the functions, where I really think through how to make a series of pure functions, whose output will feed into the next one's input well. WHile REPL-based development is helpful to try defn functions on the fly to experiment, my python background is annoyed that I cannot just print the state of the programme at every step: 
 i) pure functions are stateless
