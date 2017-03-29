@@ -62,6 +62,80 @@
             <p>This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - <a href="https://github.com/petr-tik/emacs-config">my .emacs can be found</a></p>
 <div class="highlight"><pre>strace -C -o emacs_strace_output emacs
 </pre></div>
+
+
+<h2>Format</h2>
+<p>I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.</p>
+<h2>Top 10 by time</h2>
+<p>From the <code>man strace | grep -A 4 sort</code> page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and use small python scripts to recalculate other sorting factors (below).</p>
+<div class="highlight"><pre>% <span class="nb">time     </span>seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 27.05    0.000109           <span class="m">0</span>     <span class="m">18973</span>     <span class="m">17979</span> open
+ 23.33    0.000094           <span class="m">0</span>      <span class="m">5192</span>      <span class="m">3609</span> recvmsg
+ 15.88    0.000064           <span class="m">0</span>      <span class="m">2432</span>           munmap
+ 13.65    0.000055           <span class="m">0</span>      <span class="m">3179</span>           poll
+  8.44    0.000034           <span class="m">0</span>      <span class="m">3208</span>         <span class="m">1</span> <span class="nb">read</span>
+<span class="nb">  </span>6.45    0.000026           <span class="m">0</span>      <span class="m">1610</span>           writev
+  2.73    0.000011           <span class="m">0</span>      <span class="m">5127</span>           lseek
+  2.48    0.000010           <span class="m">0</span>      <span class="m">1005</span>           close
+  0.00    0.000000           <span class="m">0</span>        <span class="m">14</span>           write
+  0.00    0.000000           <span class="m">0</span>       <span class="m">605</span>       <span class="m">119</span> stat
+</pre></div>
+
+
+<h3>open</h3>
+<p>Syscall that usually takes a pointer to const array of chars for pathname and an int for flags. Flags carry information about access modes (read-only, write-only or read-n-write) and file status flags. </p>
+<p>Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order. </p>
+<p>Errors: </p>
+<h3>recvmsg</h3>
+<p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention)
+Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. </p>
+<p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. </p>
+<p>Errors:</p>
+<h3>munmap</h3>
+<p>Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. </p>
+<p>Input:
+    pointer of type void to address 
+    size_t length</p>
+<p>Returns:
+    0 if succesful
+    -1 on failure</p>
+<p>mmap - takes more parameters like flags and protection flags, which determine the access rights to those pages. </p>
+<h3>poll</h3>
+<p>Similar to select syscall, only newer. ppoll is newer still. Waits for one of a set of fds to come available for IO operations. </p>
+<p>Input:
+    pointer to struct of type pollfd - carries the filedescriptor int and requested events
+    nfds_t - number of file descriptors to watch
+    timeout - milliseconds the syscall can block while waiting for an fd to be ready. It can be interrupted by a signal hanlder. You can set an infinite timeout with a negative value.</p>
+<p>Returns:
+    if succesful - positive number of structurs with several returned event fields. 
+    0 if timed out and/or no fds became ready
+    -1 on error</p>
+<h3>read</h3>
+<p>Tries to read bytes from a given file descriptor into a buffer. </p>
+<p>Gotcha: if count &gt; SSIZE_MAX, the result is unspecified.</p>
+<p>Input:
+    file descriptor 
+    pointer to buf
+    count of type size_t </p>
+<p>Returns:
+    if successfully read - returns int number of read bytes, by which the file position is also advanced. The return value may be less than the count (bytes that were requested to read), if a signal interrupts the syscall or we reach EOF. 
+    on error, -1 is set to errno. Unspecified if the file position value changes. </p>
+<h3>writev</h3>
+<p>Writes given buffers of data to a given file descriptor. Similar to write, but sequentially goes through all the buffers. </p>
+<p>Returns:
+    number of bytes written.
+    -1 if error</p>
+<h3>lseek</h3>
+<p>Given a file descritpor, offset and whence parameters, reposition the offset on the file descriptor. It can move the offset beyond the file size. </p>
+<p>Returns: resulting offset location (in bytes) from the beginning of the file.</p>
+<h3>close</h3>
+<p>Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn't close the file. Prone to race conditions.</p>
+<h3>write</h3>
+<h3>stat</h3>
+<p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
+<h2>Top 10 by absolute number of calls</h2>
+<h2>Top 10 by percent errored</h2>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
