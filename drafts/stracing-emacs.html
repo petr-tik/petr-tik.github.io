@@ -59,7 +59,7 @@
                         </p>
                 </header>
             </section>
-            <p>This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - <a href="https://github.com/petr-tik/emacs-config">my .emacs can be found</a></p>
+            <p>This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - <a href="https://github.com/petr-tik/emacs-config">my .emacs can be found</a>. For each syscall I investigate and summarise errorcodes and their frequency.</p>
 <div class="highlight"><pre>strace -C -o emacs_strace_output emacs
 </pre></div>
 
@@ -132,8 +132,14 @@ Input is a socket file descriptor int, pointer to the struct of type msghdr and 
 <h3>close</h3>
 <p>Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn't close the file. Prone to race conditions.</p>
 <h3>write</h3>
+<p>writes to a given file descriptor.</p>
 <h3>stat</h3>
 <p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
+<h2>getting summaries</h2>
+<div class="highlight"><pre>grep open emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;{ print $5 }&#39;</span>
+</pre></div>
+
+
 <h2>Top 10 by absolute number of calls</h2>
 <h2>Top 10 by percent errored</h2>
             <a href="#" class="go-top">Go Top</a>
