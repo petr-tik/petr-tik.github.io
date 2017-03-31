@@ -87,6 +87,49 @@
 <p>Syscall that usually takes a pointer to const array of chars for pathname and an int for flags. Flags carry information about access modes (read-only, write-only or read-n-write) and file status flags. </p>
 <p>Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order. </p>
 <p>Errors: </p>
+<p>Used the magic of grep and awk to extract, count and summarise the number of times each return value (including errors) occured.</p>
+<div class="highlight"><pre>grep <span class="s2">&quot;open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+</pre></div>
+
+
+<p><code>grep "open(" emacs_strace_output</code></p>
+<p>Should be obvious. Returns the lines with open syscall trace. "open(" guarantees </p>
+<div class="highlight"><pre>awk &#39;BEGIN { FS=&quot;)&quot;} { print $2 }&#39;
+</pre></div>
+
+
+<p>Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values.</p>
+<div class="highlight"><pre> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or <span class="nv">directory</span>
+ <span class="o">=</span> <span class="nv">8</span>
+ <span class="o">=</span> 8
+</pre></div>
+
+
+<p>so we use another awk to print the 2 column, which will be the return value. In the case of open, we only need that. Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts. </p>
+<div class="highlight"><pre>petr_tik@merluza:~/Coding/my-gh-page<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+count   ret_val
+  <span class="m">17979</span> -1
+    <span class="m">624</span> 7
+    <span class="m">131</span> 8
+     <span class="m">86</span> 3
+     <span class="m">83</span> 9
+     <span class="m">20</span> 6
+     <span class="m">15</span> 4
+     <span class="m">11</span> 11
+     <span class="m">10</span> 5
+      <span class="m">6</span> 10
+      <span class="m">5</span> 14
+      <span class="m">2</span> 12
+      <span class="m">1</span> 13
+</pre></div>
+
+
+<p>As seen in the overall summary, 17979 open syscalls returned the error value -1, which stands for ENOINT - no such file or directory. Judging by the greatest return value, not more than 14 file descriptors are assigned at once during the start-up process. 18973 - 17979 = 994 and there are 1005 succesful <code>close</code> syscalls, so 11 times an fd must have been closed and reused. </p>
+<p>Looking at each syscall starting with 7. </p>
+<div class="highlight"><pre>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\&quot;| &quot; } { print $2,$6 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot; 7&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $1}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+</pre></div>
+
+
 <h3>recvmsg</h3>
 <p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention)
 Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. </p>
