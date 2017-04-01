@@ -125,8 +125,37 @@ count   ret_val
 
 
 <p>As seen in the overall summary, 17979 open syscalls returned the error value -1, which stands for ENOINT - no such file or directory. Judging by the greatest return value, not more than 14 file descriptors are assigned at once during the start-up process. 18973 - 17979 = 994 and there are 1005 succesful <code>close</code> syscalls, so 11 times an fd must have been closed and reused. </p>
-<p>Looking at each syscall starting with 7. </p>
-<div class="highlight"><pre>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\&quot;| &quot; } { print $2,$6 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot; 7&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $1}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<p>Looking at each open syscall with return value 7. </p>
+<div class="highlight"><pre><span class="nv">$$$ </span>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\&quot;| &quot; } { print $2,$6 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot; 7&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $1 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+     <span class="m">23</span> /usr/share/icons/default/index.theme
+     <span class="m">12</span> /home/petr_tik/.emacs.d/elpa/dash-20161121.55/dash-autoloads.el
+      <span class="m">8</span> /home/petr_tik/.emacs.d/elpa/s-20140714.707/s-autoloads.el
+      <span class="m">6</span> /usr/share/emacs/24.5/lisp/emacs-lisp/cl-seq.elc
+      <span class="m">6</span> /home/petr_tik/.emacs.d/elpa/json-snatcher-20150511.2047/json-snatcher-autoloads.el
+      <span class="m">6</span> /home/petr_tik/.emacs.d/elpa/json-reformat-20160212.53/json-reformat-autoloads.el
+      ...
+      more filespaths
+</pre></div>
+
+
+<p>shows that several files are repeatedly opened on the same file descriptor. </p>
+<p>Looking at the usr/share/icons/default/index.theme</p>
+<div class="highlight"><pre>petr_tik@merluza:~/Coding/my-gh-page<span class="nv">$ </span>grep -n <span class="s2">&quot;usr/share/icons/default/index.theme&quot;</span> emacs_strace_output 
+1530:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
+3412:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 7
+3446:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 7
+    ...
+    more filespaths
+</pre></div>
+
+
+<p>we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, outof which we will need the last 20). </p>
+<div class="highlight"><pre><span class="nv">$$$ </span>head -n <span class="m">1549</span> emacs_strace_output <span class="p">|</span> tail -n -20 
+open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
+fstat<span class="o">(</span>6, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>32, ...<span class="o">})</span> <span class="o">=</span> 0
+mmap<span class="o">(</span>NULL, 4096, PROT_READ<span class="p">|</span>PROT_WRITE, MAP_PRIVATE<span class="p">|</span>MAP_ANONYMOUS, -1, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
+<span class="nb">read</span><span class="o">(</span>6, <span class="s2">&quot;[Icon Theme]\nInherits=DMZ-White\n&quot;</span>, 4096<span class="o">)</span> <span class="o">=</span> 32
+close<span class="o">(</span>6<span class="o">)</span>                                <span class="o">=</span> 0
 </pre></div>
 
 
