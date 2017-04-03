@@ -86,26 +86,27 @@
 <h3>open</h3>
 <p>Syscall that usually takes a pointer to const array of chars for pathname and an int for flags. Flags carry information about access modes (read-only, write-only or read-n-write) and file status flags. </p>
 <p>Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order. </p>
-<p>Errors: </p>
+<h4>Errors:</h4>
 <p>Used the magic of grep and awk to extract, count and summarise the number of times each return value (including errors) occured.</p>
-<div class="highlight"><pre>grep <span class="s2">&quot;open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 </pre></div>
 
 
 <p><code>grep "open(" emacs_strace_output</code></p>
-<p>Should be obvious. Returns the lines with open syscall trace. "open(" guarantees </p>
+<p>Should be obvious. Returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with open i.e. those syscalls</p>
 <div class="highlight"><pre>awk &#39;BEGIN { FS=&quot;)&quot;} { print $2 }&#39;
 </pre></div>
 
 
-<p>Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values.</p>
+<p>Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values, so we need another awk with a different FS (field separator) variable.</p>
 <div class="highlight"><pre> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or <span class="nv">directory</span>
  <span class="o">=</span> <span class="nv">8</span>
  <span class="o">=</span> 8
 </pre></div>
 
 
-<p>so we use another awk to print the 2 column, which will be the return value. In the case of open, we only need that. Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts. </p>
+<p>Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts. </p>
+<p>Below is the end bash one-liner and the resulting table.</p>
 <div class="highlight"><pre>petr_tik@merluza:~/Coding/my-gh-page<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 count   ret_val
   <span class="m">17979</span> -1
@@ -124,7 +125,7 @@ count   ret_val
 </pre></div>
 
 
-<p>As seen in the overall summary, 17979 open syscalls returned the error value -1, which stands for ENOINT - no such file or directory. Judging by the greatest return value, not more than 14 file descriptors are assigned at once during the start-up process. 18973 - 17979 = 994 and there are 1005 succesful <code>close</code> syscalls, so 11 times an fd must have been closed and reused. </p>
+<p>As seen in the summary, 17979 open syscalls returned the error value -1, which stands for ENOINT - no such file or directory. Judging by the greatest return value, not more than 14 files are open simultaneously during the start-up process. 18973 - 17979 = 994 and there are 1005 succesful <code>close</code> syscalls, so 11 times an fd must have been closed and reused. </p>
 <p>Looking at each open syscall with return value 7. </p>
 <div class="highlight"><pre><span class="nv">$$$ </span>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\&quot;| &quot; } { print $2,$6 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot; 7&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $1 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
      <span class="m">23</span> /usr/share/icons/default/index.theme
@@ -150,20 +151,60 @@ count   ret_val
 
 
 <p>we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, outof which we will need the last 20). </p>
-<div class="highlight"><pre><span class="nv">$$$ </span>head -n <span class="m">1549</span> emacs_strace_output <span class="p">|</span> tail -n -20 
+<div class="highlight"><pre><span class="nv">$$$ </span>head -n <span class="m">1535</span> emacs_strace_output <span class="p">|</span> tail -n 6
 open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
 fstat<span class="o">(</span>6, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>32, ...<span class="o">})</span> <span class="o">=</span> 0
 mmap<span class="o">(</span>NULL, 4096, PROT_READ<span class="p">|</span>PROT_WRITE, MAP_PRIVATE<span class="p">|</span>MAP_ANONYMOUS, -1, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
 <span class="nb">read</span><span class="o">(</span>6, <span class="s2">&quot;[Icon Theme]\nInherits=DMZ-White\n&quot;</span>, 4096<span class="o">)</span> <span class="o">=</span> 32
 close<span class="o">(</span>6<span class="o">)</span>                                <span class="o">=</span> 0
+munmap<span class="o">(</span>0x7f24722d7000, 4096<span class="o">)</span>            <span class="o">=</span> 0
 </pre></div>
 
 
+<p>after opening the file, emacs runs fstat on the given file descriptor. After that, 4096 bytes of memory is mapped.</p>
 <h3>recvmsg</h3>
 <p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention)
-Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. </p>
+Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
 <p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. </p>
-<p>Errors:</p>
+<h3>Errors:</h3>
+<div class="highlight"><pre><span class="nv">$$$ </span><span class="nb">echo</span> <span class="s2">&quot;freq    ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;) &quot;} { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39; { print $2 } &#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+freq    ret_val
+   <span class="m">3609</span> -1
+   <span class="m">1369</span> 32
+     <span class="m">97</span> 224
+     <span class="m">44</span> 48
+     <span class="m">17</span> 64
+     <span class="m">17</span> 40
+      <span class="m">8</span> 96
+      <span class="m">5</span> 36
+      <span class="m">4</span> 128
+      <span class="m">3</span> 4096
+      <span class="m">3</span> 1360
+      <span class="m">2</span> 76
+      <span class="m">2</span> 160
+      <span class="m">1</span> 896
+      <span class="m">1</span> 832
+      <span class="m">1</span> 56
+      <span class="m">1</span> 336
+      <span class="m">1</span> 3348
+      <span class="m">1</span> 3316
+      <span class="m">1</span> 268
+      <span class="m">1</span> 256
+      <span class="m">1</span> 208
+      <span class="m">1</span> 1948
+      <span class="m">1</span> 1236
+      <span class="m">1</span> 1188
+</pre></div>
+
+
+<p>The number of -1 matches the one 3609 in the summary table confirming that the bash oneliner was correct. The return value is usually the number of bytes read from the socket, which we can expect to be a power of 2. </p>
+<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq socket_descriptor&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot;= -1&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\\(+|,+&quot; } { print $2 }&#39;</span> <span class="p">|</span> uniq -c
+   freq socket_descriptor
+   <span class="m">1583</span> 5
+</pre></div>
+
+
+<p>grep for all recvmsg syscalls, which don't return a -1 error value. NB "\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). </p>
 <h3>munmap</h3>
 <p>Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. </p>
 <p>Input:
