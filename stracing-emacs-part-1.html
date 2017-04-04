@@ -335,7 +335,18 @@ close<span class="o">(</span>4<span class="o">)</span>                          
 <h3>stat</h3>
 <p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
 <h4>Errors</h4>
-<p>None</p>
+<p>Confirming that the bash one-liner catches all the errors.</p>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^stat(.* = -1&quot;</span> emacs_strace_output <span class="p">|</span> wc -l
+119
+</pre></div>
+
+
+<p>Now print the list of pathnames that return errors and the ret_values.</p>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^stat(.* = -&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;\\\\(\&quot;|\&quot;,| =| &quot;</span> <span class="s1">&#39; { print $2, $6 }&#39;</span> <span class="p">|</span> sort
+</pre></div>
+
+
+<p>Most errors have the value of -1, which according to error section in the <code>man 2 stat</code> is ENOENT A  component  of  pathname  does  not exist, or pathname is an empty string.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
