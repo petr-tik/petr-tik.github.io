@@ -83,7 +83,7 @@
 </pre></div>
 
 
-<h3>open</h3>
+<h2>open</h2>
 <p>Syscall that usually takes a pointer to const array of chars for pathname and an int for flags. Flags carry information about access modes (read-only, write-only or read-n-write) and file status flags. </p>
 <p>Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order. </p>
 <h4>Errors:</h4>
@@ -159,7 +159,7 @@ munmap<span class="o">(</span>0x7f24722d7000, 4096<span class="o">)</span>      
 
 
 <p>after opening the file, emacs runs fstat on the given file descriptor. After that, 4096 bytes of memory is mapped.</p>
-<h3>recvmsg</h3>
+<h2>recvmsg</h2>
 <p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention).</p>
 <p>Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
 <p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. </p>
@@ -202,7 +202,7 @@ freq    ret_val
 
 
 <p>grep for all recvmsg syscalls, which don't return a -1 error value. NB "\\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.</p>
-<h3>munmap</h3>
+<h2>munmap</h2>
 <p>Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. </p>
 <p>Input:
     pointer of type void to address 
@@ -225,7 +225,6 @@ freq    ret_val
 <li>count each uniq value and return a table of counts</li>
 <li>sort the table in descending order</li>
 </ol>
-<h4></h4>
 <div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq  size_t&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
    freq  size_t
    <span class="m">2067</span>  69632
@@ -269,7 +268,7 @@ close<span class="o">(</span>4<span class="o">)</span>                          
 </pre></div>
 
 
-<h3>poll</h3>
+<h2>poll</h2>
 <p>Similar to select syscall, only newer. ppoll is newer still. Waits for one of a set of fds to come available for IO operations. </p>
 <p>Input:
     pointer to struct of type pollfd - carries the filedescriptor int and requested events
@@ -287,7 +286,7 @@ close<span class="o">(</span>4<span class="o">)</span>                          
 
 
 <p>61 poll calls timed out. </p>
-<h3>read</h3>
+<h2>read</h2>
 <p>Tries to read bytes from a given file descriptor into a buffer. </p>
 <p>Gotcha: if count &gt; SSIZE_MAX, the result is unspecified.</p>
 <p>Input:
@@ -304,7 +303,7 @@ close<span class="o">(</span>4<span class="o">)</span>                          
 </pre></div>
 
 
-<h3>writev</h3>
+<h2>writev</h2>
 <p>Writes given buffers of data to a given file descriptor. Similar to write, but sequentially goes through all the buffers. </p>
 <p>Returns:
     number of bytes written.
@@ -318,20 +317,20 @@ close<span class="o">(</span>4<span class="o">)</span>                          
 <p>All writev syscalls take file descriptor 5. Is it a coincidence?</p>
 <h4>Errors</h4>
 <p>None</p>
-<h3>lseek</h3>
+<h2>lseek</h2>
 <p>Given a file descritpor, offset and whence parameters, reposition the offset on the file descriptor. It can move the offset beyond the file size. </p>
 <p>Returns: resulting offset location (in bytes) from the beginning of the file.</p>
 <h4>Errors</h4>
 <p>None</p>
-<h3>close</h3>
+<h2>close</h2>
 <p>Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn't close the file. Prone to race conditions.</p>
 <h4>Errors</h4>
 <p>None</p>
-<h3>write</h3>
+<h2>write</h2>
 <p>writes to a given file descriptor.</p>
 <h4>Errors</h4>
 <p>None</p>
-<h3>stat</h3>
+<h2>stat</h2>
 <p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
 <h4>Errors</h4>
 <p>Confirming that the bash one-liner catches all the errors.</p>

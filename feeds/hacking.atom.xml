@@ -23,7 +23,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h3&gt;open&lt;/h3&gt;
+&lt;h2&gt;open&lt;/h2&gt;
 &lt;p&gt;Syscall that usually takes a pointer to const array of chars for pathname and an int for flags. Flags carry information about access modes (read-only, write-only or read-n-write) and file status flags. &lt;/p&gt;
 &lt;p&gt;Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order. &lt;/p&gt;
 &lt;h4&gt;Errors:&lt;/h4&gt;
@@ -99,7 +99,7 @@ munmap&lt;span class="o"&gt;(&lt;/span&gt;0x7f24722d7000, 4096&lt;span class="o"
 
 
 &lt;p&gt;after opening the file, emacs runs fstat on the given file descriptor. After that, 4096 bytes of memory is mapped.&lt;/p&gt;
-&lt;h3&gt;recvmsg&lt;/h3&gt;
+&lt;h2&gt;recvmsg&lt;/h2&gt;
 &lt;p&gt;syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention).&lt;/p&gt;
 &lt;p&gt;Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &amp;gt;3000 error returns, which are investigated below.&lt;/p&gt;
 &lt;p&gt;recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. &lt;/p&gt;
@@ -142,7 +142,7 @@ freq    ret_val
 
 
 &lt;p&gt;grep for all recvmsg syscalls, which don't return a -1 error value. NB "\\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.&lt;/p&gt;
-&lt;h3&gt;munmap&lt;/h3&gt;
+&lt;h2&gt;munmap&lt;/h2&gt;
 &lt;p&gt;Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. &lt;/p&gt;
 &lt;p&gt;Input:
     pointer of type void to address 
@@ -165,7 +165,6 @@ freq    ret_val
 &lt;li&gt;count each uniq value and return a table of counts&lt;/li&gt;
 &lt;li&gt;sort the table in descending order&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h4&gt;&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;   freq  size_t&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;^munmap(&amp;quot;&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s2"&gt;&amp;quot;,|\\\\)&amp;quot;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{ print $2 }&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; sort &lt;span class="p"&gt;|&lt;/span&gt; uniq -c &lt;span class="p"&gt;|&lt;/span&gt; sort -nr
    freq  size_t
    &lt;span class="m"&gt;2067&lt;/span&gt;  69632
@@ -209,7 +208,7 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h3&gt;poll&lt;/h3&gt;
+&lt;h2&gt;poll&lt;/h2&gt;
 &lt;p&gt;Similar to select syscall, only newer. ppoll is newer still. Waits for one of a set of fds to come available for IO operations. &lt;/p&gt;
 &lt;p&gt;Input:
     pointer to struct of type pollfd - carries the filedescriptor int and requested events
@@ -227,7 +226,7 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
 
 
 &lt;p&gt;61 poll calls timed out. &lt;/p&gt;
-&lt;h3&gt;read&lt;/h3&gt;
+&lt;h2&gt;read&lt;/h2&gt;
 &lt;p&gt;Tries to read bytes from a given file descriptor into a buffer. &lt;/p&gt;
 &lt;p&gt;Gotcha: if count &amp;gt; SSIZE_MAX, the result is unspecified.&lt;/p&gt;
 &lt;p&gt;Input:
@@ -244,7 +243,7 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h3&gt;writev&lt;/h3&gt;
+&lt;h2&gt;writev&lt;/h2&gt;
 &lt;p&gt;Writes given buffers of data to a given file descriptor. Similar to write, but sequentially goes through all the buffers. &lt;/p&gt;
 &lt;p&gt;Returns:
     number of bytes written.
@@ -258,20 +257,20 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
 &lt;p&gt;All writev syscalls take file descriptor 5. Is it a coincidence?&lt;/p&gt;
 &lt;h4&gt;Errors&lt;/h4&gt;
 &lt;p&gt;None&lt;/p&gt;
-&lt;h3&gt;lseek&lt;/h3&gt;
+&lt;h2&gt;lseek&lt;/h2&gt;
 &lt;p&gt;Given a file descritpor, offset and whence parameters, reposition the offset on the file descriptor. It can move the offset beyond the file size. &lt;/p&gt;
 &lt;p&gt;Returns: resulting offset location (in bytes) from the beginning of the file.&lt;/p&gt;
 &lt;h4&gt;Errors&lt;/h4&gt;
 &lt;p&gt;None&lt;/p&gt;
-&lt;h3&gt;close&lt;/h3&gt;
+&lt;h2&gt;close&lt;/h2&gt;
 &lt;p&gt;Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn't close the file. Prone to race conditions.&lt;/p&gt;
 &lt;h4&gt;Errors&lt;/h4&gt;
 &lt;p&gt;None&lt;/p&gt;
-&lt;h3&gt;write&lt;/h3&gt;
+&lt;h2&gt;write&lt;/h2&gt;
 &lt;p&gt;writes to a given file descriptor.&lt;/p&gt;
 &lt;h4&gt;Errors&lt;/h4&gt;
 &lt;p&gt;None&lt;/p&gt;
-&lt;h3&gt;stat&lt;/h3&gt;
+&lt;h2&gt;stat&lt;/h2&gt;
 &lt;p&gt;Like the terminal stat command, returns the status of a file at a given pathname.&lt;/p&gt;
 &lt;h4&gt;Errors&lt;/h4&gt;
 &lt;p&gt;Confirming that the bash one-liner catches all the errors.&lt;/p&gt;
