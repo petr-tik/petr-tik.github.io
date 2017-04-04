@@ -7,7 +7,7 @@
 
         <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
 
-        <title>Stracing emacs // My blog // </title>
+        <title>Stracing emacs. Part 1 // My blog // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -51,7 +51,7 @@
         <div class="content">
             <section class="post">
                 <header class="post-header">
-                    <h1>Stracing emacs</h1>
+                    <h1>Stracing emacs. Part 1</h1>
                         <p class="post-meta">
                             // under                                 <a class="post-category" href="/tag/linux.html">linux</a>
                                 <a class="post-category" href="/tag/tracing.html">tracing</a>
@@ -107,7 +107,7 @@
 
 <p>Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts. </p>
 <p>Below is the end bash one-liner and the resulting table.</p>
-<div class="highlight"><pre>petr_tik@merluza:~/Coding/my-gh-page<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 count   ret_val
   <span class="m">17979</span> -1
     <span class="m">624</span> 7
@@ -141,7 +141,7 @@ count   ret_val
 
 <p>shows that several files are repeatedly opened on the same file descriptor. </p>
 <p>Looking at the usr/share/icons/default/index.theme</p>
-<div class="highlight"><pre>petr_tik@merluza:~/Coding/my-gh-page<span class="nv">$ </span>grep -n <span class="s2">&quot;usr/share/icons/default/index.theme&quot;</span> emacs_strace_output 
+<div class="highlight"><pre><span class="nv">$$$$</span> grep -n <span class="s2">&quot;usr/share/icons/default/index.theme&quot;</span> emacs_strace_output 
 1530:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
 3412:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 7
 3446:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 7
@@ -166,7 +166,7 @@ munmap<span class="o">(</span>0x7f24722d7000, 4096<span class="o">)</span>      
 <p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention)
 Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
 <p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. </p>
-<h3>Errors:</h3>
+<h4>Errors:</h4>
 <div class="highlight"><pre><span class="nv">$$$ </span><span class="nb">echo</span> <span class="s2">&quot;freq    ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;) &quot;} { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39; { print $2 } &#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 freq    ret_val
    <span class="m">3609</span> -1
@@ -198,13 +198,13 @@ freq    ret_val
 
 
 <p>The number of -1 matches the one 3609 in the summary table confirming that the bash oneliner was correct. The return value is usually the number of bytes read from the socket, which we can expect to be a power of 2. </p>
-<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq socket_descriptor&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot;= -1&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\\(+|,+&quot; } { print $2 }&#39;</span> <span class="p">|</span> uniq -c
+<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq socket_descriptor&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot;= -1&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\\\\(+|,+&quot; } { print $2 }&#39;</span> <span class="p">|</span> uniq -c
    freq socket_descriptor
    <span class="m">1583</span> 5
 </pre></div>
 
 
-<p>grep for all recvmsg syscalls, which don't return a -1 error value. NB "\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). </p>
+<p>grep for all recvmsg syscalls, which don't return a -1 error value. NB "\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.</p>
 <h3>munmap</h3>
 <p>Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. </p>
 <p>Input:
@@ -214,6 +214,63 @@ freq    ret_val
     0 if succesful
     -1 on failure</p>
 <p>mmap - takes more parameters like flags and protection flags, which determine the access rights to those pages. </p>
+<p>Examining output. No errors, just invocation patterns. </p>
+<h5>bash command</h5>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+</pre></div>
+
+
+<ol>
+<li>grep for munmap at the beginning of the line - as before</li>
+<li>awk with 2 field separators comma "," and closing bracket ")"</li>
+<li>print the second column, which will be the size_t var for length of region to unmap. </li>
+<li>sort all occurences of each size_t</li>
+<li>count each uniq value and return a table of counts</li>
+<li>sort the table in descending order</li>
+</ol>
+<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq  size_t&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+   freq  size_t
+   <span class="m">2067</span>  69632
+    <span class="m">265</span>  4096
+     <span class="m">84</span>  790528
+      <span class="m">5</span>  117548
+      <span class="m">2</span>  565248
+      <span class="m">2</span>  245760
+      <span class="m">2</span>  2339
+      <span class="m">1</span>  99000
+      <span class="m">1</span>  606208
+      <span class="m">1</span>  475136
+      <span class="m">1</span>  424408
+      <span class="m">1</span>  122880
+</pre></div>
+
+
+<p>Funny values of size_t. I found 2339 an interesting value for size_t and deciding to dig into it. </p>
+<div class="highlight"><pre>grep -n <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> grep <span class="s2">&quot;, 2339&quot;</span>
+1016:munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
+1023:munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
+</pre></div>
+
+
+<p>returns the matched lines with the line number from the original strace_file. So I made a head and tail pipe, which opens the relevant region of the strace output. <a href="https://www.youtube.com/watch?v=Zk5Il6KQrd8">oh that's a bingo!</a> - it happens to be the region, when /etc/passwd was opened. </p>
+<div class="highlight"><pre><span class="nv">$$$$</span> head -n <span class="m">1024</span> emacs_strace_output <span class="p">|</span> tail -n 14
+open<span class="o">(</span><span class="s2">&quot;/etc/passwd&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> 4
+lseek<span class="o">(</span>4, 0, SEEK_CUR<span class="o">)</span>                   <span class="o">=</span> 0
+fstat<span class="o">(</span>4, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>2339, ...<span class="o">})</span> <span class="o">=</span> 0
+mmap<span class="o">(</span>NULL, 2339, PROT_READ, MAP_SHARED, 4, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
+lseek<span class="o">(</span>4, 2339, SEEK_SET<span class="o">)</span>                <span class="o">=</span> 2339
+munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
+close<span class="o">(</span>4<span class="o">)</span>                                <span class="o">=</span> 0
+open<span class="o">(</span><span class="s2">&quot;/etc/passwd&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> 4
+lseek<span class="o">(</span>4, 0, SEEK_CUR<span class="o">)</span>                   <span class="o">=</span> 0
+fstat<span class="o">(</span>4, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>2339, ...<span class="o">})</span> <span class="o">=</span> 0
+mmap<span class="o">(</span>NULL, 2339, PROT_READ, MAP_SHARED, 4, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
+lseek<span class="o">(</span>4, 2339, SEEK_SET<span class="o">)</span>                <span class="o">=</span> 2339
+munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
+close<span class="o">(</span>4<span class="o">)</span>                                <span class="o">=</span> 0
+</pre></div>
+
+
 <h3>poll</h3>
 <p>Similar to select syscall, only newer. ppoll is newer still. Waits for one of a set of fds to come available for IO operations. </p>
 <p>Input:
@@ -221,9 +278,16 @@ freq    ret_val
     nfds_t - number of file descriptors to watch
     timeout - milliseconds the syscall can block while waiting for an fd to be ready. It can be interrupted by a signal hanlder. You can set an infinite timeout with a negative value.</p>
 <p>Returns:
-    if succesful - positive number of structurs with several returned event fields. 
+    if succesful - positive number of structures with several returned event fields. 
     0 if timed out and/or no fds became ready
     -1 on error</p>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^poll(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot; =&quot;</span> <span class="s1">&#39; { print $2 }&#39;</span> <span class="p">|</span> awk -F<span class="s2">&quot; |=|,&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
+     <span class="m">61</span> 0
+   <span class="m">3118</span> 1
+</pre></div>
+
+
+<p>61 poll calls timed out. </p>
 <h3>read</h3>
 <p>Tries to read bytes from a given file descriptor into a buffer. </p>
 <p>Gotcha: if count &gt; SSIZE_MAX, the result is unspecified.</p>
@@ -234,27 +298,44 @@ freq    ret_val
 <p>Returns:
     if successfully read - returns int number of read bytes, by which the file position is also advanced. The return value may be less than the count (bytes that were requested to read), if a signal interrupts the syscall or we reach EOF. 
     on error, -1 is set to errno. Unspecified if the file position value changes. </p>
+<p>The only error happens when we try to read from the paredit.elc file descriptor.</p>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep -n <span class="s2">&quot;^open(.* = 7\|^read(.* = -1&quot;</span> emacs_strace_output <span class="p">|</span> tail -n 2
+50481:open<span class="o">(</span><span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/paredit-20140128.1248/paredit.elc&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> 7
+51237:read<span class="o">(</span>7, 0x7fffe3761b80, 16<span class="o">)</span>             <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</pre></div>
+
+
 <h3>writev</h3>
 <p>Writes given buffers of data to a given file descriptor. Similar to write, but sequentially goes through all the buffers. </p>
 <p>Returns:
     number of bytes written.
     -1 if error</p>
-<h3>lseek</h3>
-<p>Given a file descritpor, offset and whence parameters, reposition the offset on the file descriptor. It can move the offset beyond the file size. </p>
-<p>Returns: resulting offset location (in bytes) from the beginning of the file.</p>
-<h3>close</h3>
-<p>Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn't close the file. Prone to race conditions.</p>
-<h3>write</h3>
-<p>writes to a given file descriptor.</p>
-<h3>stat</h3>
-<p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
-<h2>getting summaries</h2>
-<div class="highlight"><pre>grep open emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;{ print $5 }&#39;</span>
+<h4>Inspecting</h4>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^writev(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;\\\\(|,&quot;</span> <span class="s1">&#39; {print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
+   <span class="m">1610</span> 5
 </pre></div>
 
 
-<h2>Top 10 by absolute number of calls</h2>
-<h2>Top 10 by percent errored</h2>
+<p>All writev syscalls take file descriptor 5. Is it a coincidence?</p>
+<h4>Errors</h4>
+<p>None</p>
+<h3>lseek</h3>
+<p>Given a file descritpor, offset and whence parameters, reposition the offset on the file descriptor. It can move the offset beyond the file size. </p>
+<p>Returns: resulting offset location (in bytes) from the beginning of the file.</p>
+<h4>Errors</h4>
+<p>None</p>
+<h3>close</h3>
+<p>Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn't close the file. Prone to race conditions.</p>
+<h4>Errors</h4>
+<p>None</p>
+<h3>write</h3>
+<p>writes to a given file descriptor.</p>
+<h4>Errors</h4>
+<p>None</p>
+<h3>stat</h3>
+<p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
+<h4>Errors</h4>
+<p>None</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
