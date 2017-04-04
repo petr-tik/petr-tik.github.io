@@ -92,13 +92,9 @@
 </pre></div>
 
 
-<ol>
-<li><code>grep "open(" emacs_strace_output</code></li>
-</ol>
+<p><code>grep "open(" emacs_strace_output</code></p>
 <p>Should be obvious. Returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with open i.e. those syscalls</p>
-<ol>
-<li><code>awk 'BEGIN { FS=")"} { print $2 }'</code></li>
-</ol>
+<p><code>awk 'BEGIN { FS=")"} { print $2 }'</code></p>
 <p>Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values, so we need another awk with a different FS (field separator) variable.</p>
 <div class="highlight"><pre> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or <span class="nv">directory</span>
  <span class="o">=</span> <span class="nv">8</span>
