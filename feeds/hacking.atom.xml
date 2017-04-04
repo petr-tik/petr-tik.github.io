@@ -8,7 +8,8 @@
 &lt;p&gt;I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.&lt;/p&gt;
 &lt;h2&gt;Top 10 by time&lt;/h2&gt;
 &lt;p&gt;From the &lt;code&gt;man strace | grep -A 4 sort&lt;/code&gt; page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and awk magic.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;% &lt;span class="nb"&gt;time     &lt;/span&gt;seconds  usecs/call     calls    errors syscall
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; tail -n &lt;span class="m"&gt;69&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; head -n 12
+% &lt;span class="nb"&gt;time     &lt;/span&gt;seconds  usecs/call     calls    errors syscall
 ------ ----------- ----------- --------- --------- ----------------
  27.05    0.000109           &lt;span class="m"&gt;0&lt;/span&gt;     &lt;span class="m"&gt;18973&lt;/span&gt;     &lt;span class="m"&gt;17979&lt;/span&gt; open
  23.33    0.000094           &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;5192&lt;/span&gt;      &lt;span class="m"&gt;3609&lt;/span&gt; recvmsg

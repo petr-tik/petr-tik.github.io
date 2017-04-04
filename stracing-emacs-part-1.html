@@ -68,7 +68,8 @@
 <p>I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.</p>
 <h2>Top 10 by time</h2>
 <p>From the <code>man strace | grep -A 4 sort</code> page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and awk magic.</p>
-<div class="highlight"><pre>% <span class="nb">time     </span>seconds  usecs/call     calls    errors syscall
+<div class="highlight"><pre><span class="nv">$$$$</span> tail -n <span class="m">69</span> emacs_strace_output <span class="p">|</span> head -n 12
+% <span class="nb">time     </span>seconds  usecs/call     calls    errors syscall
 ------ ----------- ----------- --------- --------- ----------------
  27.05    0.000109           <span class="m">0</span>     <span class="m">18973</span>     <span class="m">17979</span> open
  23.33    0.000094           <span class="m">0</span>      <span class="m">5192</span>      <span class="m">3609</span> recvmsg

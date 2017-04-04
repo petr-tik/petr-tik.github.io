@@ -59,7 +59,22 @@
                         </p>
                 </header>
             </section>
-            <h2>Top 10 by percent errored</h2>
+            <h2>Top 10 by errors</h2>
+<div class="highlight"><pre><span class="nv">$$$$</span> tail -n <span class="m">67</span> emacs_strace_output <span class="p">|</span> head -n <span class="m">65</span> <span class="p">|</span> awk -F<span class="s2">&quot; &quot;</span> <span class="s1">&#39; { print $5, $6 }&#39;</span> <span class="p">|</span> sort -nrk1 <span class="p">|</span> grep ^<span class="o">[</span>0-9<span class="o">]</span>
+<span class="m">17979</span> open
+<span class="m">3609</span> recvmsg
+<span class="m">1446</span> faccessat
+<span class="m">1143</span> readlinkat
+<span class="m">119</span> stat
+<span class="m">117</span> access
+<span class="m">4</span> connect
+<span class="m">2</span> statfs
+<span class="m">2</span> rt_sigreturn
+<span class="m">2</span> recvfrom
+<span class="m">2</span> getxattr
+<span class="m">1</span> wait4
+<span class="m">1</span> <span class="nb">read</span>
+</pre></div>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
