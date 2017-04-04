@@ -67,7 +67,7 @@
 <h2>Format</h2>
 <p>I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.</p>
 <h2>Top 10 by time</h2>
-<p>From the <code>man strace | grep -A 4 sort</code> page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and use small python scripts to recalculate other sorting factors (below).</p>
+<p>From the <code>man strace | grep -A 4 sort</code> page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and awk magic.</p>
 <div class="highlight"><pre>% <span class="nb">time     </span>seconds  usecs/call     calls    errors syscall
 ------ ----------- ----------- --------- --------- ----------------
  27.05    0.000109           <span class="m">0</span>     <span class="m">18973</span>     <span class="m">17979</span> open
@@ -92,12 +92,13 @@
 </pre></div>
 
 
-<p><code>grep "open(" emacs_strace_output</code></p>
+<ol>
+<li><code>grep "open(" emacs_strace_output</code></li>
+</ol>
 <p>Should be obvious. Returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with open i.e. those syscalls</p>
-<div class="highlight"><pre>awk &#39;BEGIN { FS=&quot;)&quot;} { print $2 }&#39;
-</pre></div>
-
-
+<ol>
+<li><code>awk 'BEGIN { FS=")"} { print $2 }'</code></li>
+</ol>
 <p>Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values, so we need another awk with a different FS (field separator) variable.</p>
 <div class="highlight"><pre> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or <span class="nv">directory</span>
  <span class="o">=</span> <span class="nv">8</span>

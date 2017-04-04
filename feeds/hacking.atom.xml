@@ -7,7 +7,7 @@
 &lt;h2&gt;Format&lt;/h2&gt;
 &lt;p&gt;I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.&lt;/p&gt;
 &lt;h2&gt;Top 10 by time&lt;/h2&gt;
-&lt;p&gt;From the &lt;code&gt;man strace | grep -A 4 sort&lt;/code&gt; page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and use small python scripts to recalculate other sorting factors (below).&lt;/p&gt;
+&lt;p&gt;From the &lt;code&gt;man strace | grep -A 4 sort&lt;/code&gt; page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and awk magic.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;% &lt;span class="nb"&gt;time     &lt;/span&gt;seconds  usecs/call     calls    errors syscall
 ------ ----------- ----------- --------- --------- ----------------
  27.05    0.000109           &lt;span class="m"&gt;0&lt;/span&gt;     &lt;span class="m"&gt;18973&lt;/span&gt;     &lt;span class="m"&gt;17979&lt;/span&gt; open
@@ -32,12 +32,13 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;code&gt;grep "open(" emacs_strace_output&lt;/code&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;grep "open(" emacs_strace_output&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;Should be obvious. Returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with open i.e. those syscalls&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;awk &amp;#39;BEGIN { FS=&amp;quot;)&amp;quot;} { print $2 }&amp;#39;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;awk 'BEGIN { FS=")"} { print $2 }'&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values, so we need another awk with a different FS (field separator) variable.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt; &lt;span class="o"&gt;=&lt;/span&gt; -1 ENOENT &lt;span class="o"&gt;(&lt;/span&gt;No such file or &lt;span class="nv"&gt;directory&lt;/span&gt;
  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nv"&gt;8&lt;/span&gt;
