@@ -90,7 +90,7 @@ count   ret_val
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, outof which we will need the last 20). &lt;/p&gt;
+&lt;p&gt;we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, out of which we will need the last 20). &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$ &lt;/span&gt;head -n &lt;span class="m"&gt;1535&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; tail -n 6
 open&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/usr/share/icons/default/index.theme&amp;quot;&lt;/span&gt;, O_RDONLY&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 6
 fstat&lt;span class="o"&gt;(&lt;/span&gt;6, &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;st_mode&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;S_IFREG&lt;span class="p"&gt;|&lt;/span&gt;0644, &lt;span class="nv"&gt;st_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;32, ...&lt;span class="o"&gt;})&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 0
@@ -103,8 +103,8 @@ munmap&lt;span class="o"&gt;(&lt;/span&gt;0x7f24722d7000, 4096&lt;span class="o"
 
 &lt;p&gt;after opening the file, emacs runs fstat on the given file descriptor. After that, 4096 bytes of memory is mapped.&lt;/p&gt;
 &lt;h3&gt;recvmsg&lt;/h3&gt;
-&lt;p&gt;syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention)
-Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &amp;gt;3000 error returns, which are investigated below.&lt;/p&gt;
+&lt;p&gt;syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention).&lt;/p&gt;
+&lt;p&gt;Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &amp;gt;3000 error returns, which are investigated below.&lt;/p&gt;
 &lt;p&gt;recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. &lt;/p&gt;
 &lt;h4&gt;Errors:&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$ &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;freq    ret_val&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;^recvmsg(&amp;quot;&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;BEGIN { FS=&amp;quot;) &amp;quot;} { print $2 }&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39; { print $2 } &amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; sort &lt;span class="p"&gt;|&lt;/span&gt; uniq -c &lt;span class="p"&gt;|&lt;/span&gt; sort -nr
@@ -144,7 +144,7 @@ freq    ret_val
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;grep for all recvmsg syscalls, which don't return a -1 error value. NB "\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.&lt;/p&gt;
+&lt;p&gt;grep for all recvmsg syscalls, which don't return a -1 error value. NB "\\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.&lt;/p&gt;
 &lt;h3&gt;munmap&lt;/h3&gt;
 &lt;p&gt;Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. &lt;/p&gt;
 &lt;p&gt;Input:
@@ -168,6 +168,7 @@ freq    ret_val
 &lt;li&gt;count each uniq value and return a table of counts&lt;/li&gt;
 &lt;li&gt;sort the table in descending order&lt;/li&gt;
 &lt;/ol&gt;
+&lt;h4&gt;&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;   freq  size_t&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;^munmap(&amp;quot;&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s2"&gt;&amp;quot;,|\\\\)&amp;quot;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{ print $2 }&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; sort &lt;span class="p"&gt;|&lt;/span&gt; uniq -c &lt;span class="p"&gt;|&lt;/span&gt; sort -nr
    freq  size_t
    &lt;span class="m"&gt;2067&lt;/span&gt;  69632
@@ -221,6 +222,7 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
     if succesful - positive number of structures with several returned event fields. 
     0 if timed out and/or no fds became ready
     -1 on error&lt;/p&gt;
+&lt;h4&gt;Inspecting&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;^poll(&amp;quot;&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s2"&gt;&amp;quot; =&amp;quot;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39; { print $2 }&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s2"&gt;&amp;quot; |=|,&amp;quot;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{ print $2 }&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; sort &lt;span class="p"&gt;|&lt;/span&gt; uniq -c
      &lt;span class="m"&gt;61&lt;/span&gt; 0
    &lt;span class="m"&gt;3118&lt;/span&gt; 1

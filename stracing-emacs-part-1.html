@@ -150,7 +150,7 @@ count   ret_val
 </pre></div>
 
 
-<p>we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, outof which we will need the last 20). </p>
+<p>we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, out of which we will need the last 20). </p>
 <div class="highlight"><pre><span class="nv">$$$ </span>head -n <span class="m">1535</span> emacs_strace_output <span class="p">|</span> tail -n 6
 open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
 fstat<span class="o">(</span>6, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>32, ...<span class="o">})</span> <span class="o">=</span> 0
@@ -163,8 +163,8 @@ munmap<span class="o">(</span>0x7f24722d7000, 4096<span class="o">)</span>      
 
 <p>after opening the file, emacs runs fstat on the given file descriptor. After that, 4096 bytes of memory is mapped.</p>
 <h3>recvmsg</h3>
-<p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention)
-Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
+<p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention).</p>
+<p>Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
 <p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. </p>
 <h4>Errors:</h4>
 <div class="highlight"><pre><span class="nv">$$$ </span><span class="nb">echo</span> <span class="s2">&quot;freq    ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;) &quot;} { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39; { print $2 } &#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
@@ -204,7 +204,7 @@ freq    ret_val
 </pre></div>
 
 
-<p>grep for all recvmsg syscalls, which don't return a -1 error value. NB "\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.</p>
+<p>grep for all recvmsg syscalls, which don't return a -1 error value. NB "\\(" escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn't give too much information.</p>
 <h3>munmap</h3>
 <p>Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn't unmap the region, which means for security you want to close fds and then unmap the region. </p>
 <p>Input:
@@ -228,6 +228,7 @@ freq    ret_val
 <li>count each uniq value and return a table of counts</li>
 <li>sort the table in descending order</li>
 </ol>
+<h4></h4>
 <div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq  size_t&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
    freq  size_t
    <span class="m">2067</span>  69632
@@ -281,6 +282,7 @@ close<span class="o">(</span>4<span class="o">)</span>                          
     if succesful - positive number of structures with several returned event fields. 
     0 if timed out and/or no fds became ready
     -1 on error</p>
+<h4>Inspecting</h4>
 <div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^poll(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot; =&quot;</span> <span class="s1">&#39; { print $2 }&#39;</span> <span class="p">|</span> awk -F<span class="s2">&quot; |=|,&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
      <span class="m">61</span> 0
    <span class="m">3118</span> 1
