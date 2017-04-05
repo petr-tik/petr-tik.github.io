@@ -59,7 +59,8 @@
                         </p>
                 </header>
             </section>
-            <p>This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - <a href="https://github.com/petr-tik/emacs-config">my .emacs can be found</a>. For each syscall I investigate and summarise errorcodes and their frequency.</p>
+            <p>This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - <a href="https://github.com/petr-tik/emacs-config">my .emacs can be found here</a>. For each syscall I investigate and summarise errorcodes and their frequency.</p>
+<p>Run this to start emacs, redirect the strace output to the file called emacs_strace_output and make a summary table in the end. </p>
 <div class="highlight"><pre>strace -C -o emacs_strace_output emacs
 </pre></div>
 

@@ -60,7 +60,8 @@
                 </header>
             </section>
             <h2>Top 10 by errors</h2>
-<div class="highlight"><pre><span class="nv">$$$$</span> tail -n <span class="m">67</span> emacs_strace_output <span class="p">|</span> head -n <span class="m">65</span> <span class="p">|</span> awk -F<span class="s2">&quot; &quot;</span> <span class="s1">&#39; { print $5, $6 }&#39;</span> <span class="p">|</span> sort -nrk1 <span class="p">|</span> grep ^<span class="o">[</span>0-9<span class="o">]</span>
+<p>I won't repeat the same syscalls I investigated in previous parts, just the new ones. </p>
+<div class="highlight"><pre><span class="nv">$$$$</span> tail -n <span class="m">67</span> emacs_strace_output <span class="p">|</span> head -n <span class="m">65</span> <span class="p">|</span> awk -F<span class="s2">&quot; &quot;</span> <span class="s1">&#39; { print $5, $6 }&#39;</span> <span class="p">|</span> grep ^<span class="o">[</span>0-9<span class="o">]</span> <span class="p">|</span> sort -nrk1
 <span class="m">17979</span> open
 <span class="m">3609</span> recvmsg
 <span class="m">1446</span> faccessat
@@ -75,6 +76,22 @@
 <span class="m">1</span> wait4
 <span class="m">1</span> <span class="nb">read</span>
 </pre></div>
+
+
+<ol>
+<li>Take the summary table from the bottom of the output file. </li>
+<li>Discard the bottom lines </li>
+<li>take the last 2 columns (split by whitespace), which should give us the number of errors and the syscall. If no errors are present, it will just output the syscall name</li>
+<li>Leave only the lines starting with a number i.e. those with a number of errors &gt; 0</li>
+<li>numerically sort (in reverse order) by the values in the first column </li>
+</ol>
+<h2>faccessat</h2>
+<div class="highlight"><pre>grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span>
+</pre></div>
+
+
+<h2>readlinkat</h2>
+<h2>access</h2>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
