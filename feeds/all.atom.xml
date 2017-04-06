@@ -355,7 +355,46 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
 &lt;h3&gt;Complexity&lt;/h3&gt;
 &lt;p&gt;The prepare_for_bfs method takes linear O(n) time and bfs takes maximum O(V + E)&lt;/p&gt;
 &lt;p&gt;The code is &lt;a href="https://github.com/petr-tik/misc/blob/master/candies.py"&gt;here&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;If you see a problem in description or the code, please open issues, send PRs&lt;/p&gt;</summary><category term="python"></category><category term="algorithms"></category><category term="hackerrank"></category></entry><entry><title>Getting clojure with Lisp</title><link href="/getting-clojure-with-lisp.html" rel="alternate"></link><updated>2016-02-20T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2016-02-20:getting-clojure-with-lisp.html</id><summary type="html">&lt;p&gt;I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.&lt;/p&gt;
+&lt;p&gt;If you see a problem in description or the code, please open issues, send PRs&lt;/p&gt;</summary><category term="python"></category><category term="algorithms"></category><category term="hackerrank"></category></entry><entry><title>Debugging hanging elpy on emacs</title><link href="/debugging-hanging-elpy-on-emacs.html" rel="alternate"></link><updated>2016-04-06T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2016-04-06:debugging-hanging-elpy-on-emacs.html</id><summary type="html">&lt;p&gt;I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input. I could still switch windows and work with another applications, but emacs hang up on me. &lt;/p&gt;
+&lt;p&gt;Having spent a couple of hours stracing, grepping and awking emacs start-up syscalls, I was in the mood to debug some more. &lt;/p&gt;
+&lt;p&gt;Attaching my shell to the pid of emacs (I usually only run 1 emacs instance, hence pgrep emacs). &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo strace -p &lt;span class="k"&gt;$(&lt;/span&gt;pgrep emacs&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Returns the same error messages repeated.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;pselect6&lt;span class="o"&gt;(&lt;/span&gt;14, &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;7&lt;/span&gt; 13&lt;span class="o"&gt;]&lt;/span&gt;, &lt;span class="o"&gt;[]&lt;/span&gt;, NULL, &lt;span class="o"&gt;{&lt;/span&gt;0, 19999519&lt;span class="o"&gt;}&lt;/span&gt;, &lt;span class="o"&gt;{&lt;/span&gt;NULL, 8&lt;span class="o"&gt;})&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;Timeout&lt;span class="o"&gt;)&lt;/span&gt;
+poll&lt;span class="o"&gt;([{&lt;/span&gt;&lt;span class="nv"&gt;fd&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;7, &lt;span class="nv"&gt;events&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;POLLIN&lt;span class="o"&gt;}]&lt;/span&gt;, 1, 0&lt;span class="o"&gt;)&lt;/span&gt;     &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;Timeout&lt;span class="o"&gt;)&lt;/span&gt;
+write&lt;span class="o"&gt;(&lt;/span&gt;12, &lt;span class="s2"&gt;&amp;quot;{\&amp;quot;id\&amp;quot;:91,\&amp;quot;method\&amp;quot;:\&amp;quot;get_calltip\&amp;quot;,&amp;quot;&lt;/span&gt;..., 616&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; -1 EAGAIN &lt;span class="o"&gt;(&lt;/span&gt;Resource temporarily unavailable&lt;span class="o"&gt;)&lt;/span&gt;
+pselect6&lt;span class="o"&gt;(&lt;/span&gt;14, &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;7&lt;/span&gt; 13&lt;span class="o"&gt;]&lt;/span&gt;, &lt;span class="o"&gt;[]&lt;/span&gt;, NULL, &lt;span class="o"&gt;{&lt;/span&gt;0, 19999519&lt;span class="o"&gt;}&lt;/span&gt;, &lt;span class="o"&gt;{&lt;/span&gt;NULL, 8&lt;span class="o"&gt;})&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;Timeout&lt;span class="o"&gt;)&lt;/span&gt;
+poll&lt;span class="o"&gt;([{&lt;/span&gt;&lt;span class="nv"&gt;fd&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;7, &lt;span class="nv"&gt;events&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;POLLIN&lt;span class="o"&gt;}]&lt;/span&gt;, 1, 0&lt;span class="o"&gt;)&lt;/span&gt;     &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;Timeout&lt;span class="o"&gt;)&lt;/span&gt;
+write&lt;span class="o"&gt;(&lt;/span&gt;12, &lt;span class="s2"&gt;&amp;quot;{\&amp;quot;id\&amp;quot;:91,\&amp;quot;method\&amp;quot;:\&amp;quot;get_calltip\&amp;quot;,&amp;quot;&lt;/span&gt;..., 616&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; -1 EAGAIN &lt;span class="o"&gt;(&lt;/span&gt;Resource temporarily unavailable&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Ad nauseum.&lt;/p&gt;
+&lt;p&gt;Using the combination of functional programming and bash magic, I nested one function call inside another to get the list of processes. &lt;code&gt;pgrep -P&lt;/code&gt; returns the PIDs of all child processes of a given PID. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; ps -o pid,pcpu,comm -p &lt;span class="k"&gt;$(&lt;/span&gt;pgrep -P &lt;span class="k"&gt;$(&lt;/span&gt;pgrep emacs&lt;span class="k"&gt;))&lt;/span&gt;
+  PID %CPU COMMAND
+&lt;span class="m"&gt;31513&lt;/span&gt;  97.4 python
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There is only 1 child process, but it's eating up all the CPU time and killing my battery - it drained 13% in 10 minutes that I was googling and stracing. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; &lt;span class="nb"&gt;kill&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;pgrep -P &lt;span class="k"&gt;$(&lt;/span&gt;pgrep emacs&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This made emacs responsive again, so I examined the emacs &lt;em&gt;Messages&lt;/em&gt; buffer&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;Wrote /home/petr_tik/Coding/misc/misc/dfs.py
+error in process sentinel: elpy-rpc--default-error-callback: peculiar error: &amp;quot;terminated&amp;quot;
+error in process sentinel: peculiar error: &amp;quot;terminated&amp;quot;
+eldoc error: (file-error Writing to process bad file descriptor  *elpy-rpc [project:~/Coding/misc/misc/ python:/usr/bin/python]*)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;a href="https://github.com/jorgenschaefer/elpy/issues/709"&gt;Here is a relevant GitHub issue&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Looks like it remains to be solved.&lt;/p&gt;</summary><category term="emacs"></category><category term="python"></category><category term="strace"></category></entry><entry><title>Getting clojure with Lisp</title><link href="/getting-clojure-with-lisp.html" rel="alternate"></link><updated>2016-02-20T10:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2016-02-20:getting-clojure-with-lisp.html</id><summary type="html">&lt;p&gt;I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.&lt;/p&gt;
 &lt;p&gt;It's definitely a great exercise and even if I will never get to write a single line of code in a functional language in my life, I will be more confident using map, filter and reduce in python. &lt;/p&gt;
 &lt;p&gt;Adopting the immutable data approach, makes me really concentrate on the quality and good compositionality of the functions, where I really think through how to make a series of pure functions, whose output will feed into the next one's input well. WHile REPL-based development is helpful to try defn functions on the fly to experiment, my python background is annoyed that I cannot just print the state of the programme at every step: 
 i) pure functions are stateless
