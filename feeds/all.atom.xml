@@ -38,8 +38,9 @@ eldoc error: (file-error Writing to process bad file descriptor  *elpy-rpc [proj
 
 
 &lt;p&gt;&lt;a href="https://github.com/jorgenschaefer/elpy/issues/709"&gt;Here is a relevant GitHub issue&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Looks like it remains to be solved.&lt;/p&gt;</summary><category term="emacs"></category><category term="python"></category><category term="strace"></category></entry><entry><title>Stracing emacs. Part 1</title><link href="/stracing-emacs-part-1.html" rel="alternate"></link><updated>2017-03-28T23:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-03-28:stracing-emacs-part-1.html</id><summary type="html">&lt;p&gt;This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - &lt;a href="https://github.com/petr-tik/emacs-config"&gt;my .emacs can be found here&lt;/a&gt;. For each syscall I investigate and summarise errorcodes and their frequency.&lt;/p&gt;
-&lt;p&gt;Run this to start emacs, redirect the strace output to the file called emacs_strace_output and make a summary table in the end. &lt;/p&gt;
+&lt;p&gt;Looks like it remains to be solved.&lt;/p&gt;</summary><category term="emacs"></category><category term="python"></category><category term="strace"></category></entry><entry><title>Stracing emacs. Part 1</title><link href="/stracing-emacs-part-1.html" rel="alternate"></link><updated>2017-03-28T23:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-03-28:stracing-emacs-part-1.html</id><summary type="html">&lt;p&gt;In this series of posts, I investigate and report Emacs start-up procedure and how to optimise it. Emacs is a beautiful OS with a built-in ELisp interpreter and some text editing capabilities. &lt;/p&gt;
+&lt;p&gt;I used strace by examining the start up of emacs. &lt;a href="https://github.com/petr-tik/emacs-config"&gt;My emacs config is different&lt;/a&gt; and will be compared to a vanilla emacs start-up. For each syscall I investigated and summarised return values, their frequency to find out how I can improve it. &lt;/p&gt;
+&lt;p&gt;I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;strace -C -o emacs_strace_output emacs
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -73,16 +74,16 @@ eldoc error: (file-error Writing to process bad file descriptor  *elpy-rpc [proj
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;code&gt;grep "open(" emacs_strace_output&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;Should be obvious. Returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with open i.e. those syscalls&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;grep "open(" emacs_strace_output&lt;/code&gt;- returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with "open"&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;awk 'BEGIN { FS=")"} { print $2 }'&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values, so we need another awk with a different FS (field separator) variable.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt; &lt;span class="o"&gt;=&lt;/span&gt; -1 ENOENT &lt;span class="o"&gt;(&lt;/span&gt;No such file or &lt;span class="nv"&gt;directory&lt;/span&gt;
- &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nv"&gt;8&lt;/span&gt;
- &lt;span class="o"&gt;=&lt;/span&gt; 8
+&lt;p&gt;Takes the lines and prints column 2 after the ")" separator, which comes at the end of the open syscall. Return values come in different formats&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt; -1 ENOENT &lt;span class="o"&gt;(&lt;/span&gt;No such file or directory&lt;span class="o"&gt;)&lt;/span&gt;
+ 8
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;p&gt;So we need another awk with a different FS (field separator) variable.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;awk '{ print $2}'&lt;/code&gt; - which uses the default field separator " " and prints the second column, which will be the return value.&lt;/p&gt;
 &lt;p&gt;Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so &lt;code&gt;uniq -c&lt;/code&gt; can summarise and return the count of each value followed by the value. &lt;code&gt;sort -nr&lt;/code&gt; sorts it by numeric value in descending order of counts. &lt;/p&gt;
 &lt;p&gt;Below is the end bash one-liner and the resulting table.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;count   ret_val&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;^open(&amp;quot;&lt;/span&gt; emacs_strace_output &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;BEGIN { FS=&amp;quot;)&amp;quot; } { print $2 }&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;{ print $2}&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; sort &lt;span class="p"&gt;|&lt;/span&gt; uniq -c &lt;span class="p"&gt;|&lt;/span&gt; sort -nr

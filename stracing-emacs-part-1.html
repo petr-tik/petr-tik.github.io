@@ -59,8 +59,9 @@
                         </p>
                 </header>
             </section>
-            <p>This post is about learning strace by examining the start up of emacs. I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table. Mine is not a vanilla version of emacs, which might make it different (TODO: compare vanilla emacs to mine) - <a href="https://github.com/petr-tik/emacs-config">my .emacs can be found here</a>. For each syscall I investigate and summarise errorcodes and their frequency.</p>
-<p>Run this to start emacs, redirect the strace output to the file called emacs_strace_output and make a summary table in the end. </p>
+            <p>In this series of posts, I investigate and report Emacs start-up procedure and how to optimise it. Emacs is a beautiful OS with a built-in ELisp interpreter and some text editing capabilities. </p>
+<p>I used strace by examining the start up of emacs. <a href="https://github.com/petr-tik/emacs-config">My emacs config is different</a> and will be compared to a vanilla emacs start-up. For each syscall I investigated and summarised return values, their frequency to find out how I can improve it. </p>
+<p>I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table.</p>
 <div class="highlight"><pre>strace -C -o emacs_strace_output emacs
 </pre></div>
 
@@ -94,16 +95,16 @@
 </pre></div>
 
 
-<p><code>grep "open(" emacs_strace_output</code></p>
-<p>Should be obvious. Returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with open i.e. those syscalls</p>
+<p><code>grep "open(" emacs_strace_output</code>- returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with "open"</p>
 <p><code>awk 'BEGIN { FS=")"} { print $2 }'</code></p>
-<p>Takes the lines and prints column 2 and onwards after the ")" separator, which comes at the end of the open syscall. This should be reusable. Output format is different between errors and normal return values, so we need another awk with a different FS (field separator) variable.</p>
-<div class="highlight"><pre> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or <span class="nv">directory</span>
- <span class="o">=</span> <span class="nv">8</span>
- <span class="o">=</span> 8
+<p>Takes the lines and prints column 2 after the ")" separator, which comes at the end of the open syscall. Return values come in different formats</p>
+<div class="highlight"><pre> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+ 8
 </pre></div>
 
 
+<p>So we need another awk with a different FS (field separator) variable.</p>
+<p><code>awk '{ print $2}'</code> - which uses the default field separator " " and prints the second column, which will be the return value.</p>
 <p>Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts. </p>
 <p>Below is the end bash one-liner and the resulting table.</p>
 <div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
