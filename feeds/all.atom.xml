@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2017-04-06T22:20:00+01:00</updated><entry><title>Debugging hanging elpy on emacs</title><link href="/debugging-hanging-elpy-on-emacs.html" rel="alternate"></link><updated>2017-04-06T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-04-06:debugging-hanging-elpy-on-emacs.html</id><summary type="html">&lt;p&gt;I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input. I could still switch windows and work with another applications, but emacs hang up on me. &lt;/p&gt;
-&lt;p&gt;Having spent a couple of hours stracing, grepping and awking emacs start-up syscalls, I was in the mood to debug some more. &lt;/p&gt;
+&lt;p&gt;Having spent a couple of hours stracing, &lt;a href="/stracing-emacs-part-1.html"&gt;grepping and awking emacs start-up syscalls&lt;/a&gt;, I was in the mood to debug some more. &lt;/p&gt;
 &lt;p&gt;Attaching my shell to the pid of emacs (I usually only run 1 emacs instance, hence pgrep emacs). &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;sudo strace -p &lt;span class="k"&gt;$(&lt;/span&gt;pgrep emacs&lt;span class="k"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
