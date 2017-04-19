@@ -6,7 +6,7 @@
   * a target int value.&lt;/p&gt;
 &lt;p&gt;Return True, if it's possible to combine all numbers in the array with operations to result in target value&lt;/p&gt;
 &lt;h2&gt;Brute force&lt;/h2&gt;
-&lt;p&gt;Generate all combinations of operations (4**5 = 1024) and calculate them&lt;/p&gt;
+&lt;p&gt;Generate all combinations of operations (4**5 = 1024) and calculate them. If any one of them gives the target_value, return True. Otherwise, return False at the end.&lt;/p&gt;
 &lt;h2&gt;First attempt&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;f&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;target&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;arr_index&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;results_so_far&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;results_so_far&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
@@ -349,7 +349,30 @@ close&lt;span class="o"&gt;(&lt;/span&gt;4&lt;span class="o"&gt;)&lt;/span&gt;  
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Most errors have the value of -1, which according to error section in the &lt;code&gt;man 2 stat&lt;/code&gt; is ENOENT A  component  of  pathname  does  not exist, or pathname is an empty string.&lt;/p&gt;</summary><category term="linux"></category><category term="tracing"></category><category term="emacs"></category></entry><entry><title>Notes on python's GC</title><link href="/notes-on-pythons-gc.html" rel="alternate"></link><updated>2017-03-07T23:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-03-07:notes-on-pythons-gc.html</id><summary type="html">&lt;p&gt;Notes on &lt;a href="https://www.youtube.com/watch?v=arxWaw-E8QQ"&gt;Memory Management in Python - YouTube&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Most errors have the value of -1, which according to error section in the &lt;code&gt;man 2 stat&lt;/code&gt; is ENOENT A  component  of  pathname  does  not exist, or pathname is an empty string.&lt;/p&gt;</summary><category term="linux"></category><category term="tracing"></category><category term="emacs"></category></entry><entry><title>Puzzles in C++</title><link href="/puzzles-in-c.html" rel="alternate"></link><updated>2017-03-21T19:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-03-21:puzzles-in-c.html</id><summary type="html">&lt;p&gt;Notes on working with C++, my understanding of the small set of syntax features and data structures available. Might read like obvious or wrong set of assumptions to an experienced C++ engineer. Will keep updating with newer puzzles. &lt;/p&gt;
+&lt;h2&gt;Namespaces&lt;/h2&gt;
+&lt;p&gt;Define the set of functions, which are used during method name resolution. @jbcoe suggested to avoid it, as it can get messy with several conflicting namespaces.&lt;/p&gt;
+&lt;p&gt;Adding this to the top of the file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="k"&gt;namespace&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;defines where method names will be looked up, which would save 5 chars&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;cout&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;instead of &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Data structures&lt;/h2&gt;
+&lt;p&gt;Used stringstream object, which inherits from input_ and output_ streams. &lt;/p&gt;
+&lt;h2&gt;Misc C++&lt;/h2&gt;
+&lt;p&gt;Using clang++, -std=c++11 with awesome features like auto for type inference in for-loops&lt;/p&gt;
+&lt;h2&gt;DNA counting puzzle&lt;/h2&gt;
+&lt;p&gt;Given a DNA string, return the counts of each char (A, C, G, T). Initial solution - make a map with char as key and count &lt;int&gt; as value. Considering that the structure won't need to grow and we know the full range of characters that can appear, we can optimise. Instead, use an array and an enum to index into the cell in the array. Each value is started at 0 and as we iterate over the string, the value at the relevant index is incremented. That way, we can guarantee using one L1 cache line (4 ints = 16 bytes) and a buffer for the string. For further optimisation, we can implement a streaming buffer, if we are sure the string will only be used once. &lt;/p&gt;</summary><category term="cpp"></category><category term="puzzles"></category><category term="algorithms"></category></entry><entry><title>Notes on python's GC</title><link href="/notes-on-pythons-gc.html" rel="alternate"></link><updated>2017-03-07T23:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-03-07:notes-on-pythons-gc.html</id><summary type="html">&lt;p&gt;Notes on &lt;a href="https://www.youtube.com/watch?v=arxWaw-E8QQ"&gt;Memory Management in Python - YouTube&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;GC is a mechanism for managing memory at runtime. There are several methods including: mark-and-sweep and reference counting. Different language runtimes use different GC mechanisms, each asking for tradeoffs. eg. Java uses mark-and-sweep, which runs less frequently, but the sweep stage 'stops the world' and tidies up. I will be discussing CPython implementation and call it python for brevity (saving a character is very important). There are JPython and IronPython, which rely on JVM and CLR GC mechanisms respectively.&lt;/p&gt;
 &lt;h2&gt;Mechanism&lt;/h2&gt;
 &lt;p&gt;CPython uses reference counting with an optimisation to eliminate cyclic references, hence slower runtime. Similarly to pointers in C, the variable name is created on the stack and the pointer on the heap. Each created object has a field for storing its reference count - the number of variables that refer to the object. As soon as the refcount falls to 0, the GC collects/tidies up the object.&lt;/p&gt;
