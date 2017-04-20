@@ -82,6 +82,12 @@
     <span class="n">max_global</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_global</span><span class="p">,</span> <span class="n">max_so_far</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">max_cont</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">max_so_far</span><span class="p">,</span> <span class="n">max_global</span><span class="p">)</span>
 </pre></div>
+
+
+<p>Dynamic programming is a technique of breaking a problem into subproblems and combining the solutions in each subproblem into a solution overall. Often dynamic programming problems have a recursive solution with a cache memoize answers to previously solved subproblems. </p>
+<p>In this case, when we consider a new element we have 2 choices - extend/grow the current subsequence or start a new subsequence from the current element. </p>
+<p><code>max_so_far</code> is the current subsequence
+<code>max_global</code> is the best so far. </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
