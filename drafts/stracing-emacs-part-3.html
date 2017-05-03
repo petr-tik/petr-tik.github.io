@@ -90,6 +90,26 @@
 </pre></div>
 
 
+<h3>Sys call</h3>
+<p>chec</p>
+<h3>Errors</h3>
+<p>Files that couldn't be accessed, because they don't exist. </p>
+<div class="highlight"><pre>faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/highlight-indentation-20161012.209.signed&quot;</span>, F_OK<span class="o">)</span> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/ido-ubiquitous-20140526.1306.signed&quot;</span>, F_OK<span class="o">)</span> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/irony-20170313.1437.signed&quot;</span>, F_OK<span class="o">)</span> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/ivy-20170202.223.signed&quot;</span>, F_OK<span class="o">)</span> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/json-mode-20160803.1606.signed&quot;</span>, F_OK<span class="o">)</span> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+.
+.
+.
+<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> grep -c <span class="s2">&quot;.signed&quot;</span>
+82
+<span class="nv">$$$$</span> tree ~/.emacs.d/elpa/ <span class="p">|</span> grep -c <span class="s2">&quot;.signed&quot;</span>
+6
+</pre></div>
+
+
+<p>82 .signed files couldn't be accessed and only 6 .signed files are in the directory (recursively checking). </p>
 <h2>readlinkat</h2>
 <h2>access</h2>
             <a href="#" class="go-top">Go Top</a>

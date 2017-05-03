@@ -85,9 +85,10 @@
 
 
 <p>Dynamic programming is a technique of breaking a problem into subproblems and combining the solutions in each subproblem into a solution overall. Often dynamic programming problems have a recursive solution with a cache memoize answers to previously solved subproblems. </p>
-<p>In this case, when we consider a new element we have 2 choices - extend/grow the current subsequence or start a new subsequence from the current element. </p>
+<p>In this case, when we consider a new element we have 2 choices - extend/grow the current subsequence or start a new subsequence from the current element. This is a greedy approach and requires no updating/reconsidering, if a new element is greater than the sum of current best subsequence with the new element, drop the baggage of the previous subsequence and start fresh. It might not be the best we've ever seen, hence the check to update max_global when appropriate. </p>
 <p><code>max_so_far</code> is the current subsequence
 <code>max_global</code> is the best so far. </p>
+<p>The greedy approach of selecting best subsequence fits the nicely to the recursive </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
