@@ -91,7 +91,11 @@
 
 
 <h3>Sys call</h3>
-<p>chec</p>
+<p>Checks if the user has permission to access the file.</p>
+<p>Input:
+  * int for directory file descriptor. The <code>AT_FDCWD</code> macro used to indicate current working directory. You can set another directory file descriptor and the pathname will be evaluated with respect to a different directory.
+  * pathname
+  * mode of access - F_OK checks for existence, R_OK, W_OK and X_OK for reading, writing and executing respectively.</p>
 <h3>Errors</h3>
 <p>Files that couldn't be accessed, because they don't exist. </p>
 <div class="highlight"><pre>faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/highlight-indentation-20161012.209.signed&quot;</span>, F_OK<span class="o">)</span> <span class="o">=</span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
@@ -106,10 +110,19 @@ faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik
 82
 <span class="nv">$$$$</span> tree ~/.emacs.d/elpa/ <span class="p">|</span> grep -c <span class="s2">&quot;.signed&quot;</span>
 6
+<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -c <span class="s2">&quot;W_OK&quot;</span>
+8
+<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> grep -c <span class="s2">&quot;W_OK&quot;</span>
+0
+<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> grep -c <span class="s2">&quot;R_OK&quot;</span>
+111
+<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> grep -c <span class="s2">&quot;X_OK&quot;</span>
+76
 </pre></div>
 
 
 <p>82 .signed files couldn't be accessed and only 6 .signed files are in the directory (recursively checking). </p>
+<p>No files failed to open when emacs checked, if it can write to them. </p>
 <h2>readlinkat</h2>
 <h2>access</h2>
             <a href="#" class="go-top">Go Top</a>
