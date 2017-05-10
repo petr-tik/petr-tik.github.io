@@ -112,7 +112,7 @@ faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik
 6
 <span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -c <span class="s2">&quot;W_OK&quot;</span>
 8
-<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> grep -c <span class="s2">&quot;W_OK&quot;</span>
+<span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -c <span class="s2">&quot;W_OK) = 0&quot;</span>
 0
 <span class="nv">$$$$</span> grep <span class="s2">&quot;^faccessat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> grep -c <span class="s2">&quot;R_OK&quot;</span>
 111
@@ -123,8 +123,22 @@ faccessat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_tik
 
 <p>111 files couldn't be read by emacs. </p>
 <p>82 .signed files couldn't be accessed and only 6 .signed files are in the directory (recursively checking). </p>
-<p>No files failed to open when emacs checked, if it can write to them. </p>
+<p>Write access:
+All 8 files emacs wants to write to can be accessed. </p>
+<p>Read access</p>
 <h2>readlinkat</h2>
+<h3>Sys call</h3>
+<p>Follows and rads a value from a symbolic link into a given buffer. Successful calls return the number of bytes written to buffer, errors return -1.</p>
+<h3>Errors</h3>
+<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^readlinkat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> awk -F <span class="s1">&#39;-1 | \\(&#39;</span> <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort -n <span class="p">|</span> uniq -c
+      <span class="m">5</span> 
+   <span class="m">1139</span> EINVAL
+      <span class="m">4</span> ENOENT
+</pre></div>
+
+
+<p>ENOENT - is when the given file doesn't exist. 
+EINVAL - either the bufsiz isn't positive or the given pathname isn't a symbolic link</p>
 <h2>access</h2>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
