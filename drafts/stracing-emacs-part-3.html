@@ -59,7 +59,9 @@
                         </p>
                 </header>
             </section>
-            <h2>Top 10 by errors</h2>
+            <h2>emacs syscalls</h2>
+<p>The emacs git repo has the source code for the .c files that define wrapper functions for the respective syscalls. This is done to account for different OSes providing different kernel specification. It might be helpful to look at the source code for the different syscalls.</p>
+<h2>Top 10 by errors</h2>
 <p>I won't repeat the same syscalls I investigated in previous parts, just the new ones. </p>
 <div class="highlight"><pre><span class="nv">$$$$</span> tail -n <span class="m">67</span> emacs_strace_output <span class="p">|</span> head -n <span class="m">65</span> <span class="p">|</span> awk -F<span class="s2">&quot; &quot;</span> <span class="s1">&#39; { print $5, $6 }&#39;</span> <span class="p">|</span> grep ^<span class="o">[</span>0-9<span class="o">]</span> <span class="p">|</span> sort -nrk1
 <span class="m">17979</span> open
