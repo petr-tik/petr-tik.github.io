@@ -130,7 +130,9 @@ All 8 files emacs wants to write to can be accessed. </p>
 <p>Read access</p>
 <h2>readlinkat</h2>
 <h3>Sys call</h3>
-<p>Follows and rads a value from a symbolic link into a given buffer. Successful calls return the number of bytes written to buffer, errors return -1.</p>
+<p>Follows and reads a value from a symbolic link into a given buffer. Successful calls return the number of bytes written to buffer, errors return -1.</p>
+<h3>Source</h3>
+<p>From the <a href="https://github.com/emacs-mirror/emacs/blob/master/lib/readlinkat.c">emacs Github Mirror</a></p>
 <h3>Errors</h3>
 <div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^readlinkat&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot; = 0&quot;</span> <span class="p">|</span> awk -F <span class="s1">&#39;-1 | \\(&#39;</span> <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort -n <span class="p">|</span> uniq -c
       <span class="m">5</span> 
@@ -211,6 +213,7 @@ readlinkat<span class="o">(</span>AT_FDCWD, <span class="s2">&quot;/home/petr_ti
 <h2>access</h2>
 <h3>syscall</h3>
 <p>Given a pathname string and an int for mode, check if the file at the pathname can be accessed in a given mode.</p>
+<h3>source</h3>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
