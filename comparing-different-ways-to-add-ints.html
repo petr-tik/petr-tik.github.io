@@ -7,14 +7,21 @@
 
         <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
 
-        <title>algorithms tag // My blog // </title>
+        <title>Comparing different ways to add ints // My blog // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
 </head>
 
 <body>
@@ -42,45 +49,37 @@
         </div>
     <div class="pure-u">
         <div class="content">
-            <!-- A wrapper for all the blog posts -->
-            <div class="posts">
-                <h1 class="content-subhead">
-Posts tagged 'algorithms'                </h1>
-                    <section class="post">
-                        <header class="post-header">
-                            <h3><a class="post-title" href="/comparing-different-ways-to-add-ints.html">Comparing different ways to add ints</a></h3>
-                            <p class="post-meta"><p>What is best - recursive or iterative?</p></p>
-                            <p class="post-meta">
-                                in <a href="/category/hacking.html">hacking</a> &middot; Tue 27 June 2017
-                            </p>
-                        </header>
-                    </section>
-                    <section class="post">
-                        <header class="post-header">
-                            <h3><a class="post-title" href="/puzzles-in-c.html">Puzzles in C++</a></h3>
-                            <p class="post-meta"><p>Getting my head around C++ with a small puzzle</p></p>
-                            <p class="post-meta">
-                                in <a href="/category/hacking.html">hacking</a> &middot; Tue 21 March 2017
-                            </p>
-                        </header>
-                    </section>
-                    <section class="post">
-                        <header class="post-header">
-                            <h3><a class="post-title" href="/unexpected-bfs.html">Unexpected bfs</a></h3>
-                            <p class="post-meta"><p>Uncovering the graph theory problem</p></p>
-                            <p class="post-meta">
-                                in <a href="/category/hacking.html">hacking</a> &middot; Mon 27 February 2017
-                            </p>
-                        </header>
-                    </section>
-<div class="pagination-wrapper content-subhead">
-</div><footer class="footer">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Comparing different ways to add ints</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/algorithms.html">algorithms</a>
+                                <a class="post-category" href="/tag/hackerrank.html">hackerrank</a>
+                                <a class="post-category" href="/tag/python.html">python</a>
+                        </p>
+                </header>
+            </section>
+            <h2>Puzzle</h2>
+<p>Given 2 ints represented as array of digits in order (eg. 843 = [8, 4, 3]), implement a function that returns a sum of the 2 ints in the same format.</p>
+<p>eg. [8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]</p>
+<h2>Idea</h2>
+<p>Compare recursive and iterative solution. Time them and see how long each runs on the same input.</p>
+<h2>Bug</h2>
+<p>For every iteration, I checked if the result was the same. I'd been running arrays of length &gt; 500 before I realised the iterative and recursive solutions diverged. When inspected, the recursive solution returned an array much longer than expected. This was the wrapper's fault, as was proven by running the methods without wrapping. </p>
+<p>My hypothesis was: The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Adding </p>
+<div class="highlight"><pre>    <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+</pre></div>
+
+
+<p>solved the problem. </p>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
         Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
         for <a href="http://blog.getpelican.com/">Pelican</a>
     </p>
-</footer>            </div>
-        </div>
+</footer>        </div>
     </div>
     </div>
     <script>

@@ -60,10 +60,12 @@
             </section>
             <p>Working on an app that iterates over a huge corpus file line by line made me curious about efficient disk I/O in C++. On each line I need to use the current vector for a calculation that represent words' semantic associations. In this case, the large file is a corpus built from GoogleNews. Each line starts with a word followed by space-separated floats making a 300-dimensional vector finishing with a newline char. The principles should apply for other large files too.</p>
 <p>I am examining different ways of efficiently reading a file from disk line-by-line. Each method described below will run on the same file, surrounded by a timer built from <code>std::chrono</code> objects as below.</p>
-<p>TODO:
-Profile improved mmap - solving the 2 caveats: iterate over chars in each mapping, and dealing with leftover data in the last mapping.
-Strace analysis
-Assembly analysis</p>
+<p>TODO:</p>
+<ul>
+<li>Profile improved mmap - solving the 2 caveats: iterate over chars in each mapping, and dealing with leftover data in the last mapping.</li>
+<li>Strace analysis</li>
+<li>Assembly analysis</li>
+</ul>
 <div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
   <span class="k">auto</span> <span class="n">start</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
   <span class="n">read_file_by_lines</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
@@ -76,19 +78,19 @@ Assembly analysis</p>
 
 
 <h2>C++ standard</h2>
-<p>The standard C++ way of reading a file from disk is by using an input file stream <code>ifstream</code>. Given a path to file and optional arguments, it creates an input filestream associated with the file at the filename. Then using a for-loop, a line of type std::string is created, as we move the input filestream line-by-line.</p>
+<p>The standard C++ way of reading a textfile from disk is by using an input file stream <code>ifstream</code>. Given a path to file and optional arguments, it creates an input filestream associated with the file at the filename. Then using a for-loop, a line of type std::string is created, as we move the input filestream line-by-line.</p>
 <div class="highlight"><pre><span class="kt">void</span> <span class="nf">read_file_by_lines</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
   <span class="cm">/* Uses the ifstream from std to open a file given the filename in cur_dir and</span>
 <span class="cm">   * read it out line-by-line */</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">input</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
-  <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">line</span><span class="p">;</span> <span class="n">getline</span><span class="p">(</span><span class="n">input</span><span class="p">,</span> <span class="n">line</span><span class="p">);)</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">input</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span> 
+  <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">line</span><span class="p">;</span> <span class="n">getline</span><span class="p">(</span><span class="n">input</span><span class="p">,</span> <span class="n">line</span><span class="p">);)</span> <span class="p">{</span> <span class="c1">// uses the \n char in txt file</span>
     <span class="c1">// calculation logic</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 
 
-<h2>mmap</h2>
+<h2>mmap txt file</h2>
 <p>The method opens a file descriptor to the filename and starting from the offset of 0, iterates over page_size blocks of memory. </p>
 <div class="highlight"><pre><span class="kt">void</span> <span class="nf">read_mmaped_file_by_lines</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
   <span class="cm">/*</span>
@@ -115,30 +117,35 @@ Assembly analysis</p>
 </pre></div>
 
 
-<p>2 caveats:
-  * the inconvinience of operating on raw bytes of data. There is no getline facility for raw bytes, so you need to iterate over each char in the stream and carry over into next mmaping to join split vectors. eg. if pagebreak comes in the middle of a vector like below</p>
-<p>-0.097343 0.029601 0.058967 0.062243 -0.087515 
-with -0.015970 0.014091 </p>
+<p>2 caveats:</p>
+<ul>
+<li>the inconvinience of operating on raw bytes of data. There is no getline facility for raw bytes, so you need to iterate over each char in the stream and carry over into next mmaping to join split vectors. eg. if pagebreak comes in the middle of a vector like below</li>
+</ul>
+<p>-0.097343 0.029601 0.058967 0.062243 -0.087515<strong>\n</strong>with -0.015970 0.014091 </p>
 <p>the newline will be read as well as the next word and its vector values. To avoid losing data we need to carry a std::vector&lt;300&gt; and push_back values into it. Once all values in it aren't equal to the initialisation value, we can write it out with the word into an unordered_map. getline abstracts this away and looks for "/n" char and strips it out. </p>
 <ul>
-<li>If the filesize isn't a multiple of pagesize (most of the time it's not), we need a special case to manually mmap the last </li>
+<li>If the filesize isn't a multiple of pagesize (most of the time it's not), we need a special case to manually mmap the last bits</li>
 </ul>
+<h2>mmap bin file</h2>
+<p>Since mmap doesn't care about newline characters (it's all just bytes), we can implement a mmap that takes a binary file and fix the 2 caveats above. </p>
 <h2>Comparison</h2>
 <h3>Time</h3>
 <p>The memory mapped read takes a second longer than the std method.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> clang++-3.7 -Wall -std<span class="o">=</span>c++11 std_read_lines.cpp -o std_read_lines
+<div class="highlight"><pre><span class="nv">$$$$</span> clang++-3.7 -Wall -O3 -std<span class="o">=</span>c++11 std_read_lines.cpp -o std_read_lines
 <span class="nv">$$$$</span> ./std_read_lines gnews_corpus.txt 
 
-17.4391 seconds
+14.8439 seconds
+<span class="nv">$$$$</span> clang++-3.7 -Wall -O3 -std<span class="o">=</span>c++11 mmap_read_lines.cpp -o map_read_lines
 <span class="nv">$$$$</span> ./map_read_lines gnews_corpus.txt 
 
-18.7044 seconds
+16.5109 seconds
 </pre></div>
 
 
+<h3>Syscalls</h3>
+<p>Straced both programmes to compare the kind of syscalls they make to investigate potential bottlenecks.</p>
 <h3>Assembly</h3>
 <p>Generated assembly using Godbolt's Compiler Explorer. <a href="https://godbolt.org/g/SRsjN1">Link</a>. Need to recompile it first. WIP.</p>
-<h3>Syscalls</h3>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
