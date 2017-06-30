@@ -64,8 +64,27 @@
 <p>eg. [8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]</p>
 <h2>Idea</h2>
 <p>Compare recursive and iterative solution. Time them and see how long each runs on the same input.</p>
-<h2>Bug</h2>
-<p>For every iteration, I checked if the result was the same. I'd been running arrays of length &gt; 500 before I realised the iterative and recursive solutions diverged. When inspected, the recursive solution returned an array much longer than expected. This was the wrapper's fault, as was proven by running the methods without wrapping. </p>
+<h3>Wrapper to time each function call</h3>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">newfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">elapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span>
+        <span class="n">time_as_string</span> <span class="o">=</span> <span class="s">&#39;{:.6f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsedTime</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">time_as_string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">newfunc</span>
+</pre></div>
+
+
+<p>and then we wrap each method call with the wrapper. This takes the wrapped function, passes the original args, times how long it took to execute and returns a tuple of function return and time_as_string.</p>
+<div class="highlight"><pre><span class="nd">@timeit</span>
+<span class="k">def</span> <span class="nf">iter_sum</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">):</span>
+</pre></div>
+
+
+<p>For a fair comparison, both should have the same design and stack allocation strategy. Hence both iter_sum and recur_sum methods reverse the incoming arrays and return the result of the helper. The iterative method calculates everything in 1 stack frame. The recursive recur_sum_helper (by definition) creates a stack frame for each call. </p>
+<h4>Bug</h4>
+<p>In the first version of the recur_sum_helper and wrappers there was a bug. It turned out that the iterative and recursive solutions diverged. When inspected, the recursive solution returned an array much longer than expected. This was the wrapper's fault, as was proven by running the methods without wrapping. </p>
 <p>My hypothesis was: The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Adding </p>
 <div class="highlight"><pre>    <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
         <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -73,6 +92,7 @@
 
 
 <p>solved the problem. </p>
+<h3>Iterative</h3>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
