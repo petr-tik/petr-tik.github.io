@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2017-06-27T22:20:00+01:00</updated><entry><title>Comparing different ways to add ints</title><link href="/comparing-different-ways-to-add-ints.html" rel="alternate"></link><updated>2017-06-27T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-06-27:comparing-different-ways-to-add-ints.html</id><summary type="html">&lt;h2&gt;Puzzle&lt;/h2&gt;
-&lt;p&gt;Given 2 ints represented as array of digits in order (eg. 843 = [8, 4, 3]), implement a function that returns a sum of the 2 ints in the same format.&lt;/p&gt;
-&lt;p&gt;eg. [8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]&lt;/p&gt;
-&lt;h2&gt;Idea&lt;/h2&gt;
-&lt;p&gt;Compare recursive and iterative solution. Time them and see how long each runs on the same input.&lt;/p&gt;
-&lt;h3&gt;Wrapper to time each function call&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;timeit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;newfunc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-        &lt;span class="n"&gt;startTime&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-        &lt;span class="n"&gt;res&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-        &lt;span class="n"&gt;elapsedTime&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;startTime&lt;/span&gt;
-        &lt;span class="n"&gt;time_as_string&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;{:.6f}&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;elapsedTime&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;time_as_string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;newfunc&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;and then we wrap each method call with the wrapper. This takes the wrapped function, passes the original args, times how long it took to execute and returns a tuple of function return and time_as_string.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@timeit&lt;/span&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;iter_sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;arr2&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;For a fair comparison, both should have the same design and stack allocation strategy. Hence both iter_sum and recur_sum methods reverse the incoming arrays and return the result of the helper. The iterative method calculates everything in 1 stack frame. The recursive recur_sum_helper (by definition) creates a stack frame for each call. &lt;/p&gt;
-&lt;h4&gt;Bug&lt;/h4&gt;
-&lt;p&gt;In the first version of the recur_sum_helper and wrappers there was a bug. It turned out that the iterative and recursive solutions diverged. When inspected, the recursive solution returned an array much longer than expected. This was the wrapper's fault, as was proven by running the methods without wrapping. &lt;/p&gt;
-&lt;p&gt;My hypothesis was: The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Adding &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="n"&gt;res&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;solved the problem. &lt;/p&gt;
-&lt;h3&gt;Iterative&lt;/h3&gt;</summary><category term="algorithms"></category><category term="hackerrank"></category><category term="python"></category></entry><entry><title>mmap vs. ifstream to read a file</title><link href="/mmap-vs-ifstream-to-read-a-file.html" rel="alternate"></link><updated>2017-05-14T18:11:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-05-14:mmap-vs-ifstream-to-read-a-file.html</id><summary type="html">&lt;p&gt;Working on an app that iterates over a huge corpus file line by line made me curious about efficient disk I/O in C++. On each line I need to use the current vector for a calculation that represent words' semantic associations. In this case, the large file is a corpus built from GoogleNews. Each line starts with a word followed by space-separated floats making a 300-dimensional vector finishing with a newline char. The principles should apply for other large files too.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2017-05-14T18:11:00+01:00</updated><entry><title>mmap vs. ifstream to read a file</title><link href="/mmap-vs-ifstream-to-read-a-file.html" rel="alternate"></link><updated>2017-05-14T18:11:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-05-14:mmap-vs-ifstream-to-read-a-file.html</id><summary type="html">&lt;p&gt;Working on an app that iterates over a huge corpus file line by line made me curious about efficient disk I/O in C++. On each line I need to use the current vector for a calculation that represent words' semantic associations. In this case, the large file is a corpus built from GoogleNews. Each line starts with a word followed by space-separated floats making a 300-dimensional vector finishing with a newline char. The principles should apply for other large files too.&lt;/p&gt;
 &lt;p&gt;I am examining different ways of efficiently reading a file from disk line-by-line. Each method described below will run on the same file, surrounded by a timer built from &lt;code&gt;std::chrono&lt;/code&gt; objects as below.&lt;/p&gt;
 &lt;p&gt;TODO:&lt;/p&gt;
 &lt;ul&gt;
