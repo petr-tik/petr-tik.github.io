@@ -210,7 +210,7 @@
 
 
 <h3>Stack depth limits</h3>
-<p>The first discovery was the limit to stack depth (it grows downards, contrary to common sense of adding things to the top of the stack). The default value is 1000 in Python 3.4 (use sys.getrecursionlimit() to look it up). Considering that recur_sum_helper is called inside recur_sum, which is wrapped and called inside <strong>main</strong>, we only have 996 stack frames for the recursive sum. </p>
+<p>The first discovery was the limit to stack depth (it grows downards, contrary to common sense of adding things to the top of the stack). The default value is 1000 in Python 3.4 (use <code>sys.getrecursionlimit()</code> to look it up). Considering that recur_sum_helper is called inside recur_sum, which is wrapped and called inside <strong>main</strong>, we only have 996 stack frames for the recursive sum. </p>
 <div class="highlight"><pre><span class="err">$$$</span> <span class="n">python3</span>
 <span class="n">Python</span> <span class="mf">3.4</span><span class="o">.</span><span class="mi">3</span><span class="o">+</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Oct</span> <span class="mi">14</span> <span class="mi">2015</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span><span class="mo">03</span><span class="p">:</span><span class="mi">50</span><span class="p">)</span> 
 <span class="p">[</span><span class="n">GCC</span> <span class="mf">5.2</span><span class="o">.</span><span class="mi">1</span> <span class="mi">20151010</span><span class="p">]</span> <span class="n">on</span> <span class="n">linux</span>
