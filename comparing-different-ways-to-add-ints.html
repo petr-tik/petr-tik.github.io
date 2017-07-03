@@ -64,7 +64,7 @@
 <p>eg. </p>
 <p>[8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]</p>
 <h2>Idea</h2>
-<p>Implement and profile recursive and iterative solutions. </p>
+<p>Implement and profile recursive and iterative solutions to the puzzle above.</p>
 <h3>Recursive solution</h3>
 <div class="highlight"><pre><span class="k">def</span> <span class="nf">recur_sum_helper</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="p">[],</span> <span class="n">carry</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
@@ -91,9 +91,9 @@
 </pre></div>
 
 
+<p>Having done some Clojure, functional tools like map and reduce made it feel that a recursive solution was going to be concise. Handling the same edge cases across different array lengths made the implementation more heavily branched and less pretty than expected.</p>
 <p>The final return statement will activate once idx exhausts both arrays (i.e. incremented beyond both lengths). If the carry bit has been carried over from the previous stack frame, which called this last stack frame, add 1 to the end of the array and return the result. </p>
 <p>Otherwise, if either of the arrays is exhausted, add the ints from the other array keeping carry bit in mind. All 3 cases (arr1 - exhausted, arr2 - not; arr2 - exhaused, arr1 - not; arr1 and arr2 still not exhausted) use divmod function to set the carry bit and item_to_add. On Intel CPUs this should happen in 1 instruction. The only difference is using both arrays if both are still not exhausted.</p>
-<p>Having done some Clojure, functional tools like map and reduce made it feel that a recursive solution was going to be concise. Handling the same edge cases across different array lengths made the implementation more hairy and heavily branched.</p>
 <h3>Iterative solution</h3>
 <p>Unrolls the recursive loop. Instead of creating a stack frame for each digit, add as many digits as possible before one of the arrays runs out, then handle the leftover digits from the longer array. In the case of arrays/numbers of the same length, there won't be any branch misprediction and we will fall through down to the return statement.</p>
 <div class="highlight"><pre><span class="k">def</span> <span class="nf">iter_sum_helper</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">):</span>
@@ -141,15 +141,16 @@
 <p>For a fair comparison, both should have the same design and stack allocation strategy. Hence both iter_sum and recur_sum methods reverse the incoming arrays and return the result of the helper. The iterative method calculates everything in 1 stack frame. The recursive recur_sum_helper (by definition) creates a stack frame for each call. </p>
 <p>As both _sum methods prepare and pass reversed arrays into helper methods, the helper methods return the result array in the opposite order. Both _sum methods reverse the return arrays before returning.</p>
 <h4>Bug</h4>
-<p>In the first version of the recur_sum_helper and wrapper there was a bug. When inspected, the recursive solution returned an array much longer than expected. This was the wrapper's fault, as was proven by running the methods without wrapping. </p>
-<p>My hypothesis: The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Adding </p>
+<p>In the first version of the recur_sum_helper and wrapper there was a bug - the recursive solution returned an array much longer than expected. This was the wrapper's fault, as was proven by running the methods without wrapping and stepping through it with pdb. </p>
+<p>The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Python variables are references, so after the res variable was created inside the scope of the wrapper, following <code>res.append</code> calls grew the same res array as before. </p>
+<p>Adding</p>
 <div class="highlight"><pre><span class="k">def</span> <span class="nf">recur_sum_helper</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="p">[],</span> <span class="n">carry</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
         <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 </pre></div>
 
 
-<p>solved the problem. </p>
+<p>solved the problem by creating a new array.</p>
 <h2>Performance comparison</h2>
 <p>Using the script below, the wrapper described above, recursive and iterative solutions were benchmarked. The plots below show show time on the y-axis against the size of 2 input arrays on the x-axis. Green points - recursive times, red - iterative, blue star is the stack length of the array at which stack overflows. Catching stack overflow at runtime has to be done with a try/except loop, which breaks on RuntimeError. </p>
 <div class="highlight"><pre><span class="k">def</span> <span class="nf">try_different_lengths_before_breaks</span><span class="p">(</span><span class="n">r_limit</span><span class="p">,</span> <span class="n">l_limit</span><span class="p">,</span> <span class="n">py_stack_limit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -220,10 +221,14 @@
 </pre></div>
 
 
+<h3>Plots</h3>
 <p><img alt="Photo" src="/images/plot_sum_ints_stack_standard.png" /></p>
 <p>The blue star marks a point of max_stack_depth. Generally, both scatter plots show linear increase in time with a sudden jump in recursive at ~900 </p>
 <p><img alt="Photo" src="/images/plot_sum_ints_stack_extra.png" /></p>
-<p>Using the same sys module, I could setrecursionlimit to a higher than default value and explore the difference between recursive and iterative solution on bigger input arrays. As expected, iterative kept winning and recursive suffered another drastic jump in times (~1600), thought it kept linear gradient.</p>
+<p>Using the same sys module, I could setrecursionlimit to a higher than default value and explore the difference between recursive and iterative solution on bigger input arrays. As expected, iterative kept winning and recursive suffered another drastic jump in times (~1600), thought the gradient remained linear.</p>
+<h2>Conclusion</h2>
+<p>In this post, a simple problem was solved recursively and iteratively. Afterwards, both solutions were analysed in terms of their scalability and benchmarked. </p>
+<p>A recursive solution appears to purists and can be more readable in some cases like tree traversal. In this case, the recursive solution suffered. When combined with the lack of TCO and a relatively low default recursion depth limit value in the CPython interpreter, it proved unscalable and less efficient than iterative. Additionally, wrapping a recusive function introduced a bug, which was absent from the iterative solution.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
