@@ -1,5 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2017-06-27T22:20:00+01:00</updated><entry><title>Comparing different ways to add ints</title><link href="/comparing-different-ways-to-add-ints.html" rel="alternate"></link><updated>2017-06-27T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-06-27:comparing-different-ways-to-add-ints.html</id><summary type="html">&lt;h2&gt;Puzzle&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2017-07-16T22:20:00+01:00</updated><entry><title>Comparing different ways to add ints (part 2)</title><link href="/comparing-different-ways-to-add-ints-part-2.html" rel="alternate"></link><updated>2017-07-16T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-07-16:comparing-different-ways-to-add-ints-part-2.html</id><summary type="html">&lt;h2&gt;Background&lt;/h2&gt;
+&lt;p&gt;As outlined in part 1, we are comparing recursive and iterative solutions to a simple problem. As seen in the chart, there is a sudden jump in execution times of the recursive function, when the length of array becomes ~900 ints. Using the &lt;code&gt;cProfile&lt;/code&gt; and &lt;code&gt;line_profile&lt;/code&gt; modules in python, I will be investigating what caused this increase in execution times. cProfile collects information what each script on a high-level. line_profile allows us to examine each method call in more detail.&lt;/p&gt;
+&lt;h3&gt;Helper methods&lt;/h3&gt;
+&lt;p&gt;The script from part 1 had to be changed to profile the relevant function calls and save the results. This effectively wraps the function calls with cProfiler and then saves the results into a .dmp type. Afterwards results are plotted.&lt;/p&gt;
+&lt;h3&gt;Profile run&lt;/h3&gt;
+&lt;p&gt;Profile run method instantiates 2 &lt;code&gt;cProfile.Profile()&lt;/code&gt; classes for iterative and recursive solution profiling. Looping over different array lengths, the iter_sum and recus_sum solutions are profiled. The profiling information is saved to disk using the &lt;code&gt;dump_stats()&lt;/code&gt; method, which takes a string for argument name. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;profile_run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r_limit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l_limit&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;cProfile&lt;/span&gt;
+    &lt;span class="n"&gt;pr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cProfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Profile&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;iter_arr_lengths&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="n"&gt;recur_arr_lengths&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="n"&gt;iter_times&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="n"&gt;recur_times&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;arr_length&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r_limit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l_limit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;arr1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr_length&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+        &lt;span class="n"&gt;arr2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr_length&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+
+        &lt;span class="n"&gt;pr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cProfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Profile&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;pr2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cProfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Profile&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="c"&gt;# good test case, because there will be a carry bit over every step&lt;/span&gt;
+        &lt;span class="n"&gt;pr&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enable&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;res_iter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;time_iter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;iter_sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;arr2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;pr&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;disable&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;pr&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump_stats&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;iter_{}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr_length&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+        &lt;span class="n"&gt;iter_arr_lengths&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr_length&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;iter_times&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;time_iter&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;pr2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enable&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;res_recur&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;time_recur&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;recur_sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;arr2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;pr2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;disable&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;pr2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump_stats&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;recur_{}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr_length&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+        &lt;span class="n"&gt;recur_arr_lengths&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arr_length&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;recur_times&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;time_recur&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;plot_results_for_cprofile&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;iter_arr_lengths&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;recur_arr_lengths&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                              &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;iter_times&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;recur_times&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;r_limit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l_limit&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;dump_stats()&lt;/h4&gt;
+&lt;p&gt;Used the length of input arrays as id of this profiler run. Looking at the source for cProfile.Profile.dump_stats()&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;dump_stats&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;file&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;marshal&lt;/span&gt;
+        &lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;file&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;wb&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;create_stats&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;marshal&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;stats&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We see that it uses the marshal module. From the &lt;a href="https://docs.python.org/3/library/marshal.html"&gt;documentation&lt;/a&gt;, we know that:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Details of the format are undocumented on purpose; it may change between Python versions (although it rarely does).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;This is not a general "persistence" module. For general persistence and transfer of Python objects through RPC calls, see the modules :mod:&lt;code&gt;pickle&lt;/code&gt; and :mod:&lt;code&gt;shelve&lt;/code&gt;. The :mod:&lt;code&gt;marshal&lt;/code&gt; module exists mainly to support reading and writing the "pseudo-compiled" code for Python modules of :file:&lt;code&gt;.pyc&lt;/code&gt; files. Therefore, the Python maintainers reserve the right to modify the marshal format in backward incompatible ways should the need arise. If you're serializing and de-serializing Python objects, use the :mod:&lt;code&gt;pickle&lt;/code&gt; module instead -- the performance is comparable, version independence is guaranteed, and pickle supports a substantially wider range of objects than marshal.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The :mod:&lt;code&gt;marshal&lt;/code&gt; module is not intended to be secure against erroneous or maliciously constructed data. Never unmarshal data received from an untrusted or unauthenticated source.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;What joy! This uses a badly documented, backwards-incompatible, insecure module with incomplete support for Python types.  &lt;/p&gt;
+&lt;h3&gt;Plot results&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;plot_results&lt;/code&gt; method will also change. Instead of using a scatter plot, we will be drawing lines, which will make it easier to see the increase in gradient. It also takes the right and left limits to the x values (lengths of the array). Setting xlim to the plot will help us focus the picture. Small changes include not marking the last points in recursive times (we will avoid stack overflow). &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;plot_results_for_cprofile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;xs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ys&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;r_limit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l_limit&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;xlim&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r_limit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l_limit&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;xlabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Size of input arrays&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Time to calculate sum (ms)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Comparing iterative vs recursive sum methods&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;iter_arr_lengths&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;recur_arr_lengths&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xs&lt;/span&gt;
+    &lt;span class="n"&gt;iters&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;recurs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ys&lt;/span&gt;
+
+    &lt;span class="c"&gt;# plot iterative times&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;iter_arr_lengths&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;iters&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;red&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="c"&gt;# plot recursive times&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;recur_arr_lengths&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;recurs&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;green&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c"&gt;# last point in recursive times is before stack overflow&lt;/span&gt;
+
+    &lt;span class="n"&gt;fname&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;sum_ints_plot.png&amp;quot;&lt;/span&gt;
+    &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;savefig&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fname&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;dpi&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1200&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Saved plot as {}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fname&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Results&lt;/h2&gt;
+&lt;h3&gt;Plot&lt;/h3&gt;
+&lt;p&gt;&lt;img alt="Photo" src="/images/plot_sum_ints_profiler.png" /&gt;&lt;/p&gt;
+&lt;p&gt;In the graph, green is still recursive, red is iterative times. There are several notables differences - times are higher overall. Each of them takes ~1 second longer, but the difference between iterative and recursive is still present. There is a huge spike for the recursive solution when the input arrays are of size 907. This makes it easy to investigate function calls.&lt;/p&gt;
+&lt;h3&gt;Reading the dump&lt;/h3&gt;
+&lt;p&gt;A read_dump.py is defined to print the dump to terminal&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pstats&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;marshal&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pprint&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;sys&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Supply a filename&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
+    &lt;span class="n"&gt;fname&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+    &lt;span class="n"&gt;stats&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pstats&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Stats&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fname&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;stats&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sort_stats&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;print_stats&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; ./read_dump.py recur_906
+Mon Jul &lt;span class="m"&gt;17&lt;/span&gt; 01:22:36 &lt;span class="m"&gt;2017&lt;/span&gt;    recur_906
+
+         &lt;span class="m"&gt;5446&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; calls &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4540&lt;/span&gt; primitive calls&lt;span class="o"&gt;)&lt;/span&gt; in 0.002 seconds
+
+   Ordered by: &lt;span class="k"&gt;function&lt;/span&gt; name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;function&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+      &lt;span class="m"&gt;906&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;built-in method divmod&lt;span class="o"&gt;}&lt;/span&gt;
+     &lt;span class="m"&gt;2720&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;built-in method len&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;2&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;built-in method &lt;span class="nb"&gt;time&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+      &lt;span class="m"&gt;907&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;method &lt;span class="s1"&gt;&amp;#39;append&amp;#39;&lt;/span&gt; of &lt;span class="s1"&gt;&amp;#39;list&amp;#39;&lt;/span&gt; objects&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;method &lt;span class="s1"&gt;&amp;#39;disable&amp;#39;&lt;/span&gt; of &lt;span class="s1"&gt;&amp;#39;_lsprof.Profiler&amp;#39;&lt;/span&gt; objects&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;method &lt;span class="s1"&gt;&amp;#39;format&amp;#39;&lt;/span&gt; of &lt;span class="s1"&gt;&amp;#39;str&amp;#39;&lt;/span&gt; objects&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.002    0.002 sum_ints_as_arrays.py:24&lt;span class="o"&gt;(&lt;/span&gt;newfunc&lt;span class="o"&gt;)&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.002    0.002 sum_ints_as_arrays.py:87&lt;span class="o"&gt;(&lt;/span&gt;recur_sum&lt;span class="o"&gt;)&lt;/span&gt;
+    907/1    0.002    0.000    0.002    0.002 sum_ints_as_arrays.py:63&lt;span class="o"&gt;(&lt;/span&gt;recur_sum_helper&lt;span class="o"&gt;)&lt;/span&gt;
+
+
+&lt;span class="nv"&gt;$$$$&lt;/span&gt; ./read_dump.py recur_907
+Mon Jul &lt;span class="m"&gt;17&lt;/span&gt; 01:22:36 &lt;span class="m"&gt;2017&lt;/span&gt;    recur_907
+
+         &lt;span class="m"&gt;5452&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; calls &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4545&lt;/span&gt; primitive calls&lt;span class="o"&gt;)&lt;/span&gt; in 0.014 seconds
+
+   Ordered by: &lt;span class="k"&gt;function&lt;/span&gt; name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;function&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+      &lt;span class="m"&gt;907&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;built-in method divmod&lt;span class="o"&gt;}&lt;/span&gt;
+     &lt;span class="m"&gt;2723&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;built-in method len&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;2&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;built-in method &lt;span class="nb"&gt;time&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+      &lt;span class="m"&gt;908&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;method &lt;span class="s1"&gt;&amp;#39;append&amp;#39;&lt;/span&gt; of &lt;span class="s1"&gt;&amp;#39;list&amp;#39;&lt;/span&gt; objects&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;method &lt;span class="s1"&gt;&amp;#39;disable&amp;#39;&lt;/span&gt; of &lt;span class="s1"&gt;&amp;#39;_lsprof.Profiler&amp;#39;&lt;/span&gt; objects&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.000    0.000 &lt;span class="o"&gt;{&lt;/span&gt;method &lt;span class="s1"&gt;&amp;#39;format&amp;#39;&lt;/span&gt; of &lt;span class="s1"&gt;&amp;#39;str&amp;#39;&lt;/span&gt; objects&lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.014    0.014 sum_ints_as_arrays.py:24&lt;span class="o"&gt;(&lt;/span&gt;newfunc&lt;span class="o"&gt;)&lt;/span&gt;
+        &lt;span class="m"&gt;1&lt;/span&gt;    0.000    0.000    0.014    0.014 sum_ints_as_arrays.py:87&lt;span class="o"&gt;(&lt;/span&gt;recur_sum&lt;span class="o"&gt;)&lt;/span&gt;
+    908/1    0.014    0.000    0.014    0.014 sum_ints_as_arrays.py:63&lt;span class="o"&gt;(&lt;/span&gt;recur_sum_helper&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The increase in execution times seems to depend on recur_sum_helper(). Between recur_906 and recur_907, recur_sum_helper now takes 7x as much time as it did before. &lt;/p&gt;
+&lt;p&gt;We will need to use line_profiling to get more detail about the increase in execution times. &lt;/p&gt;</summary><category term="python"></category></entry><entry><title>Comparing different ways to add ints</title><link href="/comparing-different-ways-to-add-ints.html" rel="alternate"></link><updated>2017-06-27T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-06-27:comparing-different-ways-to-add-ints.html</id><summary type="html">&lt;h2&gt;Puzzle&lt;/h2&gt;
 &lt;p&gt;Given 2 ints represented as array of digits in order (eg. 843 = [8, 4, 3]), implement a function that returns a sum of the 2 ints in the same format.&lt;/p&gt;
 &lt;p&gt;eg. &lt;/p&gt;
 &lt;p&gt;[8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]&lt;/p&gt;
