@@ -113,6 +113,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;p&gt;Using this script, we examine the dumps of recursive calls with arrays of lengths 906 and 907 (before the peak and the peak itself).&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt; ./read_dump.py recur_906
 Mon Jul &lt;span class="m"&gt;17&lt;/span&gt; 01:22:36 &lt;span class="m"&gt;2017&lt;/span&gt;    recur_906
 
