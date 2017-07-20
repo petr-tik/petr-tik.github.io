@@ -58,7 +58,7 @@
                 </header>
             </section>
             <h2>Background</h2>
-<p>As outlined in part 1, we are comparing recursive and iterative solutions to a simple problem. As seen in the chart, there is a sudden jump in execution times of the recursive function, when the length of array becomes ~900 ints. Using the <code>cProfile</code> and <code>line_profile</code> modules in python, I will be investigating what caused this increase in execution times. cProfile collects information what each script on a high-level. line_profile allows us to examine each method call in more detail.</p>
+<p>As outlined in part 1, we are comparing recursive and iterative implementations of long arithmetic of 2 arrays. As seen in the chart, there is a sudden jump in execution times of the recursive function, when the length of array becomes ~900 ints. Using the <code>cProfile</code> and <code>line_profile</code> modules in python, I will be investigating what caused this increase in execution times. cProfile collects information what each script on a high-level. line_profile allows us to examine each method call in more detail. To guarantee consistent analysis both implementations will be benchmarked with line profiling enabled. </p>
 <h3>Helper methods</h3>
 <p>The script from part 1 had to be changed to profile the relevant function calls and save the results. This effectively wraps the function calls with cProfiler and then saves the results into a .dmp type. Afterwards results are plotted.</p>
 <h3>Profile run</h3>
