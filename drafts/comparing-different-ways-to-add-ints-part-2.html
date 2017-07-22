@@ -213,6 +213,51 @@ Mon Jul <span class="m">17</span> 01:22:36 <span class="m">2017</span>    recur_
 
 <p>The increase in execution times seems to depend on recur_sum_helper(). Between recur_906 and recur_907, recur_sum_helper now takes 7x as much time as it did before. </p>
 <p>We will need to use line_profiling to get more detail about the increase in execution times. </p>
+<h3>Implementing line profiling</h3>
+<p>I decided to implement line profiling by including it in the timeit wrapper code.
+Assuming that the overhead of line profiling of the recursive and iterative solution is in the same order of magnitude, wrapping both <code>recur_sum</code> and <code>iter_sum</code> should not change the difference between them too much. Methods had to be moved around with <code>recur_sum_helper</code> and <code>iter_sum_helper</code> going above <code>timeit</code>. </p>
+<h4>Refactor the decorator</h4>
+<p>When a decorator is defined and a function is wrapped, </p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function used to wrap iter_sum and recur_sum (input func). </span>
+<span class="sd">    Adds line-by-line profiling using line_profiler. </span>
+<span class="sd">    Using some inspect hackery, we access the code object of func using __code__.</span>
+<span class="sd">    co_names returns a tuple of names of local variables. </span>
+<span class="sd">    iter_sum only has 1 local variable - its helper function. </span>
+<span class="sd">    Using the string as the key, we retrieve the function object </span>
+<span class="sd">    from the globals() module. iter_sum_helper and recur_sum_helper </span>
+<span class="sd">    are above this wrapper function. This guarantees that they will be found, </span>
+<span class="sd">    when the function is being wrapped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">str_func_to_profile</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">func_to_prof</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">str_func_to_profile</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">newfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c"># locals() returns a dictionary, where &#39;args&#39; is key for local vars</span>
+        <span class="c"># ASSUMPTION: both input arrays have the same length, use either</span>
+        <span class="n">arr_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">locals</span><span class="p">()[</span><span class="s">&#39;args&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c"># make a new instance of LineProfiler for each time iter_sum() is</span>
+        <span class="c"># called with new input arrays</span>
+        <span class="n">line_prof</span> <span class="o">=</span> <span class="n">LineProfiler</span><span class="p">()</span>
+        <span class="n">func_prof</span> <span class="o">=</span> <span class="n">line_prof</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="n">line_prof</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">func_to_prof</span><span class="p">)</span>
+
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">func_prof</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">elapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span>
+        <span class="n">line_prof</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s">&quot;ll_{}_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">str_func_to_profile</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)))</span>
+        <span class="n">time_as_string</span> <span class="o">=</span> <span class="s">&#39;{:.6f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsedTime</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">time_as_string</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">newfunc</span>
+</pre></div>
+
+
+<h4>Decorator issues</h4>
+<h5>Wrappers are evaluated at compile-time</h5>
+<h5>Ergo the same line_profiler instance is used across all of them</h5>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
