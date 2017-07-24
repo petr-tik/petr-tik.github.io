@@ -245,8 +245,7 @@
 </pre></div>
 
 
-<p>The number of function calls increases by 5, but the execution time triples.</p>
-<p>The increase in execution times seems to depend on <code>recur_sum_helper()</code>. Between <code>recur_906</code> and <code>recur_907</code>, <code>recur_sum_helper</code> now takes 7x as much time as it did before. </p>
+<p>At the peak, the number of function calls increases by 5, but the execution time more than triples.</p>
 <div class="highlight"><pre>petr_tik@merluza:~/Coding/misc/misc/sum_ints_profile<span class="nv">$ </span>./read_dump.py recur_917 <span class="o">&amp;&amp;</span> ./read_dump.py recur_918 <span class="o">&amp;&amp;</span> ./read_dump.py recur_919
 Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_917
          <span class="m">5542</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4625</span> primitive calls<span class="o">)</span> in 0.011 seconds
@@ -265,7 +264,7 @@ Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_
 </pre></div>
 
 
-<p>We will need to use line_profiling to get more detail about the increase in execution times. </p>
+<p>In all three (and we can assume other) instances of <code>recur_sum</code>, nearly 100% of time is spent on recursive calls of <code>recur_sum_helper</code>. We will need to use line_profiling to get more detail about the increase in execution times. </p>
 <h3>Reading line profiling dump</h3>
 <h4>Read function</h4>
 <p>The line_profiler module has separate function for loading stats and showing text of the stats object. For serialisation, the line profiler module uses the builtin pickle module, which has wider coverage and better support. </p>
@@ -425,9 +424,9 @@ Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</
 
 
 <h2>Conclusion</h2>
-<p>Given arrays of length 918, the recursive sum function for some unexplained reasons takes 28x more time to run than previous and consequent function calls.</p>
+<p>Given arrays of length 918, the recursive sum function for some unexplained reasons takes 28x more time to run than previous and consequent function calls. This post showed the use of <code>cProfile</code> and <code>line_profiler</code> modules implemented as wrappers to collect and review profiling information. </p>
 <h2>Future work</h2>
-<p>Use ebpf to look inside each function call and profile the slowdown.</p>
+<p>At this point, it's best to implement tracing either inside python interpreter or from outside the process. By tracing and logging each recursively created and executed stack frame inside <code>recur_sum_helper</code>, the real reason can be established.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;

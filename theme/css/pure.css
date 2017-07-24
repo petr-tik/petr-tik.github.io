@@ -29,6 +29,8 @@ pre {
     padding: 15px 15px 15px 15px;
     font-size: 90%;
     box-shadow: 2px 2px 2px #888;
+    white-space: pre;
+    overflow-x: scroll;
 }
 
 .sidebar {

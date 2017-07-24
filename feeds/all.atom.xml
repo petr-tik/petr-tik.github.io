@@ -187,8 +187,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The number of function calls increases by 5, but the execution time triples.&lt;/p&gt;
-&lt;p&gt;The increase in execution times seems to depend on &lt;code&gt;recur_sum_helper()&lt;/code&gt;. Between &lt;code&gt;recur_906&lt;/code&gt; and &lt;code&gt;recur_907&lt;/code&gt;, &lt;code&gt;recur_sum_helper&lt;/code&gt; now takes 7x as much time as it did before. &lt;/p&gt;
+&lt;p&gt;At the peak, the number of function calls increases by 5, but the execution time more than triples.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;petr_tik@merluza:~/Coding/misc/misc/sum_ints_profile&lt;span class="nv"&gt;$ &lt;/span&gt;./read_dump.py recur_917 &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; ./read_dump.py recur_918 &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; ./read_dump.py recur_919
 Sun Jul &lt;span class="m"&gt;23&lt;/span&gt; 19:18:39 &lt;span class="m"&gt;2017&lt;/span&gt;    recur_917
          &lt;span class="m"&gt;5542&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; calls &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4625&lt;/span&gt; primitive calls&lt;span class="o"&gt;)&lt;/span&gt; in 0.011 seconds
@@ -207,7 +206,7 @@ Sun Jul &lt;span class="m"&gt;23&lt;/span&gt; 19:18:39 &lt;span class="m"&gt;201
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;We will need to use line_profiling to get more detail about the increase in execution times. &lt;/p&gt;
+&lt;p&gt;In all three (and we can assume other) instances of &lt;code&gt;recur_sum&lt;/code&gt;, nearly 100% of time is spent on recursive calls of &lt;code&gt;recur_sum_helper&lt;/code&gt;. We will need to use line_profiling to get more detail about the increase in execution times. &lt;/p&gt;
 &lt;h3&gt;Reading line profiling dump&lt;/h3&gt;
 &lt;h4&gt;Read function&lt;/h4&gt;
 &lt;p&gt;The line_profiler module has separate function for loading stats and showing text of the stats object. For serialisation, the line profiler module uses the builtin pickle module, which has wider coverage and better support. &lt;/p&gt;
@@ -367,9 +366,9 @@ Line &lt;span class="c"&gt;#      Hits         Time  Per Hit   % Time  Line Cont
 
 
 &lt;h2&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;Given arrays of length 918, the recursive sum function for some unexplained reasons takes 28x more time to run than previous and consequent function calls.&lt;/p&gt;
+&lt;p&gt;Given arrays of length 918, the recursive sum function for some unexplained reasons takes 28x more time to run than previous and consequent function calls. This post showed the use of &lt;code&gt;cProfile&lt;/code&gt; and &lt;code&gt;line_profiler&lt;/code&gt; modules implemented as wrappers to collect and review profiling information. &lt;/p&gt;
 &lt;h2&gt;Future work&lt;/h2&gt;
-&lt;p&gt;Use ebpf to look inside each function call and profile the slowdown.&lt;/p&gt;</summary><category term="python"></category></entry><entry><title>Comparing different ways to add ints I</title><link href="/comparing-different-ways-to-add-ints-i.html" rel="alternate"></link><updated>2017-06-27T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-06-27:comparing-different-ways-to-add-ints-i.html</id><summary type="html">&lt;h2&gt;Puzzle&lt;/h2&gt;
+&lt;p&gt;At this point, it's best to implement tracing either inside python interpreter or from outside the process. By tracing and logging each recursively created and executed stack frame inside &lt;code&gt;recur_sum_helper&lt;/code&gt;, the real reason can be established.&lt;/p&gt;</summary><category term="python"></category></entry><entry><title>Comparing different ways to add ints I</title><link href="/comparing-different-ways-to-add-ints-i.html" rel="alternate"></link><updated>2017-06-27T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-06-27:comparing-different-ways-to-add-ints-i.html</id><summary type="html">&lt;h2&gt;Puzzle&lt;/h2&gt;
 &lt;p&gt;Given 2 ints represented as array of digits in order (eg. 843 = [8, 4, 3]), implement a function that returns a sum of the 2 ints in the same format.&lt;/p&gt;
 &lt;p&gt;eg. &lt;/p&gt;
 &lt;p&gt;[8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]&lt;/p&gt;
