@@ -426,7 +426,7 @@ Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</
 <h2>Conclusion</h2>
 <p>Given arrays of length 918, the recursive sum function for some unexplained reasons takes 28x more time to run than previous and consequent function calls. This post showed the use of <code>cProfile</code> and <code>line_profiler</code> modules implemented as wrappers to collect and review profiling information. </p>
 <h2>Future work</h2>
-<p>At this point, it's best to implement tracing either inside python interpreter or from outside the process. By tracing and logging each recursively created and executed stack frame inside <code>recur_sum_helper</code>, the real reason can be established.</p>
+<p>At this point, it's best to implement tracing either inside python interpreter or from outside the process. By tracing and logging each recursively created and executed stack frame inside <code>recur_sum_helper</code>, we can get more information about </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
