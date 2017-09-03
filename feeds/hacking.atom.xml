@@ -343,7 +343,7 @@ collect_generations(void)
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;back to collect method&lt;/h2&gt;
+&lt;h2&gt;back to collect&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyErr_Occurred&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
         &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;nofail&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
             &lt;span class="n"&gt;PyErr_Clear&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
