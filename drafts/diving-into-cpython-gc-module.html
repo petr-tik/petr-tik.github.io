@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -62,7 +61,6 @@
             <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous blogpost, which outlined the GC mechanism in CPython.</p>
 <h1>What is the reason for GC in Python?</h1>
 <p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. Garbage collection is a mechanism for regularly checking that pre-allocated objects are still in use. Being in use means other objects still refer to you for something and your reference count is above 0.</p>
-<p>Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. The objcnt is later used by update_refs to copy refcnt value from PyObject’s objcnt to gc’s gc_refs field. This uses the property of gc_refs inside PyGC_Head. This field is set to different statuses to signal, if the object is still attached to any other objects.</p>
 <h1>What kind of GC does Python use?</h1>
 <p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every gc_generation has a threshold (number of objects after which a collection is performed). </p>
 <h1>What are the thresholds and why do they have such values?</h1>
@@ -140,7 +138,8 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p>1st generation -&gt; 0th generation -&gt; 2nd generation</p>
 <h2>After merging</h2>
 <p>Having defined young earlier (currently collected generation) and old (generation right of current) now assign values to them. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
-<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. <code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
+<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. <code>update_refs</code> copies refcnt value from PyObject’s objcnt to gc’s gc_refs field. This field is set to different statuses to signal, if the object is still attached to any other objects. </p>
+<p><code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
 <h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
 <h2>Clearing freelists</h2>
 <p>Full collection (collecting the oldest generation) involves clearing freelists. Recall that free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users to avoid calling malloc for the first X object creations. Similarly, when an object is deallocated, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Eg from <code>dictobject.c</code></p>

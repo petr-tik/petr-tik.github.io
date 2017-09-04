@@ -7,7 +7,7 @@
 
         <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
 
-        <title>Puzzles in C++ // My blog // </title>
+        <title>Unexpected bfs // My blog // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -51,38 +50,37 @@
         <div class="content">
             <section class="post">
                 <header class="post-header">
-                    <h1>Puzzles in C++</h1>
+                    <h1>Unexpected bfs</h1>
                         <p class="post-meta">
-                            // under                                 <a class="post-category" href="/tag/cpp.html">cpp</a>
-                                <a class="post-category" href="/tag/puzzles.html">puzzles</a>
+                            // under                                 <a class="post-category" href="/tag/python.html">python</a>
                                 <a class="post-category" href="/tag/algorithms.html">algorithms</a>
+                                <a class="post-category" href="/tag/hackerrank.html">hackerrank</a>
                         </p>
                 </header>
             </section>
-            <p>Notes on working with C++, my understanding of the small set of syntax features and data structures available. Might read like obvious or wrong set of assumptions to an experienced C++ engineer. Will keep updating with newer puzzles. </p>
-<h2>Namespaces</h2>
-<p>Define the set of functions, which are used during method name resolution. @jbcoe suggested to avoid it, as it can get messy with several conflicting namespaces.</p>
-<p>Adding this to the top of the file</p>
-<div class="highlight"><pre><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+            <p>This <a href="https://www.hackerrank.com/challenges/candies">puzzle</a> is in the DP section of HackerRank. With DP, you expect a recursive solution is expected, which is less memory efficient. Therefore, you should find a way to memoize/cache results of previous calculations to make it pass. </p>
+<h2>Problem statement:</h2>
+<div class="highlight"><pre>Given an array of students&#39; grades (ints) in the same order as they sit. Return the minimal number of candies all students receive, such that:
 </pre></div>
 
 
-<p>defines where method names will be looked up, which would save 5 chars</p>
-<div class="highlight"><pre><span class="n">cout</span>
-</pre></div>
-
-
-<p>instead of </p>
-<div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">cout</span>
-</pre></div>
-
-
-<h2>Data structures</h2>
-<p>Used stringstream object, which inherits from input_ and output_ streams. </p>
-<h2>Misc C++</h2>
-<p>Using clang++, -std=c++11 with awesome features like auto for type inference in for-loops</p>
-<h2>DNA counting puzzle</h2>
-<p>Given a DNA string, return the counts of each char (A, C, G, T). Initial solution - make a map with char as key and count <int> as value. Considering that the structure won't need to grow and we know the full range of characters that can appear, we can optimise. Instead, use an array and an enum to index into the cell in the array. Each value is started at 0 and as we iterate over the string, the value at the relevant index is incremented. That way, we can guarantee using one L1 cache line (4 ints = 16 bytes) and a buffer for the string. For further optimisation, we can implement a streaming buffer, if we are sure the string will only be used once. </p>
+<ul>
+<li>out of 2 adjacent students, the one with a higher grade receives more candy</li>
+<li>each student receives at least 1 piece of candy</li>
+</ul>
+<h3>Plot twist</h3>
+<p>Alternatively, you can look at the problem as a graph theory problem. </p>
+<p>Represent each student as a node on a plane. Among adjacent nodes, draw directed edges from the node with a lower grade to the node with a higher grade. All the nodes without incoming edges aren't greater than their neighbours (equal grades means you can give less candy), so they will receive the minimum amount - 1. Now start several breadth-first searches from each of the nodes without incoming edges (they will be the local start points). Visit node and increment the value at its index in the candies array. Differently to normal breadth-first search, you don't need to keep track of previously visited nodes and you can revisit them to increment the counter. In case you have a peak around a point 8 (index = 3) eg</p>
+<p>grades
+1 2 4 8 6 5 3 2 1</p>
+<p>candies (illegal) - if you don't revisit nodes to update counter. 
+1 2 3 4 5 4 3 2 1 </p>
+<p>candies (solution)
+1 2 3 6 5 4 3 2 1</p>
+<h3>Complexity</h3>
+<p>The prepare_for_bfs method takes linear O(n) time and bfs takes maximum O(V + E)</p>
+<p>The code is <a href="https://github.com/petr-tik/misc/blob/master/candies.py">here</a></p>
+<p>If you see a problem in description or the code, please open issues, send PRs</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;

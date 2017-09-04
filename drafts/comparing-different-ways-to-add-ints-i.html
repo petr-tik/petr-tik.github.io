@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -222,9 +221,9 @@
 
 
 <h3>Plots</h3>
-<p><img alt="Photo" src="/images/plot_sum_ints_stack_standard.png" /></p>
+<p><img alt="Photo" src="/drafts/images/plot_sum_ints_stack_standard.png" /></p>
 <p>The blue star marks a point of max_stack_depth. Generally, both scatter plots show linear increase in time with a sudden jump in recursive at ~900 </p>
-<p><img alt="Photo" src="/images/plot_sum_ints_stack_extra.png" /></p>
+<p><img alt="Photo" src="/drafts/images/plot_sum_ints_stack_extra.png" /></p>
 <p>Using the same sys module, I could setrecursionlimit to a higher than default value and explore the difference between recursive and iterative solution on bigger input arrays. As expected, iterative kept winning and recursive suffered another drastic jump in times (~1600), thought the gradient remained linear.</p>
 <h2>Conclusion</h2>
 <p>In this post, a simple problem was solved recursively and iteratively. Afterwards, both solutions were benchmarked and analysed in terms of their scalability. </p>

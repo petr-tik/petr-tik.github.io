@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -60,7 +59,7 @@
                 </header>
             </section>
             <p>I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input. I could still switch windows and work with another applications, but emacs hang up on me. </p>
-<p>Having spent a couple of hours stracing, <a href="/stracing-emacs-part-1.html">grepping and awking emacs start-up syscalls</a>, I was in the mood to debug some more. </p>
+<p>Having spent a couple of hours stracing, <a href="/drafts/stracing-emacs-part-1.html">grepping and awking emacs start-up syscalls</a>, I was in the mood to debug some more. </p>
 <p>Attaching my shell to the pid of emacs (I usually only run 1 emacs instance, hence pgrep emacs). </p>
 <div class="highlight"><pre>sudo strace -p <span class="k">$(</span>pgrep emacs<span class="k">)</span>
 </pre></div>
