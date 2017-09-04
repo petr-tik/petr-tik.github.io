@@ -61,13 +61,14 @@
             </section>
             <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous blogpost, which outlined the GC mechanism in CPython.</p>
 <h1>What is the reason for GC in Python?</h1>
-<p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. Garbage collection is a mechanism for regularly checking that pre-allocated objects are still in use. Being in use means other objects still refer to you for something. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. The objcnt is later used by update_refs to copy refcnt value from PyObject’s objcnt to gc’s gc_refs field. This uses the property of gc_refs inside PyGC_Head. This field is set to different statuses to signal, if the object is still attached to any other objects.</p>
+<p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. Garbage collection is a mechanism for regularly checking that pre-allocated objects are still in use. Being in use means other objects still refer to you for something and your reference count is above 0.</p>
+<p>Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. The objcnt is later used by update_refs to copy refcnt value from PyObject’s objcnt to gc’s gc_refs field. This uses the property of gc_refs inside PyGC_Head. This field is set to different statuses to signal, if the object is still attached to any other objects.</p>
 <h1>What kind of GC does Python use?</h1>
 <p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every gc_generation has a threshold (number of objects after which a collection is performed). </p>
 <h1>What are the thresholds and why do they have such values?</h1>
 <p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
 <h1>How is GC invoked?</h1>
-<p>Users can directly call gc.collect() to run a full collection. <code>Gg.collect</code>, its C equivalent - <code>PyGC_Collect()</code> and <code>collect_generations</code> uses <code>collect_with_callback()</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. <code>collect_generations</code> finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when <code>collect_generations</code> is called. </p>
+<p>Users can directly call gc.collect() to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect()</code> and <code>collect_generations</code> uses <code>collect_with_callback()</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. <code>collect_generations</code> finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when <code>collect_generations</code> is called. </p>
 <h1>What is PyGC_Head and how is it related to PyObject?</h1>
 <h3>PyGC_Head</h3>
 <p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/blob/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
@@ -107,6 +108,11 @@
 </pre></div>
 
 
+<h1>What kind of objects are tracked?</h1>
+<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable object - tuple of tuples/integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
+<h1>Why and how do you track/untrack objects?</h1>
+<p>By default, we still track newly created tuples and leave it to the GC to untrack it. <code>move_unreachable</code> uses <code>_PyTuple_MaybeUntrack</code> (defined in <a href="https://github.com/python/cpython/blob/3.6/Objects/tupleobject.c#L180-L203">Objects/tupleobject.c</a>), which iterates over all the objects in the tuple. If there are no NULL elements (yet to be constructed), it untracks the tuple object i.e. sets its <code>gc_refs</code> to <code>_PyGC_REFS_UNTRACKED</code> and removes its PyGC_Head object from its generation list.</p>
+<p>Dictionaries containing only immutable objects like strings also don’t need tracking. Dictionaries are untracked by default, but become tracked as soon as a mutable object is added (using an int as a key). Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
 <h1>How do you prepare a generation for collection?</h1>
 <p>To prepare a genertion for collection, we merge all younger generations into the generation that is currently being collected. <code>gc_list_merge</code> appends the younger generation to the list of the currently collected generation.</p>
 <h2>gc_list_merge</h2>
@@ -132,10 +138,9 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p><code>gc_list_init</code> makes the sentinel node points both pointers to itself. The first node in any gc list is therefore always a sentinel node. </p>
 <p>Therefore we merge the <code>from</code> list to the left of the <code>to</code> list. In a full collection, the 0th generation is merged with the 2nd first. The result, where the nodes from the 0th collection are to the left of the nodes from the 2nd collection, is merged with the 1st generation. This results in the following order:</p>
 <p>1st generation -&gt; 0th generation -&gt; 2nd generation</p>
-<h1>What kind of objects are tracked?</h1>
-<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable object - tuple of tuples/integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. By default, we still track newly created tuples and leave it to the GC to untrack it.</p>
-<p>Dictionaries containing only immutable objects like strings also don’t need tracking. Dictionaries are untracked by default, but become tracked as soon as a mutable object is added (using an int as a key). Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
-<h1>Why would you track/untrack objects?</h1>
+<h2>After merging</h2>
+<p>Having defined young earlier (currently collected generation) and old (generation right of current) now assign values to them. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
+<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. <code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
 <h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
 <h2>Clearing freelists</h2>
 <p>Full collection (collecting the oldest generation) involves clearing freelists. Recall that free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users to avoid calling malloc for the first X object creations. Similarly, when an object is deallocated, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Eg from <code>dictobject.c</code></p>
@@ -175,7 +180,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 <p>If we haven't allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list. Otherwise, it must have been allocated by our programme, not the intepreter at start-up, hence we need to explicitly free it.</p>
 <h3>How can you clear the list of dictionaries?</h3>
-<p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing the list of free dictionaries to use. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place. </p>
+<p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing the list of free dictionaries to use. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
 <div class="highlight"><pre><span class="nb">int</span>
 <span class="n">PyDict_ClearFreeList</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
 <span class="p">{</span>
@@ -195,6 +200,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 
 <h1>How often is full collection run?</h1>
+<p>asd</p>
 <h2>collect method</h2>
 <p>Below is the main collect method found in <code>Modules/gcmodule.c</code> annotated with my guesses about the use of each variable.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
@@ -663,18 +669,6 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<p>Having defined young earlier (currently collected generation) and old (generation right of current) now give them values. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
-<div class="highlight"><pre>    /* Using ob_refcnt and gc_refs, calculate which objects in the
-     * container set are reachable from outside the set (i.e., have a
-     * refcount greater than 0 when all the references within the
-     * set are taken into account).
-     */
-    update_refs(young);
-    subtract_refs(young);
-</pre></div>
-
-
-<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. <code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
 <div class="highlight"><pre>    /* Leave everything reachable from outside young in young, and move
      * everything else (in young) to unreachable.
      * NOTE:  This used to move the reachable objects into a reachable
