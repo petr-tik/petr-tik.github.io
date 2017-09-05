@@ -140,10 +140,52 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p>Having defined young earlier (currently collected generation) and old (generation right of current) now assign values to them. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
 <p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. <code>update_refs</code> copies refcnt value from PyObject’s objcnt to gc’s gc_refs field. This field is set to different statuses to signal, if the object is still attached to any other objects. </p>
 <p><code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
+<h2>What happens in a collection?</h2>
+<h3>Tentatively moved unreachable objects</h3>
+<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of young, where objects have had their ob_refcnt and gc_refs updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again.</p>
+<h3>Promote survived objects to the older generation</h3>
+<p>The objects in young that haven't been marked as <code>GC_TENTATIVELY_UNREACHABLE</code> are definitely getting promoted to the next generation by merging <code>young</code> with <code>old</code>.</p>
+<h3>deal with finalizers</h3>
+<h3>clear weakrefs</h3>
+<h3>check and revive garbage if necessary</h3>
+<h3>delete garbage</h3>
+<h3>collect stats</h3>
+<h3>clear freelists</h3>
+<p>more below</p>
 <h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
+<h2>Avoided using a heuristic</h2>
+<p>Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. We can either skip objects or perform fewer collections, so a heuristic is used to run fewer collections. Long-lived objects are those in generation 2. The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. A limit of 25% between objects that are yet to go through a full collection over the number of objects that survived the last collection in generation 2. </p>
+<div class="highlight"><pre>static Py_ssize_t
+collect_generations(void)
+{
+    ...
+    for (i = NUM_GENERATIONS-1; i &gt;= 0; i--) {
+        if (generations[i].count &gt; generations[i].threshold) {
+    ...
+        if (i == NUM_GENERATIONS - 1
+                &amp;&amp; long_lived_pending &lt; long_lived_total / 4)
+                continue;
+            n = collect_with_callback(i);
+</pre></div>
+
+
+<p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
+<h2>No need to promote objects</h2>
+<p>When <code>young != old</code>, the objects that are still reachable in the <code>young</code> list are moved to the old. Collecting the oldest generation means we cannot move/promote surviving objects any further.</p>
+<div class="highlight"><pre>    else {
+        /* We only untrack dicts in full collections, to avoid quadratic
+           dict build-up. See issue #14775. */
+        untrack_dicts(young);
+        long_lived_pending = 0;
+        long_lived_total = gc_list_size(young);
+    }
+</pre></div>
+
+
+<p>We don't move anything anywhere, just reset <code>long_lived_pending</code> (no object has not survived a full collection) and update <code>long_lived_total</code> with the number of objects . </p>
 <h2>Clearing freelists</h2>
-<p>Full collection (collecting the oldest generation) involves clearing freelists. Recall that free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users to avoid calling malloc for the first X object creations. Similarly, when an object is deallocated, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Eg from <code>dictobject.c</code></p>
-<h4>Why does CPython preallocate 80 dictionaries?</h4>
+<p>Full collection (collecting the oldest generation) involves clearing freelists. Free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users avoid calling malloc for the first X object creations. Similarly, when an object is collected, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Example from <code>dictobject.c</code> below</p>
+<p>The CPython interpreter allocates a list of 80 dictionary objects.</p>
 <div class="highlight"><pre><span class="c">#ifndef PyDict_MAXFREELIST</span>
 <span class="c">#define PyDict_MAXFREELIST 80</span>
 <span class="c">#endif</span>
@@ -152,8 +194,10 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<p>The CPython interpreter allocates a list of 80 dictionary objects. The commit adding free_lists and their sizes is an old svn commit with more than a dozen of features in one commit, without explanation or inability to recover the reasoning behind 80.</p>
-<h4>How is freelist used to alloc/free dictionaries?</h4>
+<h3>Why does CPython preallocate 80 dictionaries?</h3>
+<p>The commit adding free_lists and their sizes is an old svn commit with more than a dozen of features in one commit, without explanation or inability to recover the reasoning behind 80.</p>
+<h3>How is freelist used to alloc/free dictionaries?</h3>
+<p>In the function that creates a new dictionary from given keys and values, first the numfree variable is checked. If all dictionaries in the freelist have been used already (numfree &gt;= 80), we have to allocate our own. Otherwise, Using numfree as index into the array of preallocated data types (eg. dictionaries), we assign mp to a dictionary from the list. Interestingly enough, <code>if (numfree)</code> will also execute the branch, if numfree is negative, which is semantically incorrect, but not impossible.</p>
 <div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
 <span class="n">new_dict</span><span class="p">(</span><span class="n">PyDictKeysObject</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
 <span class="p">{</span>
@@ -167,7 +211,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<p>Using numfree as index into the array of preallocated data types (eg. dictionaries), we assign mp to a dictionary from the list. If all dictionaries in the freelist have been used already, we have to allocate our own. Interestingly enough, <code>if (numfree)</code> will also execute the branch, if numfree is negative, which is semantically incorrect. </p>
+<p>If we haven't allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list. Otherwise, it must have been allocated by our programme, not the intepreter at start-up, hence we need to explicitly free it.</p>
 <div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
 <span class="n">dict_dealloc</span><span class="p">(</span><span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">)</span>
 <span class="p">{</span>
@@ -177,9 +221,8 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<p>If we haven't allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list. Otherwise, it must have been allocated by our programme, not the intepreter at start-up, hence we need to explicitly free it.</p>
 <h3>How can you clear the list of dictionaries?</h3>
-<p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing the list of free dictionaries to use. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
+<p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing its freelist. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
 <div class="highlight"><pre><span class="nb">int</span>
 <span class="n">PyDict_ClearFreeList</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
 <span class="p">{</span>
@@ -198,8 +241,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<h1>How often is full collection run?</h1>
-<p>asd</p>
+<p>Iterates over the freelist, GC_deleting each object in the list. In the end, we have numfree set to 0 and a freelist full of objects ready to be used again.</p>
 <h2>collect method</h2>
 <p>Below is the main collect method found in <code>Modules/gcmodule.c</code> annotated with my guesses about the use of each variable.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
@@ -679,7 +721,6 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<p>Initialise list of unreachable object with a stack-allocated unreachable variable. <code>move_unreachable</code> walks across the list of young, where objects have had their ob_refcnt and gc_refs updated. Those with refcount &lt;= 0 are moved into unreachable list. </p>
 <div class="highlight"><pre>    /* Move reachable objects to next generation. */
     if (young != old) {
         if (generation == NUM_GENERATIONS - 2) {
@@ -692,34 +733,6 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 <p>If we aren't collecting the oldest generation, this isn't a full collection. If we are collecting the 0th generation, add the number of objects to <code>long_lived_pending</code> var and merge the lists. Keeping track of the number of objects that survived the collection in <code>young</code>, but are yet to go through a full collection is used in <code>collect_generations</code>. </p>
 <h3>long-lived objects</h3>
-<p>Long-lived objects are those in generation 2. The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. A heuristic is used to reduce it. We can either skip objects or perform fewer collections. A limit of 25% between objects that are yet to go through a full collection over the number of objects that survived the last collection in generation 2. </p>
-<div class="highlight"><pre>static Py_ssize_t
-collect_generations(void)
-{
-    ...
-    for (i = NUM_GENERATIONS-1; i &gt;= 0; i--) {
-        if (generations[i].count &gt; generations[i].threshold) {
-    ...
-        if (i == NUM_GENERATIONS - 1
-                &amp;&amp; long_lived_pending &lt; long_lived_total / 4)
-                continue;
-            n = collect_with_callback(i);
-</pre></div>
-
-
-<p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
-<h2>back to collect</h2>
-<div class="highlight"><pre>    else {
-        /* We only untrack dicts in full collections, to avoid quadratic
-           dict build-up. See issue #14775. */
-        untrack_dicts(young);
-        long_lived_pending = 0;
-        long_lived_total = gc_list_size(young);
-    }
-</pre></div>
-
-
-<p>Perform a full collection. We don't move anything anywhere, just reset <code>long_lived_pending</code> (no object has not survived a full collection) and update <code>long_lived_total</code> with the number of objects left. </p>
 <h3>untracking immutable objects like dicts</h3>
 <h2>Back to collect</h2>
 <div class="highlight"><pre>    <span class="o">/*</span> <span class="n">All</span> <span class="n">objects</span> <span class="ow">in</span> <span class="n">unreachable</span> <span class="n">are</span> <span class="n">trash</span><span class="p">,</span> <span class="n">but</span> <span class="n">objects</span> <span class="n">reachable</span> <span class="kn">from</span>
@@ -773,31 +786,6 @@ collect_generations(void)
 
 <p><code>finalise_garbage</code> calls objects' custom destructors. <code>check_garbage</code> uses <code>substract_refs</code> to check if the objects in <code>unreachable</code> have references to each other or objects outside. If they turn out to have refs to objects outside of <code>unreachable</code>, <code>revive_garbage</code> sets all objects' <code>gc_refs</code> to GC_REACHABLE and merges the whole list with <code>old</code> generation. </p>
 <p><code>delete_garbage</code> traverses through the <code>unreachable</code> list and if it has a <code>tp_clear</code> method, invokes it. If the object is still alive after that, its <code>gc_refs</code> is set to GC_REACHABLE and it's moved to the <code>old</code> generation.</p>
-<div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Collect</span> <span class="n">statistics</span> <span class="n">on</span> <span class="n">uncollectable</span> <span class="n">objects</span> <span class="n">found</span> <span class="ow">and</span> <span class="k">print</span>
-     <span class="o">*</span> <span class="n">debugging</span> <span class="n">information</span><span class="o">.</span> <span class="o">*/</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">finalizers</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">;</span>
-         <span class="n">gc</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">finalizers</span><span class="p">;</span>
-         <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">n</span><span class="o">++</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">debug</span> <span class="o">&amp;</span> <span class="n">DEBUG_UNCOLLECTABLE</span><span class="p">)</span>
-            <span class="n">debug_cycle</span><span class="p">(</span><span class="s">&quot;uncollectable&quot;</span><span class="p">,</span> <span class="n">FROM_GC</span><span class="p">(</span><span class="n">gc</span><span class="p">));</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">debug</span> <span class="o">&amp;</span> <span class="n">DEBUG_STATS</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">_PyTime_t</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">_PyTime_GetMonotonicClock</span><span class="p">();</span>
-
-        <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;gc: done&quot;</span><span class="p">);</span>
-        <span class="k">else</span>
-            <span class="n">PySys_FormatStderr</span><span class="p">(</span>
-                <span class="s">&quot;gc: done, %zd unreachable, %zd uncollectable&quot;</span><span class="p">,</span>
-                <span class="n">n</span><span class="o">+</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
-        <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;, </span><span class="si">%.4f</span><span class="s">s elapsed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
-                          <span class="n">_PyTime_AsSecondsDouble</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">));</span>
-    <span class="p">}</span>
-</pre></div>
-
-
-<p>Deals with stats and debugging collection.</p>
 <div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Append</span> <span class="n">instances</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">uncollectable</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">a</span> <span class="n">Python</span>
      <span class="o">*</span> <span class="n">reachable</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">garbage</span><span class="o">.</span>  <span class="n">The</span> <span class="n">programmer</span> <span class="n">has</span> <span class="n">to</span> <span class="n">deal</span> <span class="k">with</span>
      <span class="o">*</span> <span class="n">this</span> <span class="k">if</span> <span class="n">they</span> <span class="n">insist</span> <span class="n">on</span> <span class="n">creating</span> <span class="n">this</span> <span class="nb">type</span> <span class="n">of</span> <span class="n">structure</span><span class="o">.</span>
@@ -815,22 +803,6 @@ collect_generations(void)
 </pre></div>
 
 
-<h2>back to collect</h2>
-<div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span><span class="n">PyErr_Occurred</span><span class="p">())</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">nofail</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">PyErr_Clear</span><span class="p">();</span>
-        <span class="p">}</span>
-        <span class="k">else</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">gc_str</span> <span class="o">==</span> <span class="n">NULL</span><span class="p">)</span>
-                <span class="n">gc_str</span> <span class="o">=</span> <span class="n">PyUnicode_FromString</span><span class="p">(</span><span class="s">&quot;garbage collection&quot;</span><span class="p">);</span>
-            <span class="n">PyErr_WriteUnraisable</span><span class="p">(</span><span class="n">gc_str</span><span class="p">);</span>
-            <span class="n">Py_FatalError</span><span class="p">(</span><span class="s">&quot;unexpected exception during garbage collection&quot;</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-</pre></div>
-
-
-<p>Error handling code. This catches the error and writes to terminal a generic crash message.</p>
 <div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Update</span> <span class="n">stats</span> <span class="o">*/</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">n_collected</span><span class="p">)</span>
         <span class="o">*</span><span class="n">n_collected</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span>
@@ -853,7 +825,7 @@ collect_generations(void)
 <p><code>gc_refs</code> values determine if an object should be collected. When an object is malloc’ed, its <code>gc_refs</code> is set to <code>GC_UNTRACKED</code>, because it’s absent from any generation list. </p>
 <p>As soon as it’s added to a generation list its <code>gc_refs</code> is updated to GC_REACHABLE.</p>
 <p>When collecting happens, <code>gc_refs</code> may take other values. The most important is GC_TENTATIVELY_UNREACHABLE, which means the object has been moved to the unreachable set. Even when ref updating is over and an object is GC_TENTATIVELY_UNREACHABLE, it may be made reachable again, because it has a <code>__del__</code> method. This is done with a revive_garbage method, which takes a pointer to list of supposedly unreachable objects, which turned out to have refs to objects outside their own group.</p>
-<h2>Conclusion</h2>
+<h2>Summary</h2>
 <p>This blog is a read-through of the <code>Modules/gcmodule.c</code> of the CPython interpreter. The logic is inside the <code>collect</code> method, which is called by <code>collect_with_callback</code>. The <code>gc</code> module exposes the <code>gc.collect()</code> method that users can manually activate in terminal, which performs a full collection. Some heuristics and tips to use CPython efficiently were explained and internals of object allocation/collection were outlined. </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
