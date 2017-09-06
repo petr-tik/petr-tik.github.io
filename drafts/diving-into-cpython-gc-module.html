@@ -58,7 +58,7 @@
                         </p>
                 </header>
             </section>
-            <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous blogpost, which outlined the GC mechanism in CPython.</p>
+            <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous <a href="/drafts/notes-on-pythons-gc.html">blogpost</a>, which outlined the GC mechanism in CPython.</p>
 <h1>What is the reason for GC in Python?</h1>
 <p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. Garbage collection is a mechanism for regularly checking that pre-allocated objects are still in use. Being in use means other objects still refer to you for something and your reference count is above 0.</p>
 <h1>What kind of GC does Python use?</h1>
@@ -106,143 +106,7 @@
 </pre></div>
 
 
-<h1>What kind of objects are tracked?</h1>
-<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable object - tuple of tuples/integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
-<h1>Why and how do you track/untrack objects?</h1>
-<p>By default, we still track newly created tuples and leave it to the GC to untrack it. <code>move_unreachable</code> uses <code>_PyTuple_MaybeUntrack</code> (defined in <a href="https://github.com/python/cpython/blob/3.6/Objects/tupleobject.c#L180-L203">Objects/tupleobject.c</a>), which iterates over all the objects in the tuple. If there are no NULL elements (yet to be constructed), it untracks the tuple object i.e. sets its <code>gc_refs</code> to <code>_PyGC_REFS_UNTRACKED</code> and removes its PyGC_Head object from its generation list.</p>
-<p>Dictionaries containing only immutable objects like strings also don’t need tracking. Dictionaries are untracked by default, but become tracked as soon as a mutable object is added (using an int as a key). Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
-<h1>How do you prepare a generation for collection?</h1>
-<p>To prepare a genertion for collection, we merge all younger generations into the generation that is currently being collected. <code>gc_list_merge</code> appends the younger generation to the list of the currently collected generation.</p>
-<h2>gc_list_merge</h2>
-<div class="highlight"><pre><span class="cm">/* append list `from` onto list `to`; `from` becomes an empty list */</span><span class="w"></span>
-static<span class="w"> </span>void<span class="w"></span>
-gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span class="o">*</span>from<span class="o">,</span><span class="w"> </span>PyGC_Head<span class="w"> </span><span class="o">*</span><span class="kr">to</span><span class="o">)</span><span class="w"></span>
-<span class="err">{</span><span class="w"></span>
-<span class="w">    </span>PyGC_Head<span class="w"> </span><span class="o">*</span>tail<span class="err">;</span><span class="w"></span>
-<span class="w">    </span>assert<span class="o">(</span>from<span class="w"> </span><span class="err">!</span><span class="o">=</span><span class="w"> </span><span class="kr">to</span><span class="o">)</span><span class="err">;</span><span class="w"></span>
-<span class="w">    </span><span class="kr">if</span><span class="w"> </span><span class="o">(</span><span class="err">!</span>gc_list_is_empty<span class="o">(</span>from<span class="o">))</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">        </span>tail<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">to</span><span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="err">;</span><span class="w"></span>
-<span class="w">        </span>tail<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="w"> </span><span class="o">=</span><span class="w"> </span>from<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="err">;</span><span class="w"></span>
-<span class="w">        </span>tail<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="w"> </span><span class="o">=</span><span class="w"> </span>tail<span class="err">;</span><span class="w"></span>
-<span class="w">        </span><span class="kr">to</span><span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="w"> </span><span class="o">=</span><span class="w"> </span>from<span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="err">;</span><span class="w"></span>
-<span class="w">        </span><span class="kr">to</span><span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">to</span><span class="err">;</span><span class="w"></span>
-<span class="w">    </span><span class="err">}</span><span class="w"></span>
-<span class="w">    </span>gc_list_init<span class="o">(</span>from<span class="o">)</span><span class="err">;</span><span class="w"></span>
-<span class="err">}</span><span class="w"></span>
-</pre></div>
-
-
-<p>By creating a variable for <code>tail</code>, we can save the pointer to the last node in the to list. First, we link the second node in the from list with the end of the to list using the <code>tail</code> variable. The second node in the from list becomes the head of the merged list. At the end, we make the head node of the to list point its prev pointer to the last node of the from list and the next pointer of the last node of the from list to the first node of the to list. </p>
-<p><code>gc_list_init</code> makes the sentinel node points both pointers to itself. The first node in any gc list is therefore always a sentinel node. </p>
-<p>Therefore we merge the <code>from</code> list to the left of the <code>to</code> list. In a full collection, the 0th generation is merged with the 2nd first. The result, where the nodes from the 0th collection are to the left of the nodes from the 2nd collection, is merged with the 1st generation. This results in the following order:</p>
-<p>1st generation -&gt; 0th generation -&gt; 2nd generation</p>
-<h2>After merging</h2>
-<p>Having defined young earlier (currently collected generation) and old (generation right of current) now assign values to them. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
-<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. <code>update_refs</code> copies refcnt value from PyObject’s objcnt to gc’s gc_refs field. This field is set to different statuses to signal, if the object is still attached to any other objects. </p>
-<p><code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
-<h2>What happens in a collection?</h2>
-<h3>Tentatively moved unreachable objects</h3>
-<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of young, where objects have had their ob_refcnt and gc_refs updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again.</p>
-<h3>Promote survived objects to the older generation</h3>
-<p>The objects in young that haven't been marked as <code>GC_TENTATIVELY_UNREACHABLE</code> are definitely getting promoted to the next generation by merging <code>young</code> with <code>old</code>.</p>
-<h3>deal with finalizers</h3>
-<h3>clear weakrefs</h3>
-<h3>check and revive garbage if necessary</h3>
-<h3>delete garbage</h3>
-<h3>collect stats</h3>
-<h3>clear freelists</h3>
-<p>more below</p>
-<h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
-<h2>Avoided using a heuristic</h2>
-<p>Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. We can either skip objects or perform fewer collections, so a heuristic is used to run fewer collections. Long-lived objects are those in generation 2. The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. A limit of 25% between objects that are yet to go through a full collection over the number of objects that survived the last collection in generation 2. </p>
-<div class="highlight"><pre>static Py_ssize_t
-collect_generations(void)
-{
-    ...
-    for (i = NUM_GENERATIONS-1; i &gt;= 0; i--) {
-        if (generations[i].count &gt; generations[i].threshold) {
-    ...
-        if (i == NUM_GENERATIONS - 1
-                &amp;&amp; long_lived_pending &lt; long_lived_total / 4)
-                continue;
-            n = collect_with_callback(i);
-</pre></div>
-
-
-<p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
-<h2>No need to promote objects</h2>
-<p>When <code>young != old</code>, the objects that are still reachable in the <code>young</code> list are moved to the old. Collecting the oldest generation means we cannot move/promote surviving objects any further.</p>
-<div class="highlight"><pre>    else {
-        /* We only untrack dicts in full collections, to avoid quadratic
-           dict build-up. See issue #14775. */
-        untrack_dicts(young);
-        long_lived_pending = 0;
-        long_lived_total = gc_list_size(young);
-    }
-</pre></div>
-
-
-<p>We don't move anything anywhere, just reset <code>long_lived_pending</code> (no object has not survived a full collection) and update <code>long_lived_total</code> with the number of objects . </p>
-<h2>Clearing freelists</h2>
-<p>Full collection (collecting the oldest generation) involves clearing freelists. Free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users avoid calling malloc for the first X object creations. Similarly, when an object is collected, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Example from <code>dictobject.c</code> below</p>
-<p>The CPython interpreter allocates a list of 80 dictionary objects.</p>
-<div class="highlight"><pre><span class="c">#ifndef PyDict_MAXFREELIST</span>
-<span class="c">#define PyDict_MAXFREELIST 80</span>
-<span class="c">#endif</span>
-<span class="n">static</span> <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">free_list</span><span class="p">[</span><span class="n">PyDict_MAXFREELIST</span><span class="p">];</span>
-<span class="n">static</span> <span class="nb">int</span> <span class="n">numfree</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</pre></div>
-
-
-<h3>Why does CPython preallocate 80 dictionaries?</h3>
-<p>The commit adding free_lists and their sizes is an old svn commit with more than a dozen of features in one commit, without explanation or inability to recover the reasoning behind 80.</p>
-<h3>How is freelist used to alloc/free dictionaries?</h3>
-<p>In the function that creates a new dictionary from given keys and values, first the numfree variable is checked. If all dictionaries in the freelist have been used already (numfree &gt;= 80), we have to allocate our own. Otherwise, Using numfree as index into the array of preallocated data types (eg. dictionaries), we assign mp to a dictionary from the list. Interestingly enough, <code>if (numfree)</code> will also execute the branch, if numfree is negative, which is semantically incorrect, but not impossible.</p>
-<div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
-<span class="n">new_dict</span><span class="p">(</span><span class="n">PyDictKeysObject</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">;</span>
-    <span class="k">assert</span><span class="p">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="n">NULL</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">numfree</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">mp</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfree</span><span class="p">];</span>
-    <span class="o">...</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="n">mp</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-
-
-<p>If we haven't allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list. Otherwise, it must have been allocated by our programme, not the intepreter at start-up, hence we need to explicitly free it.</p>
-<div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
-<span class="n">dict_dealloc</span><span class="p">(</span><span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="o">...</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">numfree</span> <span class="o">&lt;</span> <span class="n">PyDict_MAXFREELIST</span> <span class="o">&amp;&amp;</span> <span class="n">Py_TYPE</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">PyDict_Type</span><span class="p">)</span>
-        <span class="n">free_list</span><span class="p">[</span><span class="n">numfree</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="p">;</span>
-</pre></div>
-
-
-<h3>How can you clear the list of dictionaries?</h3>
-<p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing its freelist. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
-<div class="highlight"><pre><span class="nb">int</span>
-<span class="n">PyDict_ClearFreeList</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">op</span><span class="p">;</span>
-    <span class="nb">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">numfree</span> <span class="o">+</span> <span class="n">numfreekeys</span><span class="p">;</span>
-    <span class="k">while</span> <span class="p">(</span><span class="n">numfree</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">op</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfree</span><span class="p">];</span>
-        <span class="k">assert</span><span class="p">(</span><span class="n">PyDict_CheckExact</span><span class="p">(</span><span class="n">op</span><span class="p">));</span>
-        <span class="n">PyObject_GC_Del</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="k">while</span> <span class="p">(</span><span class="n">numfreekeys</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">PyObject_FREE</span><span class="p">(</span><span class="n">keys_free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfreekeys</span><span class="p">]);</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-
-
-<p>Iterates over the freelist, GC_deleting each object in the list. In the end, we have numfree set to 0 and a freelist full of objects ready to be used again.</p>
-<h2>collect method</h2>
+<h1>collect method</h1>
 <p>Below is the main collect method found in <code>Modules/gcmodule.c</code> annotated with my guesses about the use of each variable.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
@@ -670,7 +534,148 @@ collect_generations(void)
 </pre></div>
 </td></tr></table>
 
-<h2>What does it return?</h2>
+<h1>What kind of objects are tracked?</h1>
+<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable object - tuple of tuples/integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
+<h1>Why and how do you track/untrack objects?</h1>
+<p>By default, we still track newly created tuples and leave it to the GC to untrack it. <code>move_unreachable</code> uses <code>_PyTuple_MaybeUntrack</code> (defined in <a href="https://github.com/python/cpython/blob/3.6/Objects/tupleobject.c#L180-L203">Objects/tupleobject.c</a>), which iterates over all the objects in the tuple. If there are no NULL elements (yet to be constructed), it untracks the tuple object i.e. sets its <code>gc_refs</code> to <code>_PyGC_REFS_UNTRACKED</code> and removes its PyGC_Head object from its generation list.</p>
+<p>Dictionaries containing only immutable objects like strings also don’t need tracking. Dictionaries are untracked by default, but become tracked as soon as a mutable object is added (using an int as a key). Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
+<h1>How do you prepare a generation for collection?</h1>
+<p>To prepare a genertion for collection, we merge all younger generations into the generation that is currently being collected. <code>gc_list_merge</code> appends the younger generation to the list of the currently collected generation.</p>
+<h2>gc_list_merge</h2>
+<div class="highlight"><pre><span class="cm">/* append list `from` onto list `to`; `from` becomes an empty list */</span><span class="w"></span>
+static<span class="w"> </span>void<span class="w"></span>
+gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span class="o">*</span>from<span class="o">,</span><span class="w"> </span>PyGC_Head<span class="w"> </span><span class="o">*</span><span class="kr">to</span><span class="o">)</span><span class="w"></span>
+<span class="err">{</span><span class="w"></span>
+<span class="w">    </span>PyGC_Head<span class="w"> </span><span class="o">*</span>tail<span class="err">;</span><span class="w"></span>
+<span class="w">    </span>assert<span class="o">(</span>from<span class="w"> </span><span class="err">!</span><span class="o">=</span><span class="w"> </span><span class="kr">to</span><span class="o">)</span><span class="err">;</span><span class="w"></span>
+<span class="w">    </span><span class="kr">if</span><span class="w"> </span><span class="o">(</span><span class="err">!</span>gc_list_is_empty<span class="o">(</span>from<span class="o">))</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+<span class="w">        </span>tail<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">to</span><span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="err">;</span><span class="w"></span>
+<span class="w">        </span>tail<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="w"> </span><span class="o">=</span><span class="w"> </span>from<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="err">;</span><span class="w"></span>
+<span class="w">        </span>tail<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="w"> </span><span class="o">=</span><span class="w"> </span>tail<span class="err">;</span><span class="w"></span>
+<span class="w">        </span><span class="kr">to</span><span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="w"> </span><span class="o">=</span><span class="w"> </span>from<span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="err">;</span><span class="w"></span>
+<span class="w">        </span><span class="kr">to</span><span class="o">-&gt;</span>gc<span class="o">.</span>gc_prev<span class="o">-&gt;</span>gc<span class="o">.</span>gc_next<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">to</span><span class="err">;</span><span class="w"></span>
+<span class="w">    </span><span class="err">}</span><span class="w"></span>
+<span class="w">    </span>gc_list_init<span class="o">(</span>from<span class="o">)</span><span class="err">;</span><span class="w"></span>
+<span class="err">}</span><span class="w"></span>
+</pre></div>
+
+
+<p>By creating a variable for <code>tail</code>, we can save the pointer to the last node in the to list. First, we link the second node in the from list with the end of the to list using the <code>tail</code> variable. The second node in the from list becomes the head of the merged list. At the end, we make the head node of the to list point its prev pointer to the last node of the from list and the next pointer of the last node of the from list to the first node of the to list. </p>
+<p><code>gc_list_init</code> makes the sentinel node points both pointers to itself. The first node in any gc list is therefore always a sentinel node. </p>
+<p>Therefore we merge the <code>from</code> list to the left of the <code>to</code> list. In a full collection, the 0th generation is merged with the 2nd first. The result, where the nodes from the 0th collection are to the left of the nodes from the 2nd collection, is merged with the 1st generation. This results in the following order:</p>
+<p>1st generation -&gt; 0th generation -&gt; 2nd generation</p>
+<h2>After merging</h2>
+<p>Having defined young earlier (currently collected generation) and old (generation right of current) now assign values to them. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
+<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. <code>update_refs</code> copies refcnt value from PyObject’s objcnt to gc’s gc_refs field. This field is set to different statuses to signal, if the object is still attached to any other objects. </p>
+<p><code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
+<h2>What happens in a collection?</h2>
+<h3>Tentatively move unreachable objects</h3>
+<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of young, where objects have had their ob_refcnt and gc_refs updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again.</p>
+<h3>Promote survived objects to the older generation</h3>
+<p>The objects in young that haven't been marked as <code>GC_TENTATIVELY_UNREACHABLE</code> are definitely getting promoted to the next generation by merging <code>young</code> with <code>old</code>.</p>
+<h3>Deal with finalizers</h3>
+<p>If unreachable objects have finalizers, we need to check if they may be reachable. If so, we can recover them.</p>
+<h3>clear weakrefs</h3>
+<p>Tidies up all objects in <code>unreachable</code> and guarantees that none of them have weakrefs to other objects.</p>
+<h3>check and revive garbage if necessary</h3>
+<p><code>finalise_garbage</code> calls objects' custom destructors. <code>check_garbage</code> uses <code>substract_refs</code> to check if the objects in <code>unreachable</code> have references to each other or objects outside. If they turn out to have refs to objects outside of <code>unreachable</code>, <code>revive_garbage</code> sets all objects' <code>gc_refs</code> to GC_REACHABLE and merges the whole list with <code>old</code> generation. </p>
+<h3>delete garbage</h3>
+<p><code>delete_garbage</code> traverses through the <code>unreachable</code> list and if it has a <code>tp_clear</code> method, invokes it. If the object is still alive after that, its <code>gc_refs</code> is set to GC_REACHABLE and it's moved to the <code>old</code> generation.</p>
+<h3>collect stats</h3>
+<h3>clear freelists</h3>
+<p>At the end of a full collection, freelists for different data structures are cleared. More detail below.</p>
+<h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
+<h2>Runs less frequently using a heuristic</h2>
+<p>Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. We can either skip objects or perform fewer collections, so a heuristic is used to run fewer collections. Long-lived objects are those in generation 2. The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. A limit of 25% between objects that are yet to go through a full collection over the number of objects that survived the last collection in generation 2. </p>
+<div class="highlight"><pre>static Py_ssize_t
+collect_generations(void)
+{
+    ...
+    for (i = NUM_GENERATIONS-1; i &gt;= 0; i--) {
+        if (generations[i].count &gt; generations[i].threshold) {
+    ...
+        if (i == NUM_GENERATIONS - 1
+                &amp;&amp; long_lived_pending &lt; long_lived_total / 4)
+                continue;
+            n = collect_with_callback(i);
+</pre></div>
+
+
+<p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
+<h2>Surviving objects don't get promoted</h2>
+<p>When <code>young != old</code>, the objects that are still reachable in the <code>young</code> list are moved to the old. Collecting the oldest generation means we cannot move/promote surviving objects any further.</p>
+<div class="highlight"><pre>    else {
+        /* We only untrack dicts in full collections, to avoid quadratic
+           dict build-up. See issue #14775. */
+        untrack_dicts(young);
+        long_lived_pending = 0;
+        long_lived_total = gc_list_size(young);
+    }
+</pre></div>
+
+
+<p>We don't move anything anywhere, just reset <code>long_lived_pending</code> (no object has not survived a full collection) and update <code>long_lived_total</code> with the number of objects . </p>
+<h2>Clearing freelists</h2>
+<h3>What are freelists?</h3>
+<p>Full collection (collecting the oldest generation) involves clearing freelists. Free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users avoid calling malloc for the first X object creations. Similarly, when an object is collected, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Example from <code>dictobject.c</code> below</p>
+<p>The CPython interpreter allocates a list of 80 dictionary objects.</p>
+<div class="highlight"><pre><span class="c">#ifndef PyDict_MAXFREELIST</span>
+<span class="c">#define PyDict_MAXFREELIST 80</span>
+<span class="c">#endif</span>
+<span class="n">static</span> <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">free_list</span><span class="p">[</span><span class="n">PyDict_MAXFREELIST</span><span class="p">];</span>
+<span class="n">static</span> <span class="nb">int</span> <span class="n">numfree</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</pre></div>
+
+
+<h3>Why does CPython preallocate 80 dictionaries?</h3>
+<p>The commit adding free_lists and their sizes is an old svn commit with more than a dozen of features in one commit, without explanation or inability to recover the reasoning behind 80.</p>
+<h3>How is freelist used to alloc/free dictionaries?</h3>
+<p>In the function that creates a new dictionary from given keys and values, first the numfree variable is checked. If all dictionaries in the freelist have been used already (numfree &gt;= 80), we have to allocate our own. Otherwise, Using numfree as index into the array of preallocated data types (eg. dictionaries), we assign mp to a dictionary from the list. Interestingly enough, <code>if (numfree)</code> will also execute the branch, if numfree is negative, which is semantically incorrect, but not impossible.</p>
+<div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
+<span class="n">new_dict</span><span class="p">(</span><span class="n">PyDictKeysObject</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">;</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="n">NULL</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">numfree</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">mp</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfree</span><span class="p">];</span>
+    <span class="o">...</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="n">mp</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>If we haven't allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list. Otherwise, it must have been allocated by our programme, not the intepreter at start-up, hence we need to explicitly free it.</p>
+<div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
+<span class="n">dict_dealloc</span><span class="p">(</span><span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">numfree</span> <span class="o">&lt;</span> <span class="n">PyDict_MAXFREELIST</span> <span class="o">&amp;&amp;</span> <span class="n">Py_TYPE</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">PyDict_Type</span><span class="p">)</span>
+        <span class="n">free_list</span><span class="p">[</span><span class="n">numfree</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="p">;</span>
+</pre></div>
+
+
+<h3>How can you clear the list of dictionaries?</h3>
+<p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing its freelist. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
+<div class="highlight"><pre><span class="nb">int</span>
+<span class="n">PyDict_ClearFreeList</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">op</span><span class="p">;</span>
+    <span class="nb">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">numfree</span> <span class="o">+</span> <span class="n">numfreekeys</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">numfree</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfree</span><span class="p">];</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">PyDict_CheckExact</span><span class="p">(</span><span class="n">op</span><span class="p">));</span>
+        <span class="n">PyObject_GC_Del</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">numfreekeys</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">PyObject_FREE</span><span class="p">(</span><span class="n">keys_free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfreekeys</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Iterates over the freelist, GC_deleting each object in the list. In the end, we have numfree set to 0 and a freelist full of objects ready to be used again.</p>
+<h2>What does the collect method return?</h2>
 <p>The method signature. Returns a static signed size_t int. Input is generation (between 0 and 2 - higher is older), pointer to a variable tracking the <code>n\_collected</code> objects so far, <code>uncollectable</code> and <code>nofail</code> variable. Looking ahead <code>nofail</code> is only used once to decide if an error message should be printed to terminal. Both Py_ssize_t objects - <code>n\_collected</code> and <code>n\_uncollectable</code> - will be updated in-place (at their addresses) with m and n respectively.</p>
 <div class="highlight"><pre>    <span class="nb">int</span> <span class="n">i</span><span class="p">;</span>
     <span class="n">Py_ssize_t</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">/*</span> <span class="c"># objects collected */</span>
@@ -735,20 +740,6 @@ collect_generations(void)
 <h3>long-lived objects</h3>
 <h3>untracking immutable objects like dicts</h3>
 <h2>Back to collect</h2>
-<div class="highlight"><pre>    <span class="o">/*</span> <span class="n">All</span> <span class="n">objects</span> <span class="ow">in</span> <span class="n">unreachable</span> <span class="n">are</span> <span class="n">trash</span><span class="p">,</span> <span class="n">but</span> <span class="n">objects</span> <span class="n">reachable</span> <span class="kn">from</span>
-     <span class="o">*</span> <span class="n">legacy</span> <span class="n">finalizers</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">tp_del</span><span class="p">)</span> <span class="n">can</span><span class="s">&#39;t safely be deleted.</span>
-     <span class="o">*/</span>
-    <span class="n">gc_list_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">);</span>
-    <span class="n">move_legacy_finalizers</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">finalizers</span><span class="p">);</span>
-    <span class="o">/*</span> <span class="n">finalizers</span> <span class="n">contains</span> <span class="n">the</span> <span class="n">unreachable</span> <span class="n">objects</span> <span class="k">with</span> <span class="n">a</span> <span class="n">legacy</span> <span class="n">finalizer</span><span class="p">;</span>
-     <span class="o">*</span> <span class="n">unreachable</span> <span class="n">objects</span> <span class="n">reachable</span> <span class="o">*</span><span class="n">from</span><span class="o">*</span> <span class="n">those</span> <span class="n">are</span> <span class="n">also</span> <span class="n">uncollectable</span><span class="p">,</span>
-     <span class="o">*</span> <span class="ow">and</span> <span class="n">we</span> <span class="n">move</span> <span class="n">those</span> <span class="n">into</span> <span class="n">the</span> <span class="n">finalizers</span> <span class="nb">list</span> <span class="n">too</span><span class="o">.</span>
-     <span class="o">*/</span>
-    <span class="n">move_legacy_finalizer_reachable</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">);</span>
-</pre></div>
-
-
-<p>If unreachable objects have finalizers, we need to check if they may be reachable. If so, we can recover them.</p>
 <div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Collect</span> <span class="n">statistics</span> <span class="n">on</span> <span class="n">collectable</span> <span class="n">objects</span> <span class="n">found</span> <span class="ow">and</span> <span class="k">print</span>
      <span class="o">*</span> <span class="n">debugging</span> <span class="n">information</span><span class="o">.</span>
      <span class="o">*/</span>
@@ -765,7 +756,7 @@ collect_generations(void)
 </pre></div>
 
 
-<p>Adds debugging and stats. Tidies up all objects in <code>unreachable</code> and guarantees that none of them have weakrefs to other objects.</p>
+<p>Adds debugging and stats. </p>
 <div class="highlight"><pre>    /* Call tp_finalize on objects which have one. */
     finalize_garbage(&amp;unreachable);
 
@@ -784,8 +775,6 @@ collect_generations(void)
 </pre></div>
 
 
-<p><code>finalise_garbage</code> calls objects' custom destructors. <code>check_garbage</code> uses <code>substract_refs</code> to check if the objects in <code>unreachable</code> have references to each other or objects outside. If they turn out to have refs to objects outside of <code>unreachable</code>, <code>revive_garbage</code> sets all objects' <code>gc_refs</code> to GC_REACHABLE and merges the whole list with <code>old</code> generation. </p>
-<p><code>delete_garbage</code> traverses through the <code>unreachable</code> list and if it has a <code>tp_clear</code> method, invokes it. If the object is still alive after that, its <code>gc_refs</code> is set to GC_REACHABLE and it's moved to the <code>old</code> generation.</p>
 <div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Append</span> <span class="n">instances</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">uncollectable</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">a</span> <span class="n">Python</span>
      <span class="o">*</span> <span class="n">reachable</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">garbage</span><span class="o">.</span>  <span class="n">The</span> <span class="n">programmer</span> <span class="n">has</span> <span class="n">to</span> <span class="n">deal</span> <span class="k">with</span>
      <span class="o">*</span> <span class="n">this</span> <span class="k">if</span> <span class="n">they</span> <span class="n">insist</span> <span class="n">on</span> <span class="n">creating</span> <span class="n">this</span> <span class="nb">type</span> <span class="n">of</span> <span class="n">structure</span><span class="o">.</span>
