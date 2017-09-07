@@ -67,6 +67,7 @@
 <p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
 <h1>How is GC invoked?</h1>
 <p>Users can directly call gc.collect() to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect()</code> and <code>collect_generations</code> uses <code>collect_with_callback()</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. <code>collect_generations</code> finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when <code>collect_generations</code> is called. </p>
+<h1>How are cyclical references accounted for?</h1>
 <h1>What is PyGC_Head and how is it related to PyObject?</h1>
 <h3>PyGC_Head</h3>
 <p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/blob/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
@@ -576,6 +577,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <h3>Deal with finalizers</h3>
 <p>If unreachable objects have finalizers, we need to check if they may be reachable. If so, we can recover them.</p>
 <h3>clear weakrefs</h3>
+<h4>What are weak references?</h4>
 <p>Tidies up all objects in <code>unreachable</code> and guarantees that none of them have weakrefs to other objects.</p>
 <h3>check and revive garbage if necessary</h3>
 <p><code>finalise_garbage</code> calls objects' custom destructors. <code>check_garbage</code> uses <code>substract_refs</code> to check if the objects in <code>unreachable</code> have references to each other or objects outside. If they turn out to have refs to objects outside of <code>unreachable</code>, <code>revive_garbage</code> sets all objects' <code>gc_refs</code> to GC_REACHABLE and merges the whole list with <code>old</code> generation. </p>
