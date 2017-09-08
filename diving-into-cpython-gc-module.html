@@ -58,28 +58,28 @@
                         </p>
                 </header>
             </section>
-            <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous <a href="/drafts/notes-on-pythons-gc.html">blogpost</a>, which outlined the GC mechanism in CPython.</p>
+            <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous <a href="/notes-on-pythons-gc.html">blogpost</a>, which outlined the GC mechanism in CPython.</p>
 <h1>What is the reason for GC in Python?</h1>
-<p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. Garbage collection is a mechanism for regularly checking that pre-allocated objects are still in use. Being in use means other objects still refer to you for something and your reference count is above 0.</p>
+<p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. This makes it easier to write code without worrying about allocating memory for your variables. Garbage collection is a mechanism for regularly checking that pre-allocated memory is still in use. Being in use means other objects still refer to you for something and your reference count is above 0.</p>
 <h1>What kind of GC does Python use?</h1>
 <p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every gc_generation has a threshold (number of objects after which a collection is performed). </p>
-<h1>What are the thresholds and why do they have such values?</h1>
+<h2>What are the thresholds and why do they have such values?</h2>
 <p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
 <h1>How is GC invoked?</h1>
-<p>Users can directly call gc.collect() to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect()</code> and <code>collect_generations</code> uses <code>collect_with_callback()</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. <code>collect_generations</code> finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when <code>collect_generations</code> is called. </p>
+<p>Users can directly call gc.collect() to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect</code> and <code>collect_generations</code> uses <code>collect_with_callback</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. <code>collect_generations</code> finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when <code>collect_generations</code> is called. </p>
 <h1>How are cyclical references accounted for?</h1>
 <h1>What is PyGC_Head and how is it related to PyObject?</h1>
 <h3>PyGC_Head</h3>
-<p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/blob/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
-<div class="highlight"><pre><span class="o">/*</span> <span class="n">GC</span> <span class="n">information</span> <span class="ow">is</span> <span class="n">stored</span> <span class="n">BEFORE</span> <span class="n">the</span> <span class="nb">object</span> <span class="n">structure</span><span class="o">.</span> <span class="o">*/</span>
-<span class="c">#ifndef Py_LIMITED_API</span>
-<span class="n">typedef</span> <span class="n">union</span> <span class="n">_gc_head</span> <span class="p">{</span>
-    <span class="n">struct</span> <span class="p">{</span>
-        <span class="n">union</span> <span class="n">_gc_head</span> <span class="o">*</span><span class="n">gc_next</span><span class="p">;</span>
-        <span class="n">union</span> <span class="n">_gc_head</span> <span class="o">*</span><span class="n">gc_prev</span><span class="p">;</span>
+<p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/tree/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
+<div class="highlight"><pre><span class="cm">/* GC information is stored BEFORE the object structure. */</span>
+<span class="cp">#ifndef Py_LIMITED_API</span>
+<span class="k">typedef</span> <span class="k">union</span> <span class="n">_gc_head</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="p">{</span>
+        <span class="k">union</span> <span class="n">_gc_head</span> <span class="o">*</span><span class="n">gc_next</span><span class="p">;</span>
+        <span class="k">union</span> <span class="n">_gc_head</span> <span class="o">*</span><span class="n">gc_prev</span><span class="p">;</span>
         <span class="n">Py_ssize_t</span> <span class="n">gc_refs</span><span class="p">;</span>
     <span class="p">}</span> <span class="n">gc</span><span class="p">;</span>
-    <span class="n">double</span> <span class="n">dummy</span><span class="p">;</span>  <span class="o">/*</span> <span class="n">force</span> <span class="n">worst</span><span class="o">-</span><span class="n">case</span> <span class="n">alignment</span> <span class="o">*/</span>
+    <span class="kt">double</span> <span class="n">dummy</span><span class="p">;</span>  <span class="cm">/* force worst-case alignment */</span>
 <span class="p">}</span> <span class="n">PyGC_Head</span><span class="p">;</span>
 </pre></div>
 
@@ -89,21 +89,45 @@
 <p>Paraphrasing the commit message - the <code>double dummy</code> is to make sure 8-byte alignment won't break. When 8-byte alignment is required, padding is added, otherwise, there won't be any change.</p>
 <h3>Why recursively defined gc struct?</h3>
 <p>This uses a sentinel doubly linked list. An empty linked list contains one node, whose <code>.gc_prev</code> and <code>.gc_next</code> link to the node itself. Appending nodes to the end of a list means linking the <code>.gc_next</code> and <code>.gc_prev</code> of the new_node to the head of the list and last element of the list respectively. The first element is a dummy - sentinel - node.  That's why all list traversal operations begin initiate <code>gc = list-&gt;gc.gc_next</code> as below</p>
-<div class="highlight"><pre><span class="n">static</span> <span class="n">Py_ssize_t</span>
-<span class="n">gc_list_size</span><span class="p">(</span><span class="n">PyGC_Head</span> <span class="o">*</span><span class="nb">list</span><span class="p">)</span>
+<div class="highlight"><pre><span class="k">static</span> <span class="n">Py_ssize_t</span>
+<span class="nf">gc_list_size</span><span class="p">(</span><span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">list</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">gc</span><span class="p">;</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="nb">list</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">;</span> <span class="n">gc</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">;</span> <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">list</span><span class="o">-&gt;</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">;</span> <span class="n">gc</span> <span class="o">!=</span> <span class="n">list</span><span class="p">;</span> <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">n</span><span class="o">++</span><span class="p">;</span>
 </pre></div>
 
 
 <p>and to check emptiness you need to compare pointers between the head and the first next element after the sentinel. </p>
-<div class="highlight"><pre><span class="n">static</span> <span class="nb">int</span>
-<span class="n">gc_list_is_empty</span><span class="p">(</span><span class="n">PyGC_Head</span> <span class="o">*</span><span class="nb">list</span><span class="p">)</span>
+<div class="highlight"><pre><span class="k">static</span> <span class="kt">int</span>
+<span class="nf">gc_list_is_empty</span><span class="p">(</span><span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">list</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">list</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span> <span class="o">==</span> <span class="nb">list</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">list</span><span class="o">-&gt;</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span> <span class="o">==</span> <span class="n">list</span><span class="p">);</span>
 <span class="p">}</span>
+</pre></div>
+
+
+<h2>PyObject</h2>
+<p>The PyObject struct is defined in <a href="https://github.com/python/cpython/3.6/blob/Include/object.h">Include/object.h</a>. Contains the reference count and type of the object.</p>
+<div class="highlight"><pre><span class="cm">/* Define pointers to support a doubly-linked list of all live heap objects. */</span>
+<span class="cp">#define _PyObject_HEAD_EXTRA            \</span>
+<span class="cp">    struct _object *_ob_next;           \</span>
+<span class="cp">    struct _object *_ob_prev;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">_object</span> <span class="p">{</span>
+    <span class="n">_PyObject_HEAD_EXTRA</span>
+    <span class="n">Py_ssize_t</span> <span class="n">ob_refcnt</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_typeobject</span> <span class="o">*</span><span class="n">ob_type</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">PyObject</span><span class="p">;</span>
+</pre></div>
+
+
+<h2>PyObject to/from PyGC_Head</h2>
+<div class="highlight"><pre><span class="cm">/* Get an object&#39;s GC head */</span>
+<span class="cp">#define AS_GC(o) ((PyGC_Head *)(o)-1)</span>
+
+<span class="cm">/* Get the object given the GC head */</span>
+<span class="cp">#define FROM_GC(g) ((PyObject *)(((PyGC_Head *)g)+1))</span>
 </pre></div>
 
 
@@ -320,55 +344,55 @@
 209
 210
 211
-212</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
+212</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
     <span class="n">PyGC_Head</span> <span class="n">head</span><span class="p">;</span>
-    <span class="nb">int</span> <span class="n">threshold</span><span class="p">;</span> <span class="o">/*</span> <span class="n">collection</span> <span class="n">threshold</span> <span class="o">*/</span>
-    <span class="nb">int</span> <span class="n">count</span><span class="p">;</span> <span class="o">/*</span> <span class="n">count</span> <span class="n">of</span> <span class="n">allocations</span> <span class="ow">or</span> <span class="n">collections</span> <span class="n">of</span> <span class="n">younger</span>
-                  <span class="n">generations</span> <span class="o">*/</span>
+    <span class="kt">int</span> <span class="n">threshold</span><span class="p">;</span> <span class="cm">/* collection threshold */</span>
+    <span class="kt">int</span> <span class="n">count</span><span class="p">;</span> <span class="cm">/* count of allocations or collections of younger</span>
+<span class="cm">                  generations */</span>
 <span class="p">};</span>
 
-<span class="c">#define NUM_GENERATIONS 3</span>
-<span class="c">#define GEN_HEAD(n) (&amp;generations[n].head)</span>
+<span class="cp">#define NUM_GENERATIONS 3</span>
+<span class="cp">#define GEN_HEAD(n) (&amp;generations[n].head)</span>
 
-<span class="o">/*</span> <span class="n">linked</span> <span class="n">lists</span> <span class="n">of</span> <span class="n">container</span> <span class="n">objects</span> <span class="o">*/</span>
-<span class="n">static</span> <span class="n">struct</span> <span class="n">gc_generation</span> <span class="n">generations</span><span class="p">[</span><span class="n">NUM_GENERATIONS</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="o">/*</span> <span class="n">PyGC_Head</span><span class="p">,</span>                               <span class="n">threshold</span><span class="p">,</span>      <span class="n">count</span> <span class="o">*/</span>
+<span class="cm">/* linked lists of container objects */</span>
+<span class="k">static</span> <span class="k">struct</span> <span class="n">gc_generation</span> <span class="n">generations</span><span class="p">[</span><span class="n">NUM_GENERATIONS</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="cm">/* PyGC_Head,                               threshold,      count */</span>
     <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">700</span><span class="p">,</span>            <span class="mi">0</span><span class="p">},</span>
     <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">10</span><span class="p">,</span>             <span class="mi">0</span><span class="p">},</span>
     <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">10</span><span class="p">,</span>             <span class="mi">0</span><span class="p">},</span>
 <span class="p">};</span>
 
-<span class="o">...</span>
+<span class="p">...</span>
 
-<span class="o">/*</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">objects</span> <span class="n">that</span> <span class="n">survived</span> <span class="n">the</span> <span class="n">last</span> <span class="n">full</span> <span class="n">collection</span><span class="o">.</span> <span class="n">It</span>
-   <span class="n">approximates</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="nb">long</span> <span class="n">lived</span> <span class="n">objects</span> <span class="n">tracked</span> <span class="n">by</span> <span class="n">the</span> <span class="n">GC</span><span class="o">.</span>
-   <span class="p">(</span><span class="n">by</span> <span class="s">&quot;full collection&quot;</span><span class="p">,</span> <span class="n">we</span> <span class="n">mean</span> <span class="n">a</span> <span class="n">collection</span> <span class="n">of</span> <span class="n">the</span> <span class="n">oldest</span> <span class="n">generation</span><span class="p">)</span><span class="o">.</span>
-<span class="o">*/</span>
-<span class="n">static</span> <span class="n">Py_ssize_t</span> <span class="n">long_lived_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cm">/* This is the number of objects that survived the last full collection. It</span>
+<span class="cm">   approximates the number of long lived objects tracked by the GC.</span>
+<span class="cm">   (by &quot;full collection&quot;, we mean a collection of the oldest generation).</span>
+<span class="cm">*/</span>
+<span class="k">static</span> <span class="n">Py_ssize_t</span> <span class="n">long_lived_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<span class="o">/*</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">objects</span> <span class="n">that</span> <span class="n">survived</span> <span class="nb">all</span> <span class="s">&quot;non-full&quot;</span> <span class="n">collections</span><span class="p">,</span>
-   <span class="ow">and</span> <span class="n">are</span> <span class="n">awaiting</span> <span class="n">to</span> <span class="n">undergo</span> <span class="n">a</span> <span class="n">full</span> <span class="n">collection</span> <span class="k">for</span> <span class="n">the</span> <span class="n">first</span> <span class="n">time</span><span class="o">.</span>
-<span class="o">*/</span>
-<span class="n">static</span> <span class="n">Py_ssize_t</span> <span class="n">long_lived_pending</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cm">/* This is the number of objects that survived all &quot;non-full&quot; collections,</span>
+<span class="cm">   and are awaiting to undergo a full collection for the first time.</span>
+<span class="cm">*/</span>
+<span class="k">static</span> <span class="n">Py_ssize_t</span> <span class="n">long_lived_pending</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<span class="n">static</span> <span class="n">Py_ssize_t</span>
-<span class="n">collect</span><span class="p">(</span><span class="nb">int</span> <span class="n">generation</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_collected</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_uncollectable</span><span class="p">,</span>
-        <span class="nb">int</span> <span class="n">nofail</span><span class="p">)</span>
+<span class="k">static</span> <span class="n">Py_ssize_t</span>
+<span class="nf">collect</span><span class="p">(</span><span class="kt">int</span> <span class="n">generation</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_collected</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_uncollectable</span><span class="p">,</span>
+        <span class="kt">int</span> <span class="n">nofail</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="nb">int</span> <span class="n">i</span><span class="p">;</span>
-    <span class="n">Py_ssize_t</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">/*</span> <span class="c"># objects collected */</span>
-    <span class="n">Py_ssize_t</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">/*</span> <span class="c"># unreachable objects that couldn&#39;t be collected */</span>
-    <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">young</span><span class="p">;</span> <span class="o">/*</span> <span class="n">the</span> <span class="n">generation</span> <span class="n">we</span> <span class="n">are</span> <span class="n">examining</span> <span class="o">*/</span>
-    <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">old</span><span class="p">;</span> <span class="o">/*</span> <span class="nb">next</span> <span class="n">older</span> <span class="n">generation</span> <span class="o">*/</span>
-    <span class="n">PyGC_Head</span> <span class="n">unreachable</span><span class="p">;</span> <span class="o">/*</span> <span class="n">non</span><span class="o">-</span><span class="n">problematic</span> <span class="n">unreachable</span> <span class="n">trash</span> <span class="o">*/</span>
-    <span class="n">PyGC_Head</span> <span class="n">finalizers</span><span class="p">;</span>  <span class="o">/*</span> <span class="n">objects</span> <span class="k">with</span><span class="p">,</span> <span class="o">&amp;</span> <span class="n">reachable</span> <span class="n">from</span><span class="p">,</span> <span class="n">__del__</span> <span class="o">*/</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">Py_ssize_t</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* # objects collected */</span>
+    <span class="n">Py_ssize_t</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* # unreachable objects that couldn&#39;t be collected */</span>
+    <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">young</span><span class="p">;</span> <span class="cm">/* the generation we are examining */</span>
+    <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">old</span><span class="p">;</span> <span class="cm">/* next older generation */</span>
+    <span class="n">PyGC_Head</span> <span class="n">unreachable</span><span class="p">;</span> <span class="cm">/* non-problematic unreachable trash */</span>
+    <span class="n">PyGC_Head</span> <span class="n">finalizers</span><span class="p">;</span>  <span class="cm">/* objects with, &amp; reachable from, __del__ */</span>
     <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">gc</span><span class="p">;</span>
-    <span class="n">_PyTime_t</span> <span class="n">t1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="o">/*</span> <span class="n">initialize</span> <span class="n">to</span> <span class="n">prevent</span> <span class="n">a</span> <span class="n">compiler</span> <span class="n">warning</span> <span class="o">*/</span>
+    <span class="n">_PyTime_t</span> <span class="n">t1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="cm">/* initialize to prevent a compiler warning */</span>
 
-    <span class="n">struct</span> <span class="n">gc_generation_stats</span> <span class="o">*</span><span class="n">stats</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">generation_stats</span><span class="p">[</span><span class="n">generation</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="n">gc_generation_stats</span> <span class="o">*</span><span class="n">stats</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">generation_stats</span><span class="p">[</span><span class="n">generation</span><span class="p">];</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">debug</span> <span class="o">&amp;</span> <span class="n">DEBUG_STATS</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;gc: collecting generation </span><span class="si">%d</span><span class="s">...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+        <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;gc: collecting generation %d...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
                           <span class="n">generation</span><span class="p">);</span>
         <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;gc: objects in each generation:&quot;</span><span class="p">);</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUM_GENERATIONS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
@@ -382,42 +406,42 @@
     <span class="k">if</span> <span class="p">(</span><span class="n">PyDTrace_GC_START_ENABLED</span><span class="p">())</span>
         <span class="n">PyDTrace_GC_START</span><span class="p">(</span><span class="n">generation</span><span class="p">);</span>
 
-    <span class="o">/*</span> <span class="n">update</span> <span class="n">collection</span> <span class="ow">and</span> <span class="n">allocation</span> <span class="n">counters</span> <span class="o">*/</span>
+    <span class="cm">/* update collection and allocation counters */</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">generation</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">NUM_GENERATIONS</span><span class="p">)</span>
-        <span class="n">generations</span><span class="p">[</span><span class="n">generation</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">generations</span><span class="p">[</span><span class="n">generation</span><span class="o">+</span><span class="mi">1</span><span class="p">].</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">generation</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
-        <span class="n">generations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">generations</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-    <span class="o">/*</span> <span class="n">merge</span> <span class="n">younger</span> <span class="n">generations</span> <span class="k">with</span> <span class="n">one</span> <span class="n">we</span> <span class="n">are</span> <span class="n">currently</span> <span class="n">collecting</span> <span class="o">*/</span>
+    <span class="cm">/* merge younger generations with one we are currently collecting */</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">generation</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">gc_list_merge</span><span class="p">(</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="n">generation</span><span class="p">));</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">handy</span> <span class="n">references</span> <span class="o">*/</span>
+    <span class="cm">/* handy references */</span>
     <span class="n">young</span> <span class="o">=</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="n">generation</span><span class="p">);</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">generation</span> <span class="o">&lt;</span> <span class="n">NUM_GENERATIONS</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">old</span> <span class="o">=</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="n">generation</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
     <span class="k">else</span>
         <span class="n">old</span> <span class="o">=</span> <span class="n">young</span><span class="p">;</span>
 
-    <span class="o">/*</span> <span class="n">Using</span> <span class="n">ob_refcnt</span> <span class="ow">and</span> <span class="n">gc_refs</span><span class="p">,</span> <span class="n">calculate</span> <span class="n">which</span> <span class="n">objects</span> <span class="ow">in</span> <span class="n">the</span>
-     <span class="o">*</span> <span class="n">container</span> <span class="nb">set</span> <span class="n">are</span> <span class="n">reachable</span> <span class="kn">from</span> <span class="nn">outside</span> <span class="nn">the</span> <span class="nn">set</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">e</span><span class="o">.</span><span class="p">,</span> <span class="n">have</span> <span class="n">a</span>
-     <span class="o">*</span> <span class="n">refcount</span> <span class="n">greater</span> <span class="n">than</span> <span class="mi">0</span> <span class="n">when</span> <span class="nb">all</span> <span class="n">the</span> <span class="n">references</span> <span class="n">within</span> <span class="n">the</span>
-     <span class="o">*</span> <span class="nb">set</span> <span class="n">are</span> <span class="n">taken</span> <span class="n">into</span> <span class="n">account</span><span class="p">)</span><span class="o">.</span>
-     <span class="o">*/</span>
+    <span class="cm">/* Using ob_refcnt and gc_refs, calculate which objects in the</span>
+<span class="cm">     * container set are reachable from outside the set (i.e., have a</span>
+<span class="cm">     * refcount greater than 0 when all the references within the</span>
+<span class="cm">     * set are taken into account).</span>
+<span class="cm">     */</span>
     <span class="n">update_refs</span><span class="p">(</span><span class="n">young</span><span class="p">);</span>
     <span class="n">subtract_refs</span><span class="p">(</span><span class="n">young</span><span class="p">);</span>
 
-    <span class="o">/*</span> <span class="n">Leave</span> <span class="n">everything</span> <span class="n">reachable</span> <span class="kn">from</span> <span class="nn">outside</span> <span class="nn">young</span> <span class="nn">in</span> <span class="nn">young</span><span class="p">,</span> <span class="ow">and</span> <span class="n">move</span>
-     <span class="o">*</span> <span class="n">everything</span> <span class="k">else</span> <span class="p">(</span><span class="ow">in</span> <span class="n">young</span><span class="p">)</span> <span class="n">to</span> <span class="n">unreachable</span><span class="o">.</span>
-     <span class="o">*</span> <span class="n">NOTE</span><span class="p">:</span>  <span class="n">This</span> <span class="n">used</span> <span class="n">to</span> <span class="n">move</span> <span class="n">the</span> <span class="n">reachable</span> <span class="n">objects</span> <span class="n">into</span> <span class="n">a</span> <span class="n">reachable</span>
-     <span class="o">*</span> <span class="nb">set</span> <span class="n">instead</span><span class="o">.</span>  <span class="n">But</span> <span class="n">most</span> <span class="n">things</span> <span class="n">usually</span> <span class="n">turn</span> <span class="n">out</span> <span class="n">to</span> <span class="n">be</span> <span class="n">reachable</span><span class="p">,</span>
-     <span class="o">*</span> <span class="n">so</span> <span class="n">it</span><span class="s">&#39;s more efficient to move the unreachable things.</span>
-     <span class="o">*/</span>
+    <span class="cm">/* Leave everything reachable from outside young in young, and move</span>
+<span class="cm">     * everything else (in young) to unreachable.</span>
+<span class="cm">     * NOTE:  This used to move the reachable objects into a reachable</span>
+<span class="cm">     * set instead.  But most things usually turn out to be reachable,</span>
+<span class="cm">     * so it&#39;s more efficient to move the unreachable things.</span>
+<span class="cm">     */</span>
     <span class="n">gc_list_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">);</span>
     <span class="n">move_unreachable</span><span class="p">(</span><span class="n">young</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">unreachable</span><span class="p">);</span>
 
-    <span class="o">/*</span> <span class="n">Move</span> <span class="n">reachable</span> <span class="n">objects</span> <span class="n">to</span> <span class="nb">next</span> <span class="n">generation</span><span class="o">.</span> <span class="o">*/</span>
+    <span class="cm">/* Move reachable objects to next generation. */</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">young</span> <span class="o">!=</span> <span class="n">old</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">generation</span> <span class="o">==</span> <span class="n">NUM_GENERATIONS</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">long_lived_pending</span> <span class="o">+=</span> <span class="n">gc_list_size</span><span class="p">(</span><span class="n">young</span><span class="p">);</span>
@@ -425,39 +449,39 @@
         <span class="n">gc_list_merge</span><span class="p">(</span><span class="n">young</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">else</span> <span class="p">{</span>
-        <span class="o">/*</span> <span class="n">We</span> <span class="n">only</span> <span class="n">untrack</span> <span class="n">dicts</span> <span class="ow">in</span> <span class="n">full</span> <span class="n">collections</span><span class="p">,</span> <span class="n">to</span> <span class="n">avoid</span> <span class="n">quadratic</span>
-           <span class="nb">dict</span> <span class="n">build</span><span class="o">-</span><span class="n">up</span><span class="o">.</span> <span class="n">See</span> <span class="n">issue</span> <span class="c">#14775. */</span>
+        <span class="cm">/* We only untrack dicts in full collections, to avoid quadratic</span>
+<span class="cm">           dict build-up. See issue #14775. */</span>
         <span class="n">untrack_dicts</span><span class="p">(</span><span class="n">young</span><span class="p">);</span>
         <span class="n">long_lived_pending</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="n">long_lived_total</span> <span class="o">=</span> <span class="n">gc_list_size</span><span class="p">(</span><span class="n">young</span><span class="p">);</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">All</span> <span class="n">objects</span> <span class="ow">in</span> <span class="n">unreachable</span> <span class="n">are</span> <span class="n">trash</span><span class="p">,</span> <span class="n">but</span> <span class="n">objects</span> <span class="n">reachable</span> <span class="kn">from</span>
-     <span class="o">*</span> <span class="n">legacy</span> <span class="n">finalizers</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">tp_del</span><span class="p">)</span> <span class="n">can</span><span class="s">&#39;t safely be deleted.</span>
-     <span class="o">*/</span>
+    <span class="cm">/* All objects in unreachable are trash, but objects reachable from</span>
+<span class="cm">     * legacy finalizers (e.g. tp_del) can&#39;t safely be deleted.</span>
+<span class="cm">     */</span>
     <span class="n">gc_list_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">);</span>
     <span class="n">move_legacy_finalizers</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">finalizers</span><span class="p">);</span>
-    <span class="o">/*</span> <span class="n">finalizers</span> <span class="n">contains</span> <span class="n">the</span> <span class="n">unreachable</span> <span class="n">objects</span> <span class="k">with</span> <span class="n">a</span> <span class="n">legacy</span> <span class="n">finalizer</span><span class="p">;</span>
-     <span class="o">*</span> <span class="n">unreachable</span> <span class="n">objects</span> <span class="n">reachable</span> <span class="o">*</span><span class="n">from</span><span class="o">*</span> <span class="n">those</span> <span class="n">are</span> <span class="n">also</span> <span class="n">uncollectable</span><span class="p">,</span>
-     <span class="o">*</span> <span class="ow">and</span> <span class="n">we</span> <span class="n">move</span> <span class="n">those</span> <span class="n">into</span> <span class="n">the</span> <span class="n">finalizers</span> <span class="nb">list</span> <span class="n">too</span><span class="o">.</span>
-     <span class="o">*/</span>
+    <span class="cm">/* finalizers contains the unreachable objects with a legacy finalizer;</span>
+<span class="cm">     * unreachable objects reachable *from* those are also uncollectable,</span>
+<span class="cm">     * and we move those into the finalizers list too.</span>
+<span class="cm">     */</span>
     <span class="n">move_legacy_finalizer_reachable</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">);</span>
 
-    <span class="o">/*</span> <span class="n">Collect</span> <span class="n">statistics</span> <span class="n">on</span> <span class="n">collectable</span> <span class="n">objects</span> <span class="n">found</span> <span class="ow">and</span> <span class="k">print</span>
-     <span class="o">*</span> <span class="n">debugging</span> <span class="n">information</span><span class="o">.</span>
-     <span class="o">*/</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">unreachable</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">;</span> <span class="n">gc</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">unreachable</span><span class="p">;</span>
-                    <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="cm">/* Collect statistics on collectable objects found and print</span>
+<span class="cm">     * debugging information.</span>
+<span class="cm">     */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">unreachable</span><span class="p">.</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">;</span> <span class="n">gc</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">unreachable</span><span class="p">;</span>
+                    <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">m</span><span class="o">++</span><span class="p">;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">debug</span> <span class="o">&amp;</span> <span class="n">DEBUG_COLLECTABLE</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">debug_cycle</span><span class="p">(</span><span class="s">&quot;collectable&quot;</span><span class="p">,</span> <span class="n">FROM_GC</span><span class="p">(</span><span class="n">gc</span><span class="p">));</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">Clear</span> <span class="n">weakrefs</span> <span class="ow">and</span> <span class="n">invoke</span> <span class="n">callbacks</span> <span class="k">as</span> <span class="n">necessary</span><span class="o">.</span> <span class="o">*/</span>
+    <span class="cm">/* Clear weakrefs and invoke callbacks as necessary. */</span>
     <span class="n">m</span> <span class="o">+=</span> <span class="n">handle_weakrefs</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
 
-    <span class="o">/*</span> <span class="n">Call</span> <span class="n">tp_finalize</span> <span class="n">on</span> <span class="n">objects</span> <span class="n">which</span> <span class="n">have</span> <span class="n">one</span><span class="o">.</span> <span class="o">*/</span>
+    <span class="cm">/* Call tp_finalize on objects which have one. */</span>
     <span class="n">finalize_garbage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">check_garbage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">))</span> <span class="p">{</span>
@@ -465,18 +489,18 @@
         <span class="n">gc_list_merge</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">else</span> <span class="p">{</span>
-        <span class="o">/*</span> <span class="n">Call</span> <span class="n">tp_clear</span> <span class="n">on</span> <span class="n">objects</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">unreachable</span> <span class="nb">set</span><span class="o">.</span>  <span class="n">This</span> <span class="n">will</span> <span class="n">cause</span>
-         <span class="o">*</span> <span class="n">the</span> <span class="n">reference</span> <span class="n">cycles</span> <span class="n">to</span> <span class="n">be</span> <span class="n">broken</span><span class="o">.</span>  <span class="n">It</span> <span class="n">may</span> <span class="n">also</span> <span class="n">cause</span> <span class="n">some</span> <span class="n">objects</span>
-         <span class="o">*</span> <span class="ow">in</span> <span class="n">finalizers</span> <span class="n">to</span> <span class="n">be</span> <span class="n">freed</span><span class="o">.</span>
-         <span class="o">*/</span>
+        <span class="cm">/* Call tp_clear on objects in the unreachable set.  This will cause</span>
+<span class="cm">         * the reference cycles to be broken.  It may also cause some objects</span>
+<span class="cm">         * in finalizers to be freed.</span>
+<span class="cm">         */</span>
         <span class="n">delete_garbage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">Collect</span> <span class="n">statistics</span> <span class="n">on</span> <span class="n">uncollectable</span> <span class="n">objects</span> <span class="n">found</span> <span class="ow">and</span> <span class="k">print</span>
-     <span class="o">*</span> <span class="n">debugging</span> <span class="n">information</span><span class="o">.</span> <span class="o">*/</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">finalizers</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">;</span>
+    <span class="cm">/* Collect statistics on uncollectable objects found and print</span>
+<span class="cm">     * debugging information. */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">finalizers</span><span class="p">.</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">;</span>
          <span class="n">gc</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">finalizers</span><span class="p">;</span>
-         <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
+         <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">n</span><span class="o">++</span><span class="p">;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">debug</span> <span class="o">&amp;</span> <span class="n">DEBUG_UNCOLLECTABLE</span><span class="p">)</span>
             <span class="n">debug_cycle</span><span class="p">(</span><span class="s">&quot;uncollectable&quot;</span><span class="p">,</span> <span class="n">FROM_GC</span><span class="p">(</span><span class="n">gc</span><span class="p">));</span>
@@ -490,18 +514,18 @@
             <span class="n">PySys_FormatStderr</span><span class="p">(</span>
                 <span class="s">&quot;gc: done, %zd unreachable, %zd uncollectable&quot;</span><span class="p">,</span>
                 <span class="n">n</span><span class="o">+</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
-        <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;, </span><span class="si">%.4f</span><span class="s">s elapsed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+        <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;, %.4fs elapsed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
                           <span class="n">_PyTime_AsSecondsDouble</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">));</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">Append</span> <span class="n">instances</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">uncollectable</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">a</span> <span class="n">Python</span>
-     <span class="o">*</span> <span class="n">reachable</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">garbage</span><span class="o">.</span>  <span class="n">The</span> <span class="n">programmer</span> <span class="n">has</span> <span class="n">to</span> <span class="n">deal</span> <span class="k">with</span>
-     <span class="o">*</span> <span class="n">this</span> <span class="k">if</span> <span class="n">they</span> <span class="n">insist</span> <span class="n">on</span> <span class="n">creating</span> <span class="n">this</span> <span class="nb">type</span> <span class="n">of</span> <span class="n">structure</span><span class="o">.</span>
-     <span class="o">*/</span>
-    <span class="p">(</span><span class="n">void</span><span class="p">)</span><span class="n">handle_legacy_finalizers</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
+    <span class="cm">/* Append instances in the uncollectable set to a Python</span>
+<span class="cm">     * reachable list of garbage.  The programmer has to deal with</span>
+<span class="cm">     * this if they insist on creating this type of structure.</span>
+<span class="cm">     */</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">handle_legacy_finalizers</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
 
-    <span class="o">/*</span> <span class="n">Clear</span> <span class="n">free</span> <span class="nb">list</span> <span class="n">only</span> <span class="n">during</span> <span class="n">the</span> <span class="n">collection</span> <span class="n">of</span> <span class="n">the</span> <span class="n">highest</span>
-     <span class="o">*</span> <span class="n">generation</span> <span class="o">*/</span>
+    <span class="cm">/* Clear free list only during the collection of the highest</span>
+<span class="cm">     * generation */</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">generation</span> <span class="o">==</span> <span class="n">NUM_GENERATIONS</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">clear_freelists</span><span class="p">();</span>
     <span class="p">}</span>
@@ -511,14 +535,14 @@
             <span class="n">PyErr_Clear</span><span class="p">();</span>
         <span class="p">}</span>
         <span class="k">else</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">gc_str</span> <span class="o">==</span> <span class="n">NULL</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">gc_str</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
                 <span class="n">gc_str</span> <span class="o">=</span> <span class="n">PyUnicode_FromString</span><span class="p">(</span><span class="s">&quot;garbage collection&quot;</span><span class="p">);</span>
             <span class="n">PyErr_WriteUnraisable</span><span class="p">(</span><span class="n">gc_str</span><span class="p">);</span>
             <span class="n">Py_FatalError</span><span class="p">(</span><span class="s">&quot;unexpected exception during garbage collection&quot;</span><span class="p">);</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">Update</span> <span class="n">stats</span> <span class="o">*/</span>
+    <span class="cm">/* Update stats */</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">n_collected</span><span class="p">)</span>
         <span class="o">*</span><span class="n">n_collected</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">n_uncollectable</span><span class="p">)</span>
@@ -585,27 +609,27 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p><code>delete_garbage</code> traverses through the <code>unreachable</code> list and if it has a <code>tp_clear</code> method, invokes it. If the object is still alive after that, its <code>gc_refs</code> is set to GC_REACHABLE and it's moved to the <code>old</code> generation.</p>
 <h3>collect stats</h3>
 <h3>clear freelists</h3>
-<p>At the end of a full collection, freelists for different data structures are cleared. More detail below.</p>
+<p>If it's a full collection, freelists for different data structures are cleared. More detail below.</p>
 <h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
 <h2>Runs less frequently using a heuristic</h2>
 <p>Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. We can either skip objects or perform fewer collections, so a heuristic is used to run fewer collections. Long-lived objects are those in generation 2. The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. A limit of 25% between objects that are yet to go through a full collection over the number of objects that survived the last collection in generation 2. </p>
-<div class="highlight"><pre>static Py_ssize_t
-collect_generations(void)
-{
-    ...
-    for (i = NUM_GENERATIONS-1; i &gt;= 0; i--) {
-        if (generations[i].count &gt; generations[i].threshold) {
-    ...
-        if (i == NUM_GENERATIONS - 1
-                &amp;&amp; long_lived_pending &lt; long_lived_total / 4)
-                continue;
-            n = collect_with_callback(i);
+<div class="highlight"><pre><span class="k">static</span> <span class="n">Py_ssize_t</span>
+<span class="nf">collect_generations</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="n">NUM_GENERATIONS</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">generations</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">count</span> <span class="o">&gt;</span> <span class="n">generations</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">threshold</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">NUM_GENERATIONS</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="o">&amp;&amp;</span> <span class="n">long_lived_pending</span> <span class="o">&lt;</span> <span class="n">long_lived_total</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">collect_with_callback</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
 </pre></div>
 
 
 <p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
 <h2>Surviving objects don't get promoted</h2>
-<p>When <code>young != old</code>, the objects that are still reachable in the <code>young</code> list are moved to the old. Collecting the oldest generation means we cannot move/promote surviving objects any further.</p>
+<p>There is no older generation to get promoted to. When <code>young != old</code>, the objects that are still reachable in the <code>young</code> list are moved to the old. Collecting the oldest generation means we cannot move/promote surviving objects any further.</p>
 <div class="highlight"><pre>    else {
         /* We only untrack dicts in full collections, to avoid quadratic
            dict build-up. See issue #14775. */
@@ -621,11 +645,11 @@ collect_generations(void)
 <h3>What are freelists?</h3>
 <p>Full collection (collecting the oldest generation) involves clearing freelists. Free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users avoid calling malloc for the first X object creations. Similarly, when an object is collected, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Example from <code>dictobject.c</code> below</p>
 <p>The CPython interpreter allocates a list of 80 dictionary objects.</p>
-<div class="highlight"><pre><span class="c">#ifndef PyDict_MAXFREELIST</span>
-<span class="c">#define PyDict_MAXFREELIST 80</span>
-<span class="c">#endif</span>
-<span class="n">static</span> <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">free_list</span><span class="p">[</span><span class="n">PyDict_MAXFREELIST</span><span class="p">];</span>
-<span class="n">static</span> <span class="nb">int</span> <span class="n">numfree</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<div class="highlight"><pre><span class="cp">#ifndef PyDict_MAXFREELIST</span>
+<span class="cp">#define PyDict_MAXFREELIST 80</span>
+<span class="cp">#endif</span>
+<span class="k">static</span> <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">free_list</span><span class="p">[</span><span class="n">PyDict_MAXFREELIST</span><span class="p">];</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="n">numfree</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 </pre></div>
 
 
@@ -633,24 +657,24 @@ collect_generations(void)
 <p>The commit adding free_lists and their sizes is an old svn commit with more than a dozen of features in one commit, without explanation or inability to recover the reasoning behind 80.</p>
 <h3>How is freelist used to alloc/free dictionaries?</h3>
 <p>In the function that creates a new dictionary from given keys and values, first the numfree variable is checked. If all dictionaries in the freelist have been used already (numfree &gt;= 80), we have to allocate our own. Otherwise, Using numfree as index into the array of preallocated data types (eg. dictionaries), we assign mp to a dictionary from the list. Interestingly enough, <code>if (numfree)</code> will also execute the branch, if numfree is negative, which is semantically incorrect, but not impossible.</p>
-<div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
-<span class="n">new_dict</span><span class="p">(</span><span class="n">PyDictKeysObject</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
+<div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span>
+<span class="nf">new_dict</span><span class="p">(</span><span class="n">PyDictKeysObject</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">;</span>
-    <span class="k">assert</span><span class="p">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="n">NULL</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">numfree</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">mp</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfree</span><span class="p">];</span>
-    <span class="o">...</span>
+    <span class="p">...</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">)</span><span class="n">mp</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 
 
 <p>If we haven't allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list. Otherwise, it must have been allocated by our programme, not the intepreter at start-up, hence we need to explicitly free it.</p>
-<div class="highlight"><pre><span class="n">static</span> <span class="n">void</span>
-<span class="n">dict_dealloc</span><span class="p">(</span><span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">)</span>
+<div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span>
+<span class="nf">dict_dealloc</span><span class="p">(</span><span class="n">PyDictObject</span> <span class="o">*</span><span class="n">mp</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="o">...</span>
+    <span class="p">...</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">numfree</span> <span class="o">&lt;</span> <span class="n">PyDict_MAXFREELIST</span> <span class="o">&amp;&amp;</span> <span class="n">Py_TYPE</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">PyDict_Type</span><span class="p">)</span>
         <span class="n">free_list</span><span class="p">[</span><span class="n">numfree</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="p">;</span>
 </pre></div>
@@ -658,14 +682,14 @@ collect_generations(void)
 
 <h3>How can you clear the list of dictionaries?</h3>
 <p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing its freelist. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
-<div class="highlight"><pre><span class="nb">int</span>
-<span class="n">PyDict_ClearFreeList</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<div class="highlight"><pre><span class="kt">int</span>
+<span class="nf">PyDict_ClearFreeList</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">PyDictObject</span> <span class="o">*</span><span class="n">op</span><span class="p">;</span>
-    <span class="nb">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">numfree</span> <span class="o">+</span> <span class="n">numfreekeys</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">numfree</span> <span class="o">+</span> <span class="n">numfreekeys</span><span class="p">;</span>
     <span class="k">while</span> <span class="p">(</span><span class="n">numfree</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">op</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="o">--</span><span class="n">numfree</span><span class="p">];</span>
-        <span class="k">assert</span><span class="p">(</span><span class="n">PyDict_CheckExact</span><span class="p">(</span><span class="n">op</span><span class="p">));</span>
+        <span class="n">assert</span><span class="p">(</span><span class="n">PyDict_CheckExact</span><span class="p">(</span><span class="n">op</span><span class="p">));</span>
         <span class="n">PyObject_GC_Del</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">while</span> <span class="p">(</span><span class="n">numfreekeys</span><span class="p">)</span> <span class="p">{</span>
@@ -679,9 +703,9 @@ collect_generations(void)
 <p>Iterates over the freelist, GC_deleting each object in the list. In the end, we have numfree set to 0 and a freelist full of objects ready to be used again.</p>
 <h2>What does the collect method return?</h2>
 <p>The method signature. Returns a static signed size_t int. Input is generation (between 0 and 2 - higher is older), pointer to a variable tracking the <code>n\_collected</code> objects so far, <code>uncollectable</code> and <code>nofail</code> variable. Looking ahead <code>nofail</code> is only used once to decide if an error message should be printed to terminal. Both Py_ssize_t objects - <code>n\_collected</code> and <code>n\_uncollectable</code> - will be updated in-place (at their addresses) with m and n respectively.</p>
-<div class="highlight"><pre>    <span class="nb">int</span> <span class="n">i</span><span class="p">;</span>
-    <span class="n">Py_ssize_t</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">/*</span> <span class="c"># objects collected */</span>
-    <span class="n">Py_ssize_t</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">/*</span> <span class="c"># unreachable objects that couldn&#39;t be collected */</span>
+<div class="highlight"><pre>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">Py_ssize_t</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* # objects collected */</span>
+    <span class="n">Py_ssize_t</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* # unreachable objects that couldn&#39;t be collected */</span>
 </pre></div>
 
 
@@ -742,18 +766,18 @@ collect_generations(void)
 <h3>long-lived objects</h3>
 <h3>untracking immutable objects like dicts</h3>
 <h2>Back to collect</h2>
-<div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Collect</span> <span class="n">statistics</span> <span class="n">on</span> <span class="n">collectable</span> <span class="n">objects</span> <span class="n">found</span> <span class="ow">and</span> <span class="k">print</span>
-     <span class="o">*</span> <span class="n">debugging</span> <span class="n">information</span><span class="o">.</span>
-     <span class="o">*/</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">unreachable</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">;</span> <span class="n">gc</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">unreachable</span><span class="p">;</span>
-                    <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="o">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre>    <span class="cm">/* Collect statistics on collectable objects found and print</span>
+<span class="cm">     * debugging information.</span>
+<span class="cm">     */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">gc</span> <span class="o">=</span> <span class="n">unreachable</span><span class="p">.</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">;</span> <span class="n">gc</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">unreachable</span><span class="p">;</span>
+                    <span class="n">gc</span> <span class="o">=</span> <span class="n">gc</span><span class="o">-&gt;</span><span class="n">gc</span><span class="p">.</span><span class="n">gc_next</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">m</span><span class="o">++</span><span class="p">;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">debug</span> <span class="o">&amp;</span> <span class="n">DEBUG_COLLECTABLE</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">debug_cycle</span><span class="p">(</span><span class="s">&quot;collectable&quot;</span><span class="p">,</span> <span class="n">FROM_GC</span><span class="p">(</span><span class="n">gc</span><span class="p">));</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="o">/*</span> <span class="n">Clear</span> <span class="n">weakrefs</span> <span class="ow">and</span> <span class="n">invoke</span> <span class="n">callbacks</span> <span class="k">as</span> <span class="n">necessary</span><span class="o">.</span> <span class="o">*/</span>
+    <span class="cm">/* Clear weakrefs and invoke callbacks as necessary. */</span>
     <span class="n">m</span> <span class="o">+=</span> <span class="n">handle_weakrefs</span><span class="p">(</span><span class="o">&amp;</span><span class="n">unreachable</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
 </pre></div>
 
@@ -777,24 +801,24 @@ collect_generations(void)
 </pre></div>
 
 
-<div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Append</span> <span class="n">instances</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">uncollectable</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">a</span> <span class="n">Python</span>
-     <span class="o">*</span> <span class="n">reachable</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">garbage</span><span class="o">.</span>  <span class="n">The</span> <span class="n">programmer</span> <span class="n">has</span> <span class="n">to</span> <span class="n">deal</span> <span class="k">with</span>
-     <span class="o">*</span> <span class="n">this</span> <span class="k">if</span> <span class="n">they</span> <span class="n">insist</span> <span class="n">on</span> <span class="n">creating</span> <span class="n">this</span> <span class="nb">type</span> <span class="n">of</span> <span class="n">structure</span><span class="o">.</span>
-     <span class="o">*/</span>
-    <span class="p">(</span><span class="n">void</span><span class="p">)</span><span class="n">handle_legacy_finalizers</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
+<div class="highlight"><pre>    <span class="cm">/* Append instances in the uncollectable set to a Python</span>
+<span class="cm">     * reachable list of garbage.  The programmer has to deal with</span>
+<span class="cm">     * this if they insist on creating this type of structure.</span>
+<span class="cm">     */</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">handle_legacy_finalizers</span><span class="p">(</span><span class="o">&amp;</span><span class="n">finalizers</span><span class="p">,</span> <span class="n">old</span><span class="p">);</span>
 </pre></div>
 
 
 <p>finalizers is unreachable objects with legacy finalizers, so need to be dealt with differently. </p>
-<div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Clear</span> <span class="n">free</span> <span class="nb">list</span> <span class="n">only</span> <span class="n">during</span> <span class="n">the</span> <span class="n">collection</span> <span class="n">of</span> <span class="n">the</span> <span class="n">highest</span>
-     <span class="o">*</span> <span class="n">generation</span> <span class="o">*/</span>
+<div class="highlight"><pre>    <span class="cm">/* Clear free list only during the collection of the highest</span>
+<span class="cm">     * generation */</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">generation</span> <span class="o">==</span> <span class="n">NUM_GENERATIONS</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">clear_freelists</span><span class="p">();</span>
         <span class="p">}</span>
 </pre></div>
 
 
-<div class="highlight"><pre>    <span class="o">/*</span> <span class="n">Update</span> <span class="n">stats</span> <span class="o">*/</span>
+<div class="highlight"><pre>    <span class="cm">/* Update stats */</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">n_collected</span><span class="p">)</span>
         <span class="o">*</span><span class="n">n_collected</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">n_uncollectable</span><span class="p">)</span>

@@ -57,7 +57,7 @@
                 </header>
             </section>
             <h2>Background</h2>
-<p>As outlined in <a href="/drafts/comparing-different-ways-to-add-ints-i.html">part 1</a>, we are comparing recursive and iterative implementations of long arithmetic of 2 arrays. As seen in the chart at the bottom of the post, there is a sudden jump in execution times of the recursive function, when the length of array becomes ~900 ints. Using the <code>cProfile</code> and <code>line_profile</code> modules in Python, this increase in execution times is investigated in this post. First cProfile was used to record and examine the execution times for <code>recur_sum</code> and <code>iter_sum</code>. After the bottlenecks were located, <code>line_profiler</code> was used to profile each function with higher granularity. To guarantee consistent analysis both implementations will be benchmarked with line profiling enabled. </p>
+<p>As outlined in <a href="/comparing-different-ways-to-add-ints-i.html">part 1</a>, we are comparing recursive and iterative implementations of long arithmetic of 2 arrays. As seen in the chart at the bottom of the post, there is a sudden jump in execution times of the recursive function, when the length of array becomes ~900 ints. Using the <code>cProfile</code> and <code>line_profile</code> modules in Python, this increase in execution times is investigated in this post. First cProfile was used to record and examine the execution times for <code>recur_sum</code> and <code>iter_sum</code>. After the bottlenecks were located, <code>line_profiler</code> was used to profile each function with higher granularity. To guarantee consistent analysis both implementations will be benchmarked with line profiling enabled. </p>
 <h2>Refactoring</h2>
 <p>The script from part 1 had to be changed to profile the relevant function calls and save the results. This effectively wraps the function calls with cProfiler and then saves the results into a .dmp type. Afterwards results are plotted.</p>
 <h3>Plot results</h3>
@@ -210,7 +210,7 @@
 <p>Overall running times are still collected and returned and they are expected to increase with the overhead of line profiling. The line profiler dumps stats into a file called by its function name and array length. The result and elapsed time are returned, used by <code>profile_run</code> to collect and plot time for each function call.</p>
 <h2>Results</h2>
 <h3>Plot</h3>
-<p><img alt="Photo" src="/drafts/images/plot_sum_ints_profiler.png" /></p>
+<p><img alt="Photo" src="/images/plot_sum_ints_profiler.png" /></p>
 <p>In the graph, green is still recursive, red is iterative times. There are several notables differences - times are higher overall - profiling has a noticeable overhead. The difference between iterative and recursive is still present and the shape of ups/downs is similar in both lines . There is a huge spike for the recursive solution when the input arrays are of size 907. This makes it easy to investigate function calls.</p>
 <h3>Reading the cProfile dump</h3>
 <h4>Read function</h4>
