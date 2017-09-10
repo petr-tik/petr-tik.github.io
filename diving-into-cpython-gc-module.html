@@ -66,6 +66,26 @@
 <p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every <code>gc_generation</code> has a threshold (number of objects after which a collection is performed). </p>
 <h2>What are the thresholds?</h2>
 <p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
+<div class="highlight"><pre><span class="k">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
+    <span class="n">PyGC_Head</span> <span class="n">head</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">threshold</span><span class="p">;</span> <span class="cm">/* collection threshold */</span>
+    <span class="kt">int</span> <span class="n">count</span><span class="p">;</span> <span class="cm">/* count of allocations or collections of younger</span>
+<span class="cm">                  generations */</span>
+<span class="p">};</span>
+
+<span class="cp">#define NUM_GENERATIONS 3</span>
+<span class="cp">#define GEN_HEAD(n) (&amp;generations[n].head)</span>
+
+<span class="cm">/* linked lists of container objects */</span>
+<span class="k">static</span> <span class="k">struct</span> <span class="n">gc_generation</span> <span class="n">generations</span><span class="p">[</span><span class="n">NUM_GENERATIONS</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="cm">/* PyGC_Head,                               threshold,      count */</span>
+    <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">700</span><span class="p">,</span>            <span class="mi">0</span><span class="p">},</span>
+    <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">10</span><span class="p">,</span>             <span class="mi">0</span><span class="p">},</span>
+    <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">10</span><span class="p">,</span>             <span class="mi">0</span><span class="p">},</span>
+<span class="p">};</span>
+</pre></div>
+
+
 <h1>How is GC invoked?</h1>
 <h2>By the interpreter</h2>
 <p>Most of the time, the call to start a GC cycle is done as a result of allocating a new object. After a new object has been allocated, <code>_PyObject_GC_Alloc</code> checks if it exceeds the threshold for 0th generation and calls <code>collect_generations</code>.</p>
@@ -101,7 +121,7 @@
 <h2>By the user/programmer</h2>
 <p>Users can directly call <code>gc.collect()</code> to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect</code> and <code>collect_generations</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. Instagram </p>
 <h1>collect method</h1>
-<p>However GC is called, it all comes down to the <code>collect</code> method, which takes the generation number for which the collection is performed and starts the GC cycle. Below is the main collect method found in <code>Modules/gcmodule.c</code> annotated with my guesses about the use of each variable.</p>
+<p>However GC is called, it all comes down to the <code>collect</code> method, which takes the generation number for which the collection is performed and starts the GC cycle. Below is the main collect method found in <code>Modules/gcmodule.c</code>.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
   3
@@ -295,47 +315,7 @@
 191
 192
 193
-194
-195
-196
-197
-198
-199
-200
-201
-202
-203
-204
-205
-206
-207
-208
-209
-210
-211
-212
-213
-214</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
-    <span class="n">PyGC_Head</span> <span class="n">head</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">threshold</span><span class="p">;</span> <span class="cm">/* collection threshold */</span>
-    <span class="kt">int</span> <span class="n">count</span><span class="p">;</span> <span class="cm">/* count of allocations or collections of younger</span>
-<span class="cm">                  generations */</span>
-<span class="p">};</span>
-
-<span class="cp">#define NUM_GENERATIONS 3</span>
-<span class="cp">#define GEN_HEAD(n) (&amp;generations[n].head)</span>
-
-<span class="cm">/* linked lists of container objects */</span>
-<span class="k">static</span> <span class="k">struct</span> <span class="n">gc_generation</span> <span class="n">generations</span><span class="p">[</span><span class="n">NUM_GENERATIONS</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="cm">/* PyGC_Head,                               threshold,      count */</span>
-    <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">700</span><span class="p">,</span>            <span class="mi">0</span><span class="p">},</span>
-    <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">10</span><span class="p">,</span>             <span class="mi">0</span><span class="p">},</span>
-    <span class="p">{{{</span><span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">GEN_HEAD</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span><span class="p">}},</span>           <span class="mi">10</span><span class="p">,</span>             <span class="mi">0</span><span class="p">},</span>
-<span class="p">};</span>
-
-<span class="p">...</span>
-
-<span class="cm">/* This is the number of objects that survived the last full collection. It</span>
+194</pre></div></td><td class="code"><div class="highlight"><pre><span class="cm">/* This is the number of objects that survived the last full collection. It</span>
 <span class="cm">   approximates the number of long lived objects tracked by the GC.</span>
 <span class="cm">   (by &quot;full collection&quot;, we mean a collection of the oldest generation).</span>
 <span class="cm">*/</span>
@@ -532,11 +512,6 @@
 </pre></div>
 </td></tr></table>
 
-<h1>What kind of objects are tracked?</h1>
-<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable container - tuple of integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
-<h1>Why and how do you track/untrack objects?</h1>
-<p>By default, we still track newly created tuples and leave it to the GC to untrack it. <code>move_unreachable</code> uses <code>_PyTuple_MaybeUntrack</code> (defined in <a href="https://github.com/python/cpython/blob/3.6/Objects/tupleobject.c#L180-L203">Objects/tupleobject.c</a>), which iterates over all the objects in the tuple. If there are no NULL elements (yet to be constructed), it untracks the tuple object i.e. sets its <code>gc_refs</code> to <code>_PyGC_REFS_UNTRACKED</code> and removes its PyGC_Head object from its generation list.</p>
-<p>Dictionaries containing only immutable objects like strings also don’t need tracking. In a full collection, we examine which dictionaries we can untrack and untrack them if the keys and values in the dictionary don't need tracking. Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
 <h1>How do you prepare a generation for collection?</h1>
 <p>To prepare a genertion for collection, we merge all younger generations into the generation that is currently being collected. <code>gc_list_merge</code> appends the younger generation to the list of the currently collected generation.</p>
 <h2>gc_list_merge</h2>
@@ -568,7 +543,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p><code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
 <h2>What happens in a collection?</h2>
 <h3>Tentatively move unreachable objects</h3>
-<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of young, where objects have had their ob_refcnt and gc_refs updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again.</p>
+<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of <code>young</code>, where objects have had their <code>ob_refcnt</code> and <code>gc_refs</code> updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again.</p>
 <h3>Promote survived objects to the older generation</h3>
 <p>The objects in young that haven't been marked as <code>GC_TENTATIVELY_UNREACHABLE</code> are definitely getting promoted to the next generation by merging <code>young</code> with <code>old</code>.</p>
 <h3>Deal with finalizers</h3>
@@ -583,8 +558,8 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <h3>collect stats</h3>
 <h3>clear freelists</h3>
 <p>If it's a full collection, freelists for different data structures are cleared. More detail below.</p>
-<h1>How is a full collection different from collecting generation 0 or generation 1?</h1>
-<h2>Runs less frequently using a heuristic</h2>
+<h1>What is the difference between a full and a normal collection?</h1>
+<h2>Full collection runs less frequently using a heuristic</h2>
 <p>Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. We can either skip objects or perform fewer collections, so a heuristic is used to run fewer collections. Long-lived objects are those in generation 2. The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. A limit of 25% between objects that are yet to go through a full collection over the number of objects that survived the last collection in generation 2. </p>
 <div class="highlight"><pre><span class="k">static</span> <span class="n">Py_ssize_t</span>
 <span class="nf">collect_generations</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
@@ -601,6 +576,12 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 
 <p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
+<h2>Dictionaries are untracked</h2>
+<h3>What kind of objects are tracked?</h3>
+<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable container - tuple of integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
+<h3>Why and how do you track/untrack objects?</h3>
+<p>By default, we still track newly created tuples and leave it to the GC to untrack them. <code>move_unreachable</code> uses <code>_PyTuple_MaybeUntrack</code> (defined in <a href="https://github.com/python/cpython/blob/3.6/Objects/tupleobject.c#L180-L203">Objects/tupleobject.c</a>), which iterates over all the objects in the tuple. If there are no NULL elements (yet to be constructed), it untracks the tuple object i.e. sets its <code>gc_refs</code> to <code>_PyGC_REFS_UNTRACKED</code> and removes its PyGC_Head object from its generation list.</p>
+<p>Dictionaries containing only immutable objects like strings also don’t need tracking. In a full collection, we examine which dictionaries we can untrack and untrack them if the keys and values in the dictionary don't need tracking. Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
 <h2>Surviving objects don't get promoted</h2>
 <p>There is no older generation to get promoted to. When <code>young != old</code>, the objects that are still reachable in the <code>young</code> list are moved to the old. Collecting the oldest generation means we cannot move/promote surviving objects any further.</p>
 <div class="highlight"><pre>    else {
@@ -653,7 +634,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<h3>How can you clear the list of dictionaries?</h3>
+<h3>How can you clear the freelist?</h3>
 <p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing its freelist. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
 <div class="highlight"><pre><span class="kt">int</span>
 <span class="nf">PyDict_ClearFreeList</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
@@ -675,7 +656,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 <p>Iterates over the freelist, GC_deleting each object in the list. In the end, we have numfree set to 0 and a freelist full of objects ready to be used again.</p>
 <h2>What does the collect method return?</h2>
-<p>The method signature. Returns a static signed size_t int. Input is generation (between 0 and 2 - higher is older), pointer to a variable tracking the <code>n\_collected</code> objects so far, <code>uncollectable</code> and <code>nofail</code> variable. Looking ahead <code>nofail</code> is only used once to decide if an error message should be printed to terminal. Both Py_ssize_t objects - <code>n\_collected</code> and <code>n\_uncollectable</code> - will be updated in-place (at their addresses) with m and n respectively.</p>
+<p>Returns a static signed size_t int. Input is generation (between 0 and 2 - higher is older), pointer to a variable tracking the <code>n\_collected</code> objects so far, <code>uncollectable</code> and <code>nofail</code> variable. Looking ahead <code>nofail</code> is only used once to decide if an error message should be printed to terminal. Both Py_ssize_t objects - <code>n\_collected</code> and <code>n\_uncollectable</code> - will be updated in-place (at their addresses) with m and n respectively.</p>
 <div class="highlight"><pre>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
     <span class="n">Py_ssize_t</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* # objects collected */</span>
     <span class="n">Py_ssize_t</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* # unreachable objects that couldn&#39;t be collected */</span>
@@ -684,7 +665,6 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 <h2>Why are variables like m and n used?</h2>
 <p>I guess programmers in the 90s were paid inversely proportionally to the number of chars they typed. That would explain <code>mkdir</code>, <code>creat</code>, <code>m</code>, <code>n</code>. </p>
-<p>Stack allocating the vars we will need to collect this generation with. No other choice - heap allocating variables used in GC is just rude. </p>
 <h1>What is PyGC_Head and how is it related to PyObject?</h1>
 <h3>PyGC_Head</h3>
 <p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/tree/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
@@ -753,7 +733,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p>As soon as it’s added to a generation list its <code>gc_refs</code> is updated to GC_REACHABLE.</p>
 <p>When collecting happens, <code>gc_refs</code> may take other values. The most important is GC_TENTATIVELY_UNREACHABLE, which means the object has been moved to the unreachable set. Even when ref updating is over and an object is GC_TENTATIVELY_UNREACHABLE, it may be made reachable again, because it has a <code>__del__</code> method. This is done with a revive_garbage method, which takes a pointer to list of supposedly unreachable objects, which turned out to have refs to objects outside their own group.</p>
 <h2>Summary</h2>
-<p>This blog is a read-through of the <code>Modules/gcmodule.c</code> of the CPython interpreter. The logic is inside the <code>collect</code> method, which is called by <code>collect_with_callback</code>. The <code>gc</code> module exposes the <code>gc.collect()</code> method that users can manually activate in terminal, which performs a full collection. Some heuristics and tips to use CPython efficiently were explained and internals of object allocation/collection were outlined. </p>
+<p>This blog is a read-through of the <code>Modules/gcmodule.c</code> of the CPython interpreter. The logic is inside the <code>collect</code> method, which is called by <code>PyGC_collect</code> or <code>_PyObject_GC_Alloc</code>. The collecting process is outlined from preparing the generation, moving unreachable objects, recovering or deleting garbage to collecting and returning stats. The difference between a full collection and a collection of generation 0 or 1 is explained. Some heuristics and tips to use CPython efficiently were explained and internals of object allocation/collection were outlined. </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
