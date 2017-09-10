@@ -8,70 +8,6 @@
 &lt;p&gt;The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.&lt;/p&gt;
 &lt;h1&gt;How is GC invoked?&lt;/h1&gt;
 &lt;p&gt;Users can directly call gc.collect() to run a full collection. &lt;code&gt;gc.collect&lt;/code&gt;, its C equivalent - &lt;code&gt;PyGC_Collect&lt;/code&gt; and &lt;code&gt;collect_generations&lt;/code&gt; uses &lt;code&gt;collect_with_callback&lt;/code&gt;, which uses pre-registered callbacks and executes them before and after the gc has been called. &lt;code&gt;collect_generations&lt;/code&gt; finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when &lt;code&gt;collect_generations&lt;/code&gt; is called. &lt;/p&gt;
-&lt;h1&gt;How are cyclical references accounted for?&lt;/h1&gt;
-&lt;h1&gt;What is PyGC_Head and how is it related to PyObject?&lt;/h1&gt;
-&lt;h3&gt;PyGC_Head&lt;/h3&gt;
-&lt;p&gt;Most variables are of type PyGC_Head, whose definition is in &lt;a href="https://github.com/python/cpython/tree/3.6/Include/objimpl.h#L251-L259"&gt;objimpl.h&lt;/a&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* GC information is stored BEFORE the object structure. */&lt;/span&gt;
-&lt;span class="cp"&gt;#ifndef Py_LIMITED_API&lt;/span&gt;
-&lt;span class="k"&gt;typedef&lt;/span&gt; &lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;_gc_head&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;_gc_head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;_gc_head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gc_prev&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;gc_refs&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="kt"&gt;double&lt;/span&gt; &lt;span class="n"&gt;dummy&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;  &lt;span class="cm"&gt;/* force worst-case alignment */&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="n"&gt;PyGC_Head&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;The meaty part of the type is pointers of the same type to next and previous &lt;code&gt;_gc_head&lt;/code&gt; types and the &lt;code&gt;gc_refs&lt;/code&gt; that keeps track of the number of references.&lt;/p&gt;
-&lt;h3&gt;Why double dummy?&lt;/h3&gt;
-&lt;p&gt;Paraphrasing the commit message - the &lt;code&gt;double dummy&lt;/code&gt; is to make sure 8-byte alignment won't break. When 8-byte alignment is required, padding is added, otherwise, there won't be any change.&lt;/p&gt;
-&lt;h3&gt;Why recursively defined gc struct?&lt;/h3&gt;
-&lt;p&gt;This uses a sentinel doubly linked list. An empty linked list contains one node, whose &lt;code&gt;.gc_prev&lt;/code&gt; and &lt;code&gt;.gc_next&lt;/code&gt; link to the node itself. Appending nodes to the end of a list means linking the &lt;code&gt;.gc_next&lt;/code&gt; and &lt;code&gt;.gc_prev&lt;/code&gt; of the new_node to the head of the list and last element of the list respectively. The first element is a dummy - sentinel - node.  That's why all list traversal operations begin initiate &lt;code&gt;gc = list-&amp;gt;gc.gc_next&lt;/code&gt; as below&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt;
-&lt;span class="nf"&gt;gc_list_size&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyGC_Head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;PyGC_Head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;and to check emptiness you need to compare pointers between the head and the first next element after the sentinel. &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;
-&lt;span class="nf"&gt;gc_list_is_empty&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyGC_Head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h2&gt;PyObject&lt;/h2&gt;
-&lt;p&gt;The PyObject struct is defined in &lt;a href="https://github.com/python/cpython/3.6/blob/Include/object.h"&gt;Include/object.h&lt;/a&gt;. Contains the reference count and type of the object.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* Define pointers to support a doubly-linked list of all live heap objects. */&lt;/span&gt;
-&lt;span class="cp"&gt;#define _PyObject_HEAD_EXTRA            \&lt;/span&gt;
-&lt;span class="cp"&gt;    struct _object *_ob_next;           \&lt;/span&gt;
-&lt;span class="cp"&gt;    struct _object *_ob_prev;&lt;/span&gt;
-
-&lt;span class="k"&gt;typedef&lt;/span&gt; &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;_object&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;_PyObject_HEAD_EXTRA&lt;/span&gt;
-    &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;ob_refcnt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;_typeobject&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;ob_type&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="n"&gt;PyObject&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h2&gt;PyObject to/from PyGC_Head&lt;/h2&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* Get an object&amp;#39;s GC head */&lt;/span&gt;
-&lt;span class="cp"&gt;#define AS_GC(o) ((PyGC_Head *)(o)-1)&lt;/span&gt;
-
-&lt;span class="cm"&gt;/* Get the object given the GC head */&lt;/span&gt;
-&lt;span class="cp"&gt;#define FROM_GC(g) ((PyObject *)(((PyGC_Head *)g)+1))&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;h1&gt;collect method&lt;/h1&gt;
 &lt;p&gt;Below is the main collect method found in &lt;code&gt;Modules/gcmodule.c&lt;/code&gt; annotated with my guesses about the use of each variable.&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;  1
@@ -581,7 +517,7 @@ gc_list_merge&lt;span class="o"&gt;(&lt;/span&gt;PyGC_Head&lt;span class="w"&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;We don't move anything anywhere, just reset &lt;code&gt;long_lived_pending&lt;/code&gt; (no object has not survived a full collection) and update &lt;code&gt;long_lived_total&lt;/code&gt; with the number of objects . &lt;/p&gt;
+&lt;p&gt;We don't move anything anywhere, just reset &lt;code&gt;long_lived_pending&lt;/code&gt; (no object has not survived a full collection) and update &lt;code&gt;long_lived_total&lt;/code&gt; with the number of objects. &lt;/p&gt;
 &lt;h2&gt;Clearing freelists&lt;/h2&gt;
 &lt;h3&gt;What are freelists?&lt;/h3&gt;
 &lt;p&gt;Full collection (collecting the oldest generation) involves clearing freelists. Free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users avoid calling malloc for the first X object creations. Similarly, when an object is collected, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Example from &lt;code&gt;dictobject.c&lt;/code&gt; below&lt;/p&gt;
@@ -653,130 +589,69 @@ gc_list_merge&lt;span class="o"&gt;(&lt;/span&gt;PyGC_Head&lt;span class="w"&gt;
 &lt;h2&gt;Why are variables like m and n used?&lt;/h2&gt;
 &lt;p&gt;I guess programmers in the 90s were paid inversely proportionally to the number of chars they typed. That would explain &lt;code&gt;mkdir&lt;/code&gt;, &lt;code&gt;creat&lt;/code&gt;, &lt;code&gt;m&lt;/code&gt;, &lt;code&gt;n&lt;/code&gt;. &lt;/p&gt;
 &lt;p&gt;Stack allocating the vars we will need to collect this generation with. No other choice - heap allocating variables used in GC is just rude. &lt;/p&gt;
-&lt;h2&gt;Why collect stats?&lt;/h2&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    struct gc_generation_stats *stats = &amp;amp;generation_stats[generation];
+&lt;h1&gt;What is PyGC_Head and how is it related to PyObject?&lt;/h1&gt;
+&lt;h3&gt;PyGC_Head&lt;/h3&gt;
+&lt;p&gt;Most variables are of type PyGC_Head, whose definition is in &lt;a href="https://github.com/python/cpython/tree/3.6/Include/objimpl.h#L251-L259"&gt;objimpl.h&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* GC information is stored BEFORE the object structure. */&lt;/span&gt;
+&lt;span class="cp"&gt;#ifndef Py_LIMITED_API&lt;/span&gt;
+&lt;span class="k"&gt;typedef&lt;/span&gt; &lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;_gc_head&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;_gc_head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;_gc_head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gc_prev&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;gc_refs&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;double&lt;/span&gt; &lt;span class="n"&gt;dummy&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;  &lt;span class="cm"&gt;/* force worst-case alignment */&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="n"&gt;PyGC_Head&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Added 5 years ago as part of &lt;code&gt;gc.get_stats&lt;/code&gt; modules. Pointer to stack-allocated generation_stats struct, which keeps track of the number of collections performed, objects collected and marked as uncollectable.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    /* update collection and allocation counters */
-    if (generation+1 &amp;lt; NUM_GENERATIONS)
-        generations[generation+1].count += 1;
+&lt;p&gt;The meaty part of the type is pointers of the same type to next and previous &lt;code&gt;_gc_head&lt;/code&gt; types and the &lt;code&gt;gc_refs&lt;/code&gt; that keeps track of the number of references.&lt;/p&gt;
+&lt;h3&gt;Why double dummy?&lt;/h3&gt;
+&lt;p&gt;Paraphrasing the commit message - the &lt;code&gt;double dummy&lt;/code&gt; is to make sure 8-byte alignment won't break. When 8-byte alignment is required, padding is added, otherwise, there won't be any change.&lt;/p&gt;
+&lt;h3&gt;Why recursively defined gc struct?&lt;/h3&gt;
+&lt;p&gt;This uses a sentinel doubly linked list. An empty linked list contains one node, whose &lt;code&gt;.gc_prev&lt;/code&gt; and &lt;code&gt;.gc_next&lt;/code&gt; link to the node itself. Appending nodes to the end of a list means linking the &lt;code&gt;.gc_next&lt;/code&gt; and &lt;code&gt;.gc_prev&lt;/code&gt; of the new_node to the head of the list and last element of the list respectively. The first element is a dummy - sentinel - node.  That's why all list traversal operations begin initiate &lt;code&gt;gc = list-&amp;gt;gc.gc_next&lt;/code&gt; as below&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt;
+&lt;span class="nf"&gt;gc_list_size&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyGC_Head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;PyGC_Head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Given the default NUM_GENERATIONS, this will only work on 2 youngest generations (0, 1) and increment the count of allocations or collections of the older generation from the current.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    for (i = 0; i &amp;lt;= generation; i++)
-        generations[i].count = 0;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Reset the count of allocations and collections of generations up to current to 0. Every time we collect generations up to value X, we reset their counts.&lt;/p&gt;
-&lt;h2&gt;Back to collect&lt;/h2&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    /* handy references */
-    young = GEN_HEAD(generation);
-    if (generation &amp;lt; NUM_GENERATIONS-1)
-        old = GEN_HEAD(generation+1);
-    else
-        old = young;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;    /* Leave everything reachable from outside young in young, and move
-     * everything else (in young) to unreachable.
-     * NOTE:  This used to move the reachable objects into a reachable
-     * set instead.  But most things usually turn out to be reachable,
-     * so it&amp;#39;s more efficient to move the unreachable things.
-     */
-    gc_list_init(&amp;amp;unreachable);
-    move_unreachable(young, &amp;amp;unreachable);
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;    /* Move reachable objects to next generation. */
-    if (young != old) {
-        if (generation == NUM_GENERATIONS - 2) {
-            long_lived_pending += gc_list_size(young);
-        }
-        gc_list_merge(young, old);
-    }
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;If we aren't collecting the oldest generation, this isn't a full collection. If we are collecting the 0th generation, add the number of objects to &lt;code&gt;long_lived_pending&lt;/code&gt; var and merge the lists. Keeping track of the number of objects that survived the collection in &lt;code&gt;young&lt;/code&gt;, but are yet to go through a full collection is used in &lt;code&gt;collect_generations&lt;/code&gt;. &lt;/p&gt;
-&lt;h3&gt;long-lived objects&lt;/h3&gt;
-&lt;h3&gt;untracking immutable objects like dicts&lt;/h3&gt;
-&lt;h2&gt;Back to collect&lt;/h2&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="cm"&gt;/* Collect statistics on collectable objects found and print&lt;/span&gt;
-&lt;span class="cm"&gt;     * debugging information.&lt;/span&gt;
-&lt;span class="cm"&gt;     */&lt;/span&gt;
-    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;unreachable&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;unreachable&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-                    &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;debug&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;DEBUG_COLLECTABLE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-            &lt;span class="n"&gt;debug_cycle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;collectable&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;FROM_GC&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
-        &lt;span class="p"&gt;}&lt;/span&gt;
-    &lt;span class="p"&gt;}&lt;/span&gt;
-
-    &lt;span class="cm"&gt;/* Clear weakrefs and invoke callbacks as necessary. */&lt;/span&gt;
-    &lt;span class="n"&gt;m&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;handle_weakrefs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;unreachable&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Adds debugging and stats. &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    /* Call tp_finalize on objects which have one. */
-    finalize_garbage(&amp;amp;unreachable);
-
-
-    if (check_garbage(&amp;amp;unreachable)) {
-        revive_garbage(&amp;amp;unreachable);
-        gc_list_merge(&amp;amp;unreachable, old);
-    }
-    else {
-        /* Call tp_clear on objects in the unreachable set.  This will cause
-         * the reference cycles to be broken.  It may also cause some objects
-         * in finalizers to be freed.
-         */
-        delete_garbage(&amp;amp;unreachable, old);
-    }
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="cm"&gt;/* Append instances in the uncollectable set to a Python&lt;/span&gt;
-&lt;span class="cm"&gt;     * reachable list of garbage.  The programmer has to deal with&lt;/span&gt;
-&lt;span class="cm"&gt;     * this if they insist on creating this type of structure.&lt;/span&gt;
-&lt;span class="cm"&gt;     */&lt;/span&gt;
-    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="n"&gt;handle_legacy_finalizers&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;finalizers&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;finalizers is unreachable objects with legacy finalizers, so need to be dealt with differently. &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="cm"&gt;/* Clear free list only during the collection of the highest&lt;/span&gt;
-&lt;span class="cm"&gt;     * generation */&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;generation&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;NUM_GENERATIONS&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;clear_freelists&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
-        &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="cm"&gt;/* Update stats */&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n_collected&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-        &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;n_collected&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n_uncollectable&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-        &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;n_uncollectable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="n"&gt;stats&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;collections&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="n"&gt;stats&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;collected&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="n"&gt;stats&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;uncollectable&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyDTrace_GC_DONE_ENABLED&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
-        &lt;span class="n"&gt;PyDTrace_GC_DONE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;p&gt;and to check emptiness you need to compare pointers between the head and the first next element after the sentinel. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;
+&lt;span class="nf"&gt;gc_list_is_empty&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyGC_Head&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;gc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gc_next&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Updates the stats for number of objects collected and unreachable objects and increments the counter for number of collections performed. The method returns the number of objects collected and unreachable in this generation.&lt;/p&gt;
+&lt;h2&gt;PyObject&lt;/h2&gt;
+&lt;p&gt;The PyObject struct is defined in &lt;a href="https://github.com/python/cpython/3.6/blob/Include/object.h"&gt;Include/object.h&lt;/a&gt;. Contains the reference count and type of the object.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* Define pointers to support a doubly-linked list of all live heap objects. */&lt;/span&gt;
+&lt;span class="cp"&gt;#define _PyObject_HEAD_EXTRA            \&lt;/span&gt;
+&lt;span class="cp"&gt;    struct _object *_ob_next;           \&lt;/span&gt;
+&lt;span class="cp"&gt;    struct _object *_ob_prev;&lt;/span&gt;
+
+&lt;span class="k"&gt;typedef&lt;/span&gt; &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;_object&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;_PyObject_HEAD_EXTRA&lt;/span&gt;
+    &lt;span class="n"&gt;Py_ssize_t&lt;/span&gt; &lt;span class="n"&gt;ob_refcnt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;_typeobject&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;ob_type&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="n"&gt;PyObject&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;PyObject to/from PyGC_Head&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* Get an object&amp;#39;s GC head */&lt;/span&gt;
+&lt;span class="cp"&gt;#define AS_GC(o) ((PyGC_Head *)(o)-1)&lt;/span&gt;
+
+&lt;span class="cm"&gt;/* Get the object given the GC head */&lt;/span&gt;
+&lt;span class="cp"&gt;#define FROM_GC(g) ((PyObject *)(((PyGC_Head *)g)+1))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;h3&gt;Collecting&lt;/h3&gt;
 &lt;p&gt;&lt;code&gt;gc_refs&lt;/code&gt; values determine if an object should be collected. When an object is malloc’ed, its &lt;code&gt;gc_refs&lt;/code&gt; is set to &lt;code&gt;GC_UNTRACKED&lt;/code&gt;, because it’s absent from any generation list. &lt;/p&gt;
 &lt;p&gt;As soon as it’s added to a generation list its &lt;code&gt;gc_refs&lt;/code&gt; is updated to GC_REACHABLE.&lt;/p&gt;
