@@ -60,16 +60,48 @@
                 </header>
             </section>
             <p>This is a deep dive into the source code for <code>Modules/gcmodule.c</code> inspired by a previous <a href="/notes-on-pythons-gc.html">blogpost</a>, which outlined the GC mechanism in CPython.</p>
-<h1>What is the reason for GC in Python?</h1>
-<p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. This makes it easier to write code without worrying about allocating memory for your variables. Garbage collection is a mechanism for regularly checking that pre-allocated memory is still in use. Being in use means other objects still refer to you for something and your reference count is above 0.</p>
+<h1>Why does Python need garbage collection?</h1>
+<p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. This makes it easier to write code without worrying about allocating memory for your data. Garbage collection is a mechanism for regularly checking that pre-allocated memory is still in use. Being in use means other objects still refer to you for something and your reference count is above 0. Once an object isn't in use, the memory allocated for it is collected and becomes available to future allocations.</p>
 <h1>What kind of GC does Python use?</h1>
-<p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every gc_generation has a threshold (number of objects after which a collection is performed). </p>
-<h2>What are the thresholds and why do they have such values?</h2>
+<p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every <code>gc_generation</code> has a threshold (number of objects after which a collection is performed). </p>
+<h2>What are the thresholds?</h2>
 <p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
 <h1>How is GC invoked?</h1>
-<p>Users can directly call gc.collect() to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect</code> and <code>collect_generations</code> uses <code>collect_with_callback</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. <code>collect_generations</code> finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. That is used, when <code>collect_generations</code> is called. </p>
+<h2>By the interpreter</h2>
+<p>Most of the time, the call to start a GC cycle is done as a result of allocating a new object. After a new object has been allocated, <code>_PyObject_GC_Alloc</code> checks if it exceeds the threshold for 0th generation and calls <code>collect_generations</code>.</p>
+<div class="highlight"><pre><span class="k">static</span> <span class="n">PyObject</span> <span class="o">*</span>
+<span class="nf">_PyObject_GC_Alloc</span><span class="p">(</span><span class="kt">int</span> <span class="n">use_calloc</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">basicsize</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">PyObject</span> <span class="o">*</span><span class="n">op</span><span class="p">;</span>
+    <span class="n">PyGC_Head</span> <span class="o">*</span><span class="n">g</span><span class="p">;</span>
+    <span class="p">[...]</span>
+    <span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">PyGC_Head</span><span class="p">)</span> <span class="o">+</span> <span class="n">basicsize</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">use_calloc</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyGC_Head</span> <span class="o">*</span><span class="p">)</span><span class="n">PyObject_Calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+    <span class="p">[...]</span>
+    <span class="n">_PyGCHead_SET_REFS</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">GC_UNTRACKED</span><span class="p">);</span>
+    <span class="n">generations</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">count</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* number of allocated GC objects */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">generations</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">count</span> <span class="o">&gt;</span> <span class="n">generations</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">threshold</span> <span class="o">&amp;&amp;</span>
+        <span class="n">enabled</span> <span class="o">&amp;&amp;</span>
+        <span class="n">generations</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">threshold</span> <span class="o">&amp;&amp;</span>
+        <span class="o">!</span><span class="n">collecting</span> <span class="o">&amp;&amp;</span>
+        <span class="o">!</span><span class="n">PyErr_Occurred</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">collecting</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">collect_generations</span><span class="p">();</span>
+        <span class="n">collecting</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">FROM_GC</span><span class="p">(</span><span class="n">g</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">op</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>The <code>collect_generations</code> method finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. <code>collect_generations</code> calls <code>collect_with_callbacks</code>, which calls <code>collect</code> for the given generation.</p>
+<p>This method is used by <code>_PyObject_GC_Calloc</code> and <code>_PyObject_GC_Malloc</code>, which are called by <code>PyObject_GC_New</code> - the standard way to allocate new list, dictionary, class, iterator, set, slice and many other built-in Python types.</p>
+<h2>By the user/programmer</h2>
+<p>Users can directly call <code>gc.collect()</code> to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect</code> and <code>collect_generations</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. Instagram </p>
 <h1>collect method</h1>
-<p>Below is the main collect method found in <code>Modules/gcmodule.c</code> annotated with my guesses about the use of each variable.</p>
+<p>However GC is called, it all comes down to the <code>collect</code> method, which takes the generation number for which the collection is performed and starts the GC cycle. Below is the main collect method found in <code>Modules/gcmodule.c</code> annotated with my guesses about the use of each variable.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
   3
@@ -281,7 +313,9 @@
 209
 210
 211
-212</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
+212
+213
+214</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
     <span class="n">PyGC_Head</span> <span class="n">head</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">threshold</span><span class="p">;</span> <span class="cm">/* collection threshold */</span>
     <span class="kt">int</span> <span class="n">count</span><span class="p">;</span> <span class="cm">/* count of allocations or collections of younger</span>
@@ -312,8 +346,10 @@
 <span class="cm">*/</span>
 <span class="k">static</span> <span class="n">Py_ssize_t</span> <span class="n">long_lived_pending</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
+<span class="p">[...]</span>
+
 <span class="k">static</span> <span class="n">Py_ssize_t</span>
-<span class="nf">collect</span><span class="p">(</span><span class="kt">int</span> <span class="n">generation</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_collected</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_uncollectable</span><span class="p">,</span>
+<span class="n">collect</span><span class="p">(</span><span class="kt">int</span> <span class="n">generation</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_collected</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="o">*</span><span class="n">n_uncollectable</span><span class="p">,</span>
         <span class="kt">int</span> <span class="n">nofail</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
@@ -448,7 +484,7 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;gc: done&quot;</span><span class="p">);</span>
         <span class="k">else</span>
-            <span class="n">PySys_FormatStderr</span><span class="p">(</span>
+            <span class="nf">PySys_FormatStderr</span><span class="p">(</span>
                 <span class="s">&quot;gc: done, %zd unreachable, %zd uncollectable&quot;</span><span class="p">,</span>
                 <span class="n">n</span><span class="o">+</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
         <span class="n">PySys_WriteStderr</span><span class="p">(</span><span class="s">&quot;, %.4fs elapsed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
@@ -497,10 +533,10 @@
 </td></tr></table>
 
 <h1>What kind of objects are tracked?</h1>
-<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable object - tuple of tuples/integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
+<p>Python has a mix of immutable and mutable data structures. Tuples and strings are strictly immutable in python. Every modification of an existing tuple/string, allocates a new object of the same type, applies the transformation in-memory and copies the result into the newly allocated object. Appending a new char to a string, allocates a new string object and sets its values to old_string + new_char. Tuples are different from strings, because they are container objects i.e. they keep track of other objects inside. An immutable container like tuple may contain a mutable object like a list, which needs GC. A completely immutable container - tuple of integers/strings will neither change as a container nor as its members. Therefore there is no need to GC track it. </p>
 <h1>Why and how do you track/untrack objects?</h1>
 <p>By default, we still track newly created tuples and leave it to the GC to untrack it. <code>move_unreachable</code> uses <code>_PyTuple_MaybeUntrack</code> (defined in <a href="https://github.com/python/cpython/blob/3.6/Objects/tupleobject.c#L180-L203">Objects/tupleobject.c</a>), which iterates over all the objects in the tuple. If there are no NULL elements (yet to be constructed), it untracks the tuple object i.e. sets its <code>gc_refs</code> to <code>_PyGC_REFS_UNTRACKED</code> and removes its PyGC_Head object from its generation list.</p>
-<p>Dictionaries containing only immutable objects like strings also don’t need tracking. Dictionaries are untracked by default, but become tracked as soon as a mutable object is added (using an int as a key). Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
+<p>Dictionaries containing only immutable objects like strings also don’t need tracking. In a full collection, we examine which dictionaries we can untrack and untrack them if the keys and values in the dictionary don't need tracking. Protip: use strings as keys and tuples as values to avoid invoking GC on your dictionaries.</p>
 <h1>How do you prepare a generation for collection?</h1>
 <p>To prepare a genertion for collection, we merge all younger generations into the generation that is currently being collected. <code>gc_list_merge</code> appends the younger generation to the list of the currently collected generation.</p>
 <h2>gc_list_merge</h2>
