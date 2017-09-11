@@ -63,9 +63,7 @@
 <h1>Why does Python need garbage collection?</h1>
 <p>As a managed memory runtime, CPython doesn’t give the programmer direct memory control. This makes it easier to write code without worrying about allocating memory for your data. Garbage collection is a mechanism for regularly checking that pre-allocated memory is still in use. Being in use means other objects still refer to you for something and your reference count is above 0. Once an object isn't in use, the memory allocated for it is collected and becomes available to future allocations.</p>
 <h1>What kind of GC does Python use?</h1>
-<p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every <code>gc_generation</code> has a threshold (number of objects after which a collection is performed). </p>
-<h2>What are the thresholds?</h2>
-<p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700 new objects or promote 10 objects to either 1st or 2nd generation. First generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
+<p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every <code>gc_generation</code> has a threshold (number of objects after which a collection is performed) as defined below (taken from gcmodule.c).</p>
 <div class="highlight"><pre><span class="k">struct</span> <span class="n">gc_generation</span> <span class="p">{</span>
     <span class="n">PyGC_Head</span> <span class="n">head</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">threshold</span><span class="p">;</span> <span class="cm">/* collection threshold */</span>
@@ -86,6 +84,8 @@
 </pre></div>
 
 
+<h2>What are the thresholds?</h2>
+<p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700th object or promote 10 objects to either 1st or 2nd generation. The first generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
 <h1>How is GC invoked?</h1>
 <h2>By the interpreter</h2>
 <p>Most of the time, the call to start a GC cycle is done as a result of allocating a new object. After a new object has been allocated, <code>_PyObject_GC_Alloc</code> checks if it exceeds the threshold for 0th generation and calls <code>collect_generations</code>.</p>
@@ -119,7 +119,7 @@
 <p>The <code>collect_generations</code> method finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. <code>collect_generations</code> calls <code>collect_with_callbacks</code>, which calls <code>collect</code> for the given generation.</p>
 <p>This method is used by <code>_PyObject_GC_Calloc</code> and <code>_PyObject_GC_Malloc</code>, which are called by <code>PyObject_GC_New</code> - the standard way to allocate new list, dictionary, class, iterator, set, slice and many other built-in Python types.</p>
 <h2>By the user/programmer</h2>
-<p>Users can directly call <code>gc.collect()</code> to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect</code> and <code>collect_generations</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. Instagram </p>
+<p>Users can directly call <code>gc.collect</code> to run a full collection. <code>gc.collect</code>, its C equivalent - <code>PyGC_Collect</code> and <code>collect_generations</code>, which uses pre-registered callbacks and executes them before and after the gc has been called. Instagram </p>
 <h1>collect method</h1>
 <p>However GC is called, it all comes down to the <code>collect</code> method, which takes the generation number for which the collection is performed and starts the GC cycle. Below is the main collect method found in <code>Modules/gcmodule.c</code>.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
@@ -533,29 +533,34 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 </pre></div>
 
 
-<p>By creating a variable for <code>tail</code>, we can save the pointer to the last node in the to list. First, we link the second node in the from list with the end of the to list using the <code>tail</code> variable. The second node in the from list becomes the head of the merged list. At the end, we make the head node of the to list point its prev pointer to the last node of the from list and the next pointer of the last node of the from list to the first node of the to list. </p>
+<p>By creating a variable for <code>tail</code>, we can save the pointer to the last node in the <code>to</code> list. First, we link the second node in the from list with the end of the to list using the <code>tail</code> variable. The second node in the <code>from</code> list becomes the head of the merged list. At the end, we make the head node of the <code>to</code> list point its prev pointer to the last node of the <code>from</code> list and the next pointer of the last node of the <code>from</code> list to the first node of the <code>to</code> list. </p>
 <p><code>gc_list_init</code> makes the sentinel node points both pointers to itself. The first node in any gc list is therefore always a sentinel node. </p>
 <p>Therefore we merge the <code>from</code> list to the left of the <code>to</code> list. In a full collection, the 0th generation is merged with the 2nd first. The result, where the nodes from the 0th collection are to the left of the nodes from the 2nd collection, is merged with the 1st generation. This results in the following order:</p>
 <p>1st generation -&gt; 0th generation -&gt; 2nd generation</p>
 <h2>After merging</h2>
 <p>Having defined young earlier (currently collected generation) and old (generation right of current) now assign values to them. <code>young</code> acquires the value of the gc_list, which now contains the result of merging all previous generations with the current. <code>old</code> is set to the head of generation to the right, if it exists. eg. when generation = 2, old = young. </p>
-<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs()</code> copies the true refcount to gc_refs, for each object in the generation being collected. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object. <code>update_refs</code> copies refcnt value from PyObject’s objcnt to gc’s gc_refs field. This field is set to different statuses to signal, if the object is still attached to any other objects. </p>
-<p><code>subtract_refs()</code> then adjusts gc_refs so that it equals the number of times an object is referenced directly from outside the generation being collected.</p>
+<p><code>update_refs</code> and then <code>substract_refs</code> prepares the young generation of collection. At the start of a collection, <code>update_refs</code> copies the true refcount to <code>gc.gc_refs</code>, for each object in the generation being collected. <code>update_refs</code> copies refcnt value from PyObject’s objcnt to gc’s gc_refs field. This field is set to different statuses to signal, if the object is still attached to any other objects. </p>
+<p><code>subtract_refs</code> then adjusts <code>gc_refs</code> so that it equals the number of times an object is referenced directly from outside the generation being collected. This deals with cycle-detection. Whenever another object starts using PyObject op, Py_INCREF is called on this object. Py_INCREF increments the number of total references that have been given out and the objcnt of the given object.</p>
 <h2>What happens in a collection?</h2>
 <h3>Tentatively move unreachable objects</h3>
-<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of <code>young</code>, where objects have had their <code>ob_refcnt</code> and <code>gc_refs</code> updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again.</p>
+<p>After all the objects are merged into the <code>young</code> generation list, another list is initiated to keep track of unreachable objects. <code>move_unreachable</code> walks across the list of <code>young</code>, where objects have had their <code>ob_refcnt</code> and <code>gc_refs</code> updated. Those with refcount &lt;= 0 are moved into unreachable list and its <code>gc_refs</code> is set to <code>GC_TENTATIVELY_UNREACHABLE</code>. Being moved into the unreachable list at this point is no guarantee of being garbage collected, as these objects will be assessed again. Those objects that remain in the <code>young</code> list are guaranteed to avoid collection and are promoted to the <code>old</code> generation.</p>
 <h3>Promote survived objects to the older generation</h3>
-<p>The objects in young that haven't been marked as <code>GC_TENTATIVELY_UNREACHABLE</code> are definitely getting promoted to the next generation by merging <code>young</code> with <code>old</code>.</p>
+<p>The objects in young that haven't been marked as <code>GC_TENTATIVELY_UNREACHABLE</code> are definitely getting promoted to the next generation by merging <code>young</code> with <code>old</code>. </p>
 <h3>Deal with finalizers</h3>
-<p>If unreachable objects have finalizers, we need to check if they may be reachable. If so, we can recover them.</p>
+<p>At this point, the objects in <code>unreachable</code> are potentially reachable. Those with finalizers might still be reachable. If so, we can recover them.</p>
+<p><code>move_legacy_finalizers</code> moves the objects in <code>unreachable</code> with <code>tp_del</code> slots into <code>finalizers</code>. Objects moved into <code>finalizers</code> have <code>gc_refs</code> set to <code>GC_REACHABLE</code>; the objects remaining in <code>unreachable</code> are left at <code>GC_TENTATIVELY_UNREACHABLE</code>. Even now, the objects in <code>unreachable</code> are potentially alive. </p>
+<p><code>move_legacy_finalizers(PyGC_Head *unreachable, PyGC_Head *finalizers)</code> movee objects that are reachable from <code>finalizers</code>, from the unreachable set into finalizers set.</p>
 <h3>clear weakrefs</h3>
 <h4>What are weak references?</h4>
 <p>Tidies up all objects in <code>unreachable</code> and guarantees that none of them have weakrefs to other objects.</p>
+<h4>How are they tidied up?</h4>
+<p>ipsum lorem</p>
 <h3>check and revive garbage if necessary</h3>
-<p><code>finalise_garbage</code> calls objects' custom destructors. <code>check_garbage</code> uses <code>substract_refs</code> to check if the objects in <code>unreachable</code> have references to each other or objects outside. If they turn out to have refs to objects outside of <code>unreachable</code>, <code>revive_garbage</code> sets all objects' <code>gc_refs</code> to GC_REACHABLE and merges the whole list with <code>old</code> generation. </p>
+<p><code>finalise_garbage</code> calls objects' custom destructors on the objects currently deemed unreachable. Calling a finalizer might reset <code>gc_refs</code> back to <code>GC_REACHABLE</code>. </p>
+<p><code>check_garbage</code> also uses <code>substract_refs</code> to confirm there are no references to the objects in <code>unreachable</code> from outside the set. If there is at least one, it means the whole cycle is accessible from the outside, so <code>revive_garbage</code> makes every object in <code>unreachable</code> <code>GC_REACHABLE</code> again and merges the whole list with <code>old</code> generation. </p>
 <h3>delete garbage</h3>
-<p><code>delete_garbage</code> traverses through the <code>unreachable</code> list and if it has a <code>tp_clear</code> method, invokes it. If the object is still alive after that, its <code>gc_refs</code> is set to GC_REACHABLE and it's moved to the <code>old</code> generation.</p>
-<h3>collect stats</h3>
+<p><code>delete_garbage</code> traverses through the <code>unreachable</code> list and if it has a <code>tp_clear</code> method, invokes it. If the object is still alive after that, its <code>gc_refs</code> is set to GC_REACHABLE and it's moved to the <code>old</code> generation. If an object finds itself in the <code>unreachable</code> list, it is not doomed! There is still hope, all the way up until garbage is deleted. The big life lesson is: if you are a python object and no one is reaching out to you, you have legacy finalizers, and you have no weak references - don't despair. If your <code>tp_clear</code> method changes your <code>gc_refs</code> you might come back to life and get promoted to older generation.</p>
+<p>Don't give up, little PyObject - there is always hope. </p>
 <h3>clear freelists</h3>
 <p>If it's a full collection, freelists for different data structures are cleared. More detail below.</p>
 <h1>What is the difference between a full and a normal collection?</h1>
@@ -664,7 +669,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 
 <h2>Why are variables like m and n used?</h2>
-<p>I guess programmers in the 90s were paid inversely proportionally to the number of chars they typed. That would explain <code>mkdir</code>, <code>creat</code>, <code>m</code>, <code>n</code>. </p>
+<p>I guess programmers in the 90s/early 00s were paid inversely proportionally to the number of chars they typed. That would explain <code>mkdir</code>, <code>creat</code>, <code>m</code>, <code>n</code>. Apart from that the gcmodule is a joy to read through - well commented, with descriptive commit messages and a separate .rst doc file.</p>
 <h1>What is PyGC_Head and how is it related to PyObject?</h1>
 <h3>PyGC_Head</h3>
 <p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/tree/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
@@ -720,6 +725,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 
 
 <h2>PyObject to/from PyGC_Head</h2>
+<p>There are helper method defined as macros to convert between <code>PyObject</code> and <code>PyGC_Head</code>, to read/write reference counts from one to the other. </p>
 <div class="highlight"><pre><span class="cm">/* Get an object&#39;s GC head */</span>
 <span class="cp">#define AS_GC(o) ((PyGC_Head *)(o)-1)</span>
 
