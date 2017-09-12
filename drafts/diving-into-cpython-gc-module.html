@@ -602,7 +602,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p>We don't move anything anywhere, just reset <code>long_lived_pending</code> (no object has not survived a full collection) and update <code>long_lived_total</code> with the number of objects. </p>
 <h2>Clearing freelists</h2>
 <h3>What are freelists?</h3>
-<p>Full collection (collecting the oldest generation) involves clearing freelists. Free lists are lists of primitive Python object types allocated during CPython interpreter start. This helps users avoid calling malloc for the first X object creations. Similarly, when an object is collected, it's just returned to the free_list of that PyObject type instead of calling free. Only if your programme uses more objects than originally allocated, will you call malloc. Example from <code>dictobject.c</code> below</p>
+<p>Free lists are lists of primitive Python object types allocated during CPython interpreter start. Preallocating basic object types like ints, lists, dictionaries and sets helps users avoid calling <code>malloc</code> for the first X object creations. Similarly, when an object is collected, it's just returned to the freelist of that PyObject type instead of calling <code>free</code>. Both <code>malloc</code> and <code>free</code> are syscalls, hence require a context switch and unnecessarily increase latency. Only if your programme uses more objects than originally allocated, will you call malloc. Example from <code>dictobject.c</code> below</p>
 <p>The CPython interpreter allocates a list of 80 dictionary objects.</p>
 <div class="highlight"><pre><span class="cp">#ifndef PyDict_MAXFREELIST</span>
 <span class="cp">#define PyDict_MAXFREELIST 80</span>
