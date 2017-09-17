@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>Nmaping home network // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="links"><a href="/pages/about">About</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Nmaping home network</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/networks.html">networks</a>
+                        </p>
+                </header>
+            </section>
+            <div class="highlight"><pre>petr_tik@merluza:~<span class="nv">$ </span>nmap -PR 192.168.0.1/24 -sn
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:32 BST
+Nmap <span class="k">done</span>: <span class="m">256</span> IP addresses <span class="o">(</span><span class="m">0</span> hosts up<span class="o">)</span> scanned in 0.00 seconds
+petr_tik@merluza:~<span class="nv">$ </span>nmap -sP 192.168.0.1/24 -sn
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:32 BST
+Nmap scan report <span class="k">for</span> 192.168.0.1
+Host is up <span class="o">(</span>0.021s latency<span class="o">)</span>.
+Nmap scan report <span class="k">for</span> 192.168.0.3
+Host is up <span class="o">(</span>0.034s latency<span class="o">)</span>.
+Nmap scan report <span class="k">for</span> 192.168.0.30
+Host is up <span class="o">(</span>0.000043s latency<span class="o">)</span>.
+Nmap scan report <span class="k">for</span> 192.168.0.31
+Host is up <span class="o">(</span>0.0059s latency<span class="o">)</span>.
+Nmap <span class="k">done</span>: <span class="m">256</span> IP addresses <span class="o">(</span><span class="m">4</span> hosts up<span class="o">)</span> scanned in 2.45 seconds
+petr_tik@merluza:~<span class="nv">$ </span>sudo nmap -O -v 192.168.0.1
+sudo nmap -O -v 192.168.0.1
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:33 BST
+Initiating ARP Ping Scan at 23:33
+Scanning 192.168.0.1 <span class="o">[</span><span class="m">1</span> port<span class="o">]</span>
+Completed ARP Ping Scan at 23:33, 0.21s elapsed <span class="o">(</span><span class="m">1</span> total hosts<span class="o">)</span>
+Initiating Parallel DNS resolution of <span class="m">1</span> host. at 23:33
+Completed Parallel DNS resolution of <span class="m">1</span> host. at 23:33, 0.01s elapsed
+Initiating SYN Stealth Scan at 23:33
+Scanning 192.168.0.1 <span class="o">[</span><span class="m">1000</span> ports<span class="o">]</span>
+Discovered open port 80/tcp on 192.168.0.1
+Discovered open port 5000/tcp on 192.168.0.1
+Discovered open port 1900/tcp on 192.168.0.1
+Completed SYN Stealth Scan at 23:34, 19.15s elapsed <span class="o">(</span><span class="m">1000</span> total ports<span class="o">)</span>
+Initiating OS detection <span class="o">(</span>try <span class="c">#1) against 192.168.0.1</span>
+Nmap scan report <span class="k">for</span> 192.168.0.1
+Host is up <span class="o">(</span>0.019s latency<span class="o">)</span>.
+Not shown: <span class="m">994</span> filtered ports
+PORT     STATE  SERVICE
+23/tcp   closed telnet
+80/tcp   open   http
+443/tcp  closed https
+1900/tcp open   upnp
+5000/tcp open   upnp
+8080/tcp closed http-proxy
+MAC Address: 2C:B0:5D:17:EF:1F <span class="o">(</span>Netgear<span class="o">)</span>
+Device <span class="nb">type</span>: broadband router
+Running: Cisco eCos 2.X, Motorola eCos 2.X, Scientific Atlanta eCos 2.X
+OS CPE: cpe:/h:cisco:epc3925 cpe:/h:motorola:sb5101e cpe:/h:scientific_atlanta:epc2203
+OS details: Cisco EPC3925, DPC2320, Motorola SURFboard SB5101E, or Scientific Atlanta EPC2203 cable modem <span class="o">(</span>eCos 2.0<span class="o">)</span>
+Uptime guess: 17.035 days <span class="o">(</span>since Tue Aug <span class="m">29</span> 22:44:26 2017<span class="o">)</span>
+Network Distance: <span class="m">1</span> hop
+TCP Sequence Prediction: <span class="nv">Difficulty</span><span class="o">=</span><span class="m">258</span> <span class="o">(</span>Good luck!<span class="o">)</span>
+IP ID Sequence Generation: Incremental
+
+Read data files from: /usr/bin/../share/nmap
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 21.75 seconds
+           Raw packets sent: <span class="m">3049</span> <span class="o">(</span>136.378KB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">72</span> <span class="o">(</span>3.890KB<span class="o">)</span>
+petr_tik@merluza:~<span class="nv">$ </span>sudo nmap -O -v 192.168.0.3
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:34 BST
+Initiating ARP Ping Scan at 23:34
+Scanning 192.168.0.3 <span class="o">[</span><span class="m">1</span> port<span class="o">]</span>
+Completed ARP Ping Scan at 23:34, 0.21s elapsed <span class="o">(</span><span class="m">1</span> total hosts<span class="o">)</span>
+Initiating Parallel DNS resolution of <span class="m">1</span> host. at 23:34
+Completed Parallel DNS resolution of <span class="m">1</span> host. at 23:34, 0.01s elapsed
+Initiating SYN Stealth Scan at 23:34
+Scanning 192.168.0.3 <span class="o">[</span><span class="m">1000</span> ports<span class="o">]</span>
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">0</span> to <span class="m">5</span> due to <span class="m">22</span> out of <span class="m">72</span> dropped probes since last increase.
+Discovered open port 7100/tcp on 192.168.0.3
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">5</span> to <span class="m">10</span> due to <span class="m">14</span> out of <span class="m">45</span> dropped probes since last increase.
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">10</span> to <span class="m">20</span> due to max_successful_tryno increase to 4
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">20</span> to <span class="m">40</span> due to <span class="m">15</span> out of <span class="m">48</span> dropped probes since last increase.
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">40</span> to <span class="m">80</span> due to <span class="m">11</span> out of <span class="m">26</span> dropped probes since last increase.
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">80</span> to <span class="m">160</span> due to max_successful_tryno increase to 5
+Increasing send delay <span class="k">for</span> 192.168.0.3 from <span class="m">160</span> to <span class="m">320</span> due to max_successful_tryno increase to 6
+SYN Stealth Scan Timing: About 41.85% <span class="k">done</span><span class="p">;</span> ETC: 23:35 <span class="o">(</span>0:00:43 remaining<span class="o">)</span>
+SYN Stealth Scan Timing: About 51.16% <span class="k">done</span><span class="p">;</span> ETC: 23:36 <span class="o">(</span>0:00:58 remaining<span class="o">)</span>
+Discovered open port 62078/tcp on 192.168.0.3
+Discovered open port 3689/tcp on 192.168.0.3
+Discovered open port 7000/tcp on 192.168.0.3
+SYN Stealth Scan Timing: About 69.95% <span class="k">done</span><span class="p">;</span> ETC: 23:37 <span class="o">(</span>0:00:52 remaining<span class="o">)</span>
+SYN Stealth Scan Timing: About 81.16% <span class="k">done</span><span class="p">;</span> ETC: 23:37 <span class="o">(</span>0:00:36 remaining<span class="o">)</span>
+Discovered open port 5000/tcp on 192.168.0.3
+Discovered open port 49155/tcp on 192.168.0.3
+Completed SYN Stealth Scan at 23:39, 268.62s elapsed <span class="o">(</span><span class="m">1000</span> total ports<span class="o">)</span>
+Initiating OS detection <span class="o">(</span>try <span class="c">#1) against 192.168.0.3</span>
+Nmap scan report <span class="k">for</span> 192.168.0.3
+Host is up <span class="o">(</span>0.024s latency<span class="o">)</span>.
+Not shown: <span class="m">994</span> closed ports
+PORT      STATE SERVICE
+3689/tcp  open  rendezvous
+5000/tcp  open  upnp
+7000/tcp  open  afs3-fileserver
+7100/tcp  open  font-service
+49155/tcp open  unknown
+62078/tcp open  iphone-sync
+MAC Address: C8:69:CD:63:80:70 <span class="o">(</span>Unknown<span class="o">)</span>
+Device <span class="nb">type</span>: general purpose<span class="p">|</span>media device<span class="p">|</span>phone
+Running: Apple Mac OS X 10.7.X<span class="p">|</span>10.9.X<span class="p">|</span>10.8.X, Apple iOS 4.X<span class="p">|</span>5.X<span class="p">|</span>6.X
+OS CPE: cpe:/o:apple:mac_os_x:10.7 cpe:/o:apple:mac_os_x:10.9 cpe:/o:apple:mac_os_x:10.8 cpe:/o:apple:iphone_os:4 cpe:/a:apple:apple_tv:4 cpe:/o:apple:iphone_os:5 cpe:/o:apple:iphone_os:6
+OS details: Apple Mac OS X 10.7.0 <span class="o">(</span>Lion<span class="o">)</span> - 10.9.2 <span class="o">(</span>Mavericks<span class="o">)</span> or iOS 4.1 - 7.1 <span class="o">(</span>Darwin 10.0.0 - 14.0.0<span class="o">)</span>
+Uptime guess: 13.415 days <span class="o">(</span>since Sat Sep  <span class="m">2</span> 13:41:17 2017<span class="o">)</span>
+Network Distance: <span class="m">1</span> hop
+TCP Sequence Prediction: <span class="nv">Difficulty</span><span class="o">=</span><span class="m">254</span> <span class="o">(</span>Good luck!<span class="o">)</span>
+IP ID Sequence Generation: Randomized
+
+Read data files from: /usr/bin/../share/nmap
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 270.89 seconds
+           Raw packets sent: <span class="m">2318</span> <span class="o">(</span>103.194KB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">1060</span> <span class="o">(</span>43.226KB<span class="o">)</span>
+petr_tik@merluza:~<span class="nv">$ </span>sudo nmap -O 192.168.0.60
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:40 BST
+Nmap scan report <span class="k">for</span> 192.168.0.60
+Host is up <span class="o">(</span>0.017s latency<span class="o">)</span>.
+Not shown: <span class="m">987</span> closed ports
+PORT      STATE    SERVICE
+808/tcp   filtered ccproxy-http
+1049/tcp  filtered td-postman
+1080/tcp  filtered socks
+1092/tcp  filtered obrpd
+1218/tcp  filtered aeroflight-ads
+3007/tcp  filtered lotusmtap
+3390/tcp  filtered dsc
+6510/tcp  filtered mcer-port
+6547/tcp  filtered powerchuteplus
+7676/tcp  filtered imqbrokerd
+45100/tcp filtered unknown
+49175/tcp filtered unknown
+62078/tcp open     iphone-sync
+MAC Address: E0:5F:45:51:9A:20 <span class="o">(</span>Unknown<span class="o">)</span>
+Device <span class="nb">type</span>: general purpose<span class="p">|</span>media device<span class="p">|</span>phone
+Running: Apple Mac OS X 10.7.X<span class="p">|</span>10.9.X<span class="p">|</span>10.8.X, Apple iOS 4.X<span class="p">|</span>5.X<span class="p">|</span>6.X
+OS CPE: cpe:/o:apple:mac_os_x:10.7 cpe:/o:apple:mac_os_x:10.9 cpe:/o:apple:mac_os_x:10.8 cpe:/o:apple:iphone_os:4 cpe:/a:apple:apple_tv:4 cpe:/o:apple:iphone_os:5 cpe:/o:apple:iphone_os:6
+OS details: Apple Mac OS X 10.7.0 <span class="o">(</span>Lion<span class="o">)</span> - 10.9.2 <span class="o">(</span>Mavericks<span class="o">)</span> or iOS 4.1 - 7.1 <span class="o">(</span>Darwin 10.0.0 - 14.0.0<span class="o">)</span>
+Network Distance: <span class="m">1</span> hop
+
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 281.18 seconds
+petr_tik@merluza:~<span class="nv">$ </span>sudo nmap -v -O 192.168.0.30
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:46 BST
+Initiating Parallel DNS resolution of <span class="m">1</span> host. at 23:46
+Completed Parallel DNS resolution of <span class="m">1</span> host. at 23:46, 0.01s elapsed
+Initiating SYN Stealth Scan at 23:46
+Scanning 192.168.0.30 <span class="o">[</span><span class="m">1000</span> ports<span class="o">]</span>
+Discovered open port 5432/tcp on 192.168.0.30
+Completed SYN Stealth Scan at 23:46, 1.56s elapsed <span class="o">(</span><span class="m">1000</span> total ports<span class="o">)</span>
+Initiating OS detection <span class="o">(</span>try <span class="c">#1) against 192.168.0.30</span>
+Nmap scan report <span class="k">for</span> 192.168.0.30
+Host is up <span class="o">(</span>0.000020s latency<span class="o">)</span>.
+Not shown: <span class="m">999</span> closed ports
+PORT     STATE SERVICE
+5432/tcp open  postgresql
+Device <span class="nb">type</span>: general purpose
+Running: Linux 3.X
+OS CPE: cpe:/o:linux:linux_kernel:3
+OS details: Linux 3.7 - 3.15
+Uptime guess: 2.520 days <span class="o">(</span>since Wed Sep <span class="m">13</span> 11:18:26 2017<span class="o">)</span>
+Network Distance: <span class="m">0</span> hops
+TCP Sequence Prediction: <span class="nv">Difficulty</span><span class="o">=</span><span class="m">255</span> <span class="o">(</span>Good luck!<span class="o">)</span>
+IP ID Sequence Generation: All zeros
+
+Read data files from: /usr/bin/../share/nmap
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 4.07 seconds
+           Raw packets sent: <span class="m">1112</span> <span class="o">(</span>50.780KB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">2234</span> <span class="o">(</span>96.984KB<span class="o">)</span>
+petr_tik@merluza:~<span class="nv">$ </span>sudo nmap -v -O 192.168.0.31
+
+Starting Nmap 6.47 <span class="o">(</span> http://nmap.org <span class="o">)</span> at 2017-09-15 23:47 BST
+Initiating ARP Ping Scan at 23:47
+Scanning 192.168.0.31 <span class="o">[</span><span class="m">1</span> port<span class="o">]</span>
+Completed ARP Ping Scan at 23:47, 0.20s elapsed <span class="o">(</span><span class="m">1</span> total hosts<span class="o">)</span>
+Initiating Parallel DNS resolution of <span class="m">1</span> host. at 23:47
+Completed Parallel DNS resolution of <span class="m">1</span> host. at 23:47, 0.01s elapsed
+Initiating SYN Stealth Scan at 23:47
+Scanning 192.168.0.31 <span class="o">[</span><span class="m">1000</span> ports<span class="o">]</span>
+Increasing send delay <span class="k">for</span> 192.168.0.31 from <span class="m">0</span> to <span class="m">5</span> due to <span class="m">22</span> out of <span class="m">72</span> dropped probes since last increase.
+Increasing send delay <span class="k">for</span> 192.168.0.31 from <span class="m">5</span> to <span class="m">10</span> due to <span class="m">13</span> out of <span class="m">41</span> dropped probes since last increase.
+Increasing send delay <span class="k">for</span> 192.168.0.31 from <span class="m">10</span> to <span class="m">20</span> due to max_successful_tryno increase to 4
+Increasing send delay <span class="k">for</span> 192.168.0.31 from <span class="m">20</span> to <span class="m">40</span> due to <span class="m">11</span> out of <span class="m">31</span> dropped probes since last increase.
+Increasing send delay <span class="k">for</span> 192.168.0.31 from <span class="m">40</span> to <span class="m">80</span> due to max_successful_tryno increase to 5
+Discovered open port 62078/tcp on 192.168.0.31
+Completed SYN Stealth Scan at 23:48, 95.42s elapsed <span class="o">(</span><span class="m">1000</span> total ports<span class="o">)</span>
+Initiating OS detection <span class="o">(</span>try <span class="c">#1) against 192.168.0.31</span>
+Nmap scan report <span class="k">for</span> 192.168.0.31
+Host is up <span class="o">(</span>0.0045s latency<span class="o">)</span>.
+Not shown: <span class="m">999</span> closed ports
+PORT      STATE SERVICE
+62078/tcp open  iphone-sync
+MAC Address: E4:9A:79:EA:06:A4 <span class="o">(</span>Unknown<span class="o">)</span>
+Device <span class="nb">type</span>: general purpose<span class="p">|</span>media device<span class="p">|</span>phone
+Running: Apple Mac OS X 10.7.X<span class="p">|</span>10.9.X<span class="p">|</span>10.8.X, Apple iOS 4.X<span class="p">|</span>5.X<span class="p">|</span>6.X
+OS CPE: cpe:/o:apple:mac_os_x:10.7 cpe:/o:apple:mac_os_x:10.9 cpe:/o:apple:mac_os_x:10.8 cpe:/o:apple:iphone_os:4 cpe:/a:apple:apple_tv:4 cpe:/o:apple:iphone_os:5 cpe:/o:apple:iphone_os:6
+OS details: Apple Mac OS X 10.7.0 <span class="o">(</span>Lion<span class="o">)</span> - 10.9.2 <span class="o">(</span>Mavericks<span class="o">)</span> or iOS 4.1 - 7.1 <span class="o">(</span>Darwin 10.0.0 - 14.0.0<span class="o">)</span>
+Uptime guess: 2.064 days <span class="o">(</span>since Wed Sep <span class="m">13</span> 22:16:26 2017<span class="o">)</span>
+Network Distance: <span class="m">1</span> hop
+TCP Sequence Prediction: <span class="nv">Difficulty</span><span class="o">=</span><span class="m">257</span> <span class="o">(</span>Good luck!<span class="o">)</span>
+IP ID Sequence Generation: Randomized
+
+Read data files from: /usr/bin/../share/nmap
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 97.79 seconds
+           Raw packets sent: <span class="m">2357</span> <span class="o">(</span>105.006KB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">1297</span> <span class="o">(</span>52.606KB<span class="o">)</span>
+</pre></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
