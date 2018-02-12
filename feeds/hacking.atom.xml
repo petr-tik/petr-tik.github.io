@@ -8,13 +8,14 @@
 &lt;p&gt;Characters are the same in C and Python - the CPython interpreter caches useful strings and individual characters are resolved as pointers to the immutable strings of characters. &lt;/p&gt;
 &lt;h2&gt;How much infra is there for writing Python extensions in C?&lt;/h2&gt;
 &lt;p&gt;Loads. The CPython developers are great, there are helper methods to parse arguments passed to the function and cast them to given C types, debug print method, method to build return values and for the method definitions. The documentation is detailed and includes a tutorial, which helps. &lt;/p&gt;
+&lt;p&gt;&lt;a href="https://docs.python.org/3/extending/index.html"&gt;Series of tutorials&lt;/a&gt; for rolling your own Python3 extension. &lt;/p&gt;
 &lt;h3&gt;Debugging&lt;/h3&gt;
 &lt;p&gt;After installing debug symbols&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install python3.5-dbg
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Compile the extension with &lt;code&gt;-g -O0&lt;/code&gt; flags to make sure debug sybmols are avaiable and nothing is optimised out. &lt;/p&gt;
+&lt;p&gt;Compile the extension with &lt;code&gt;-g -O0&lt;/code&gt; flags to make sure debug sybmols are avaiable and compiler optimisations (gcc is clever nowadays) don't remove too much of your code. &lt;/p&gt;
 &lt;p&gt;Run the line below (inside emacs or terminal).&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;gdb -ex r --args python3 test.py
 &lt;/pre&gt;&lt;/div&gt;
@@ -24,6 +25,7 @@
 &lt;h2&gt;What's inside the shared library&lt;/h2&gt;
 &lt;p&gt;Using readelf (better than objdump according to &lt;a href="https://stackoverflow.com/questions/8979664/readelf-vs-objdump-why-are-both-needed"&gt;this&lt;/a&gt;), we can examine the functions of the shared library.&lt;/p&gt;
 &lt;h2&gt;What performs better - compiled C or Python?&lt;/h2&gt;
+&lt;p&gt;The benchmark compiled a fresh version of the library, cleared all caches and run the &lt;code&gt;benchmark.py&lt;/code&gt; script. &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;building&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;ctrie&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;extension&lt;/span&gt;
 &lt;span class="n"&gt;creating&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt;
 &lt;span class="n"&gt;creating&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;temp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linux&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x86_64&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;3.5&lt;/span&gt;
@@ -51,9 +53,9 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The C trie is faster in all cases apart from instantiating a new trie. As far as I understand, this is related to the fact that the bytecode for PyTrie is preloaded by the CPython interpreter, while the C library needs to load when it's first called. After that the speed improvde is at least a factor of 2. Searching for words inside the trie is at least an order of magnitude faster. &lt;/p&gt;
+&lt;p&gt;The C trie is faster in all cases apart from instantiating a new trie. As far as I understand, this is related to the fact that the bytecode for PyTrie is preloaded by the CPython interpreter, while the C library needs to load when it's first called. After that the speed improvement is at least a factor of 2. Searching for words inside the trie is an order of magnitude faster. &lt;/p&gt;
 &lt;h2&gt;Where is the source?&lt;/h2&gt;
-&lt;p&gt;&lt;a href="https://github.com/petr-tik/bivittatus"&gt;On my GitHub&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/petr-tik/bivittatus"&gt;On my GitHub&lt;/a&gt;. Feel free to open issues or send PRs. &lt;/p&gt;
 &lt;h2&gt;Why is it called bivittatus?&lt;/h2&gt;
 &lt;p&gt;Bivittatus &lt;code&gt;is one of the five largest species of snakes in the world&lt;/code&gt; according to wikipedia. Seemed appropriate to name a Python extension after one of the longest Python in the world.&lt;/p&gt;</summary><category term="python"></category><category term="c"></category></entry><entry><title>Diving into CPython GC module</title><link href="/diving-into-cpython-gc-module.html" rel="alternate"></link><updated>2017-08-05T22:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2017-08-05:diving-into-cpython-gc-module.html</id><summary type="html">&lt;p&gt;This is a deep dive into the source code for &lt;code&gt;Modules/gcmodule.c&lt;/code&gt; inspired by a previous &lt;a href="/notes-on-pythons-gc.html"&gt;blogpost&lt;/a&gt;, which gave a high-level overview of the GC mechanism in CPython. I am doing my best in reading the source, documentation and commit messages to outline my understanding of the internals. If you see an error, missing information or a typo, please &lt;a href="https://github.com/petr-tik/petr-tik.github.io/issues"&gt;open an issue&lt;/a&gt;&lt;/p&gt;
 &lt;h1&gt;Why does Python need garbage collection?&lt;/h1&gt;
