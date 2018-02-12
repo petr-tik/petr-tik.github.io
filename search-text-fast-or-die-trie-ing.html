@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>Search text fast or die trie-ing // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="links"><a href="/pages/about">About</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Search text fast or die trie-ing</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/python.html">python</a>
+                                <a class="post-category" href="/tag/c.html">c</a>
+                        </p>
+                </header>
+            </section>
+            <p>Benchmarking the Python and C implementation of a trie-as-a-dictionary. </p>
+<h2>tl; dr</h2>
+<p>Writing own toy Python extension in C is fun, gives you a big performance win for limited investment and is easy thanks to great documentation and tooling. </p>
+<h2>What does C give you over Python?</h2>
+<p>C is closer to the metal, saves memory for data structures and is compiled. The cTrie is implemented as a struct with 1 trie_node object and the PyObject_Head that is compulsory for Python extensions. This is lighter on methods and thus memory used than the PyTrie class, which inherits unnecessary methods from the Base Object. </p>
+<p>As far as I know, Python converts variable names to memory addresses, so using pointers in the cTrie implementation doesn't give an advantage over PyTrie.</p>
+<p>Characters are the same in C and Python - the CPython interpreter caches useful strings and individual characters are resolved as pointers to the immutable strings of characters. </p>
+<h2>How much infra is there for writing Python extensions in C?</h2>
+<p>Loads. The CPython developers are great, there are helper methods to parse arguments passed to the function and cast them to given C types, debug print method, method to build return values and for the method definitions. The documentation is detailed and includes a tutorial, which helps. </p>
+<h3>Debugging</h3>
+<p>After installing debug symbols</p>
+<div class="highlight"><pre>sudo apt-get install python3.5-dbg
+</pre></div>
+
+
+<p>Compile the extension with <code>-g -O0</code> flags to make sure debug sybmols are avaiable and nothing is optimised out. </p>
+<p>Run the line below (inside emacs or terminal).</p>
+<div class="highlight"><pre>gdb -ex r --args python3 test.py
+</pre></div>
+
+
+<p>You can step through the programme, look at the backtrace and examine registers. </p>
+<h2>What's inside the shared library</h2>
+<p>Using readelf (better than objdump according to <a href="https://stackoverflow.com/questions/8979664/readelf-vs-objdump-why-are-both-needed">this</a>), we can examine the functions of the shared library.</p>
+<h2>What performs better - compiled C or Python?</h2>
+<div class="highlight"><pre><span class="n">building</span> <span class="s">&#39;ctrie&#39;</span> <span class="n">extension</span>
+<span class="n">creating</span> <span class="n">build</span>
+<span class="n">creating</span> <span class="n">build</span><span class="o">/</span><span class="n">temp</span><span class="o">.</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="mf">3.5</span>
+<span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">-</span><span class="n">gcc</span> <span class="o">-</span><span class="n">pthread</span> <span class="o">-</span><span class="n">DNDEBUG</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fwrapv</span> <span class="o">-</span><span class="n">O2</span> <span class="o">-</span><span class="n">Wall</span> <span class="o">-</span><span class="n">Wstrict</span><span class="o">-</span><span class="n">prototypes</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fstack</span><span class="o">-</span><span class="n">protector</span><span class="o">-</span><span class="n">strong</span> <span class="o">-</span><span class="n">Wformat</span> <span class="o">-</span><span class="n">Werror</span><span class="o">=</span><span class="n">format</span><span class="o">-</span><span class="n">security</span> <span class="o">-</span><span class="n">D_FORTIFY_SOURCE</span><span class="o">=</span><span class="mi">2</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span><span class="n">m</span> <span class="o">-</span><span class="n">c</span> <span class="n">trie</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">o</span> <span class="n">build</span><span class="o">/</span><span class="n">temp</span><span class="o">.</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="mf">3.5</span><span class="o">/</span><span class="n">trie</span><span class="o">.</span><span class="n">o</span> <span class="o">-</span><span class="n">O3</span>
+<span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">-</span><span class="n">gcc</span> <span class="o">-</span><span class="n">pthread</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">O1</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">Bsymbolic</span><span class="o">-</span><span class="n">functions</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">Bsymbolic</span><span class="o">-</span><span class="n">functions</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">z</span><span class="p">,</span><span class="n">relro</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">Bsymbolic</span><span class="o">-</span><span class="n">functions</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">z</span><span class="p">,</span><span class="n">relro</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fstack</span><span class="o">-</span><span class="n">protector</span><span class="o">-</span><span class="n">strong</span> <span class="o">-</span><span class="n">Wformat</span> <span class="o">-</span><span class="n">Werror</span><span class="o">=</span><span class="n">format</span><span class="o">-</span><span class="n">security</span> <span class="o">-</span><span class="n">D_FORTIFY_SOURCE</span><span class="o">=</span><span class="mi">2</span> <span class="n">build</span><span class="o">/</span><span class="n">temp</span><span class="o">.</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="mf">3.5</span><span class="o">/</span><span class="n">trie</span><span class="o">.</span><span class="n">o</span> <span class="o">-</span><span class="n">o</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">petr_tik</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">bivittatus</span><span class="o">/</span><span class="n">ctrie</span><span class="o">.</span><span class="n">cpython</span><span class="o">-</span><span class="mi">35</span><span class="n">m</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">.</span><span class="n">so</span>
+<span class="n">free</span> <span class="o">&amp;&amp;</span> <span class="n">sync</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">sh</span> <span class="o">-</span><span class="n">c</span> <span class="s">&quot;echo 3 &gt; /proc/sys/vm/drop_caches&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">free</span>
+
+<span class="o">...</span>
+
+<span class="n">python3</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">py</span>
+<span class="n">PyTrie</span>
+<span class="n">Takes</span> <span class="mf">0.000009</span><span class="n">s</span> <span class="n">to</span> <span class="n">instantiate</span> <span class="n">before</span> <span class="n">adding</span> <span class="nb">sorted</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.231256</span><span class="n">s</span> <span class="n">to</span> <span class="n">add</span> <span class="mi">18000</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.000593</span><span class="n">s</span> <span class="n">to</span> <span class="n">instantiate</span> <span class="n">before</span> <span class="n">adding</span> <span class="n">random</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.239599</span><span class="n">s</span> <span class="n">to</span> <span class="n">add</span> <span class="mi">18000</span> <span class="n">random</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.005769</span><span class="n">s</span> <span class="n">to</span> <span class="n">find</span> <span class="mi">100</span> <span class="n">random</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.001648</span><span class="n">s</span> <span class="n">to</span> <span class="n">look</span> <span class="k">for</span><span class="p">,</span> <span class="n">but</span> <span class="n">fail</span> <span class="n">to</span> <span class="n">find</span><span class="p">,</span> <span class="mi">800</span> <span class="n">missing</span> <span class="n">words</span>
+<span class="n">cTrie</span>
+<span class="n">Takes</span> <span class="mf">0.000529</span><span class="n">s</span> <span class="n">to</span> <span class="n">instantiate</span> <span class="n">before</span> <span class="n">adding</span> <span class="nb">sorted</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.012475</span><span class="n">s</span> <span class="n">to</span> <span class="n">add</span> <span class="mi">18000</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.000002</span><span class="n">s</span> <span class="n">to</span> <span class="n">instantiate</span> <span class="n">before</span> <span class="n">adding</span> <span class="n">random</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.011485</span><span class="n">s</span> <span class="n">to</span> <span class="n">add</span> <span class="mi">18000</span> <span class="n">random</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.000142</span><span class="n">s</span> <span class="n">to</span> <span class="n">find</span> <span class="mi">100</span> <span class="n">random</span> <span class="n">words</span>
+<span class="n">Takes</span> <span class="mf">0.000375</span><span class="n">s</span> <span class="n">to</span> <span class="n">look</span> <span class="k">for</span><span class="p">,</span> <span class="n">but</span> <span class="n">fail</span> <span class="n">to</span> <span class="n">find</span><span class="p">,</span> <span class="mi">800</span> <span class="n">missing</span> <span class="n">words</span>
+</pre></div>
+
+
+<p>The C trie is faster in all cases apart from instantiating a new trie. As far as I understand, this is related to the fact that the bytecode for PyTrie is preloaded by the CPython interpreter, while the C library needs to load when it's first called. After that the speed improvde is at least a factor of 2. Searching for words inside the trie is at least an order of magnitude faster. </p>
+<h2>Where is the source?</h2>
+<p><a href="https://github.com/petr-tik/bivittatus">On my GitHub</a></p>
+<h2>Why is it called bivittatus?</h2>
+<p>Bivittatus <code>is one of the five largest species of snakes in the world</code> according to wikipedia. Seemed appropriate to name a Python extension after one of the longest Python in the world.</p>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
