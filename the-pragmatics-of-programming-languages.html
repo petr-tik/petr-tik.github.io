@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>The pragmatics of programming languages // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="links"><a href="/pages/about">About</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>The pragmatics of programming languages</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/python.html">python</a>
+                                <a class="post-category" href="/tag/linguistics.html">linguistics</a>
+                                <a class="post-category" href="/tag/semantics.html">semantics</a>
+                        </p>
+                </header>
+            </section>
+            <p>Every programmer learning a new language goes through a code review, where they learn that their code isn't idiomatic. It sucks to hear, because it often lands on identity level. "You cannot write good Python/C++/Java/Haskell code" implies that you cannot write good code. Even if your co-worker corrects the code that you submitted now, it's hard to immediately internalise the conventions that make code more idiomatic.</p>
+<p>I want to lend to software engineering the distinction between semantics and pragmatics, which is used in linguistics of natural languages. To echo <a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson's talk</a> reading and writing code is similar to literary analysis. I agree with him and find it useful to borrow categories from linguistics to programming languages. </p>
+<p>Semantics studies the literal meaning of atomic units of language (words). It explains why words mean what they do and where the meaning comes from. You can scan brain activity to establish neural connections between different words or analyse n-grams in texts to investigate most commonly occurring combinations of words. You then see if the words "dog" and "cat" activate the same areas of the brain and establish neural links and semantic web of associations. </p>
+<p>Pragmatics studies the difference between the literal meaning of a phrase and its intended meaning. Pragmatics can explain euphemisms, idioms (turns of phrase) and requests. The literal meaning of the question:</p>
+<blockquote>
+<p>Can you please open the window? </p>
+</blockquote>
+<p>Can be "transpiled" to </p>
+<blockquote>
+<p>Are you capable of opening the window? </p>
+</blockquote>
+<p>In reality, however, the person asking the question means:</p>
+<blockquote>
+<p>Please open the window.</p>
+</blockquote>
+<p>The literal meaning of:</p>
+<blockquote>
+<p>Break a leg! </p>
+</blockquote>
+<p>is misleading, because they are actually wishing you luck </p>
+<blockquote>
+<p>Good luck for your performance! </p>
+</blockquote>
+<p>I will use examples from Python, the language I'm most proficient in and can easily think of examples. Please email me or open GitHub issues to add examples in your favourite language. </p>
+<p>Python is a good language for such examples. The zen of python and pythonic code style is well evangelised and documented. </p>
+<h3>Iterating over a collection vs list comprehension</h3>
+<p>List/set comprehensions are a Python syntactic feature for generating lists and sets concisely. </p>
+<div class="highlight"><pre><span class="n">l1</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">l1</span> <span class="o">=</span> 
+</pre></div>
+
+
+<h3>Opening a file</h3>
+<p>You can open a file by its filename to read its contents into memory or to make it available to the Python interpreter process under a file descriptor. </p>
+<p>C++ has a complicated history of big standard library vs boost and other external libraries, wider user base of experts adopting it for niche problems and Turing completeness (i.e. another language) in its template system. The pragmatics of using language features affects readability and performance in some cases (constexpr statements for compile-time evaluation). This makes it harder for everyone to agree on a C++-ic style that can be evangelised to the community. I know someone who happily uses templates wherever possible. I admit that they are much smarter and more tenacious than me (reading those template error messages requires perseverance). I also hope their use of templates doesn't prevent them from making friends at work. </p>
+<p>Further reading:</p>
+<ul>
+<li>Unsurprisingly there is an <a href="https://www.inf.ed.ac.uk/teaching/courses/epl/">undergraduate course at Edinburgh university</a>, my alma mater, which analyses the pragmatics of different PLs. </li>
+</ul>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
