@@ -1,44 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-04-26T23:20:00+01:00</updated><entry><title>The pragmatics of programming languages</title><link href="/the-pragmatics-of-programming-languages.html" rel="alternate"></link><updated>2018-04-26T23:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2018-04-26:the-pragmatics-of-programming-languages.html</id><summary type="html">&lt;p&gt;Every programmer learning a new language goes through a code review, where they learn that their code isn't idiomatic. It sucks to hear, because it often lands on identity level. "You cannot write good Python/C++/Java/Haskell code" implies that you cannot write good code. Even if your co-worker corrects the code that you submitted now, it's hard to immediately internalise the conventions that make code more idiomatic.&lt;/p&gt;
-&lt;p&gt;I want to lend to software engineering the distinction between semantics and pragmatics, which is used in linguistics of natural languages. To echo &lt;a href="https://www.youtube.com/watch?v=9LfmrkyP81M"&gt;David Heinemeier Hansson's talk&lt;/a&gt; reading and writing code is similar to literary analysis. I agree with him and find it useful to borrow categories from linguistics to programming languages. &lt;/p&gt;
-&lt;p&gt;Semantics studies the literal meaning of atomic units of language (words). It explains why words mean what they do and where the meaning comes from. You can scan brain activity to establish neural connections between different words or analyse n-grams in texts to investigate most commonly occurring combinations of words. You then see if the words "dog" and "cat" activate the same areas of the brain and establish neural links and semantic web of associations. &lt;/p&gt;
-&lt;p&gt;Pragmatics studies the difference between the literal meaning of a phrase and its intended meaning. Pragmatics can explain euphemisms, idioms (turns of phrase) and requests. The literal meaning of the question:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Can you please open the window? &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Can be "transpiled" to &lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Are you capable of opening the window? &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;In reality, however, the person asking the question means:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Please open the window.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;The literal meaning of:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Break a leg! &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;is misleading, because they are actually wishing you luck &lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Good luck for your performance! &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;I will use examples from Python, the language I'm most proficient in and can easily think of examples. Please email me or open GitHub issues to add examples in your favourite language. &lt;/p&gt;
-&lt;p&gt;Python is a good language for such examples. The zen of python and pythonic code style is well evangelised and documented. &lt;/p&gt;
-&lt;h3&gt;Iterating over a collection vs list comprehension&lt;/h3&gt;
-&lt;p&gt;List/set comprehensions are a Python syntactic feature for generating lists and sets concisely. &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;l1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
-&lt;span class="n"&gt;l1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h3&gt;Opening a file&lt;/h3&gt;
-&lt;p&gt;You can open a file by its filename to read its contents into memory or to make it available to the Python interpreter process under a file descriptor. &lt;/p&gt;
-&lt;p&gt;Languages that offer a greater number of constructs to write software have a harder time defining such a standard.&lt;/p&gt;
-&lt;p&gt;C++ has a complicated history of big standard library vs boost and other external libraries, wider user base of experts adopting it for niche problems and Turing completeness (i.e. another language) in its template system. The pragmatics of using language features affects readability and performance in some cases (constexpr statements for compile-time evaluation). This makes it harder for everyone to agree on a C++-ic style that can be evangelised to the community. I know someone who happily uses templates wherever possible. I admit that they are much smarter and more tenacious than me (reading those template error messages requires perseverance). I also hope their use of templates doesn't prevent them from making friends at work. &lt;/p&gt;
-&lt;p&gt;Further reading:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Unsurprisingly there is an &lt;a href="https://www.inf.ed.ac.uk/teaching/courses/epl/"&gt;undergraduate course at Edinburgh university&lt;/a&gt;, my alma mater, which analyses the pragmatics of different PLs. &lt;/li&gt;
-&lt;/ul&gt;</summary><category term="python"></category><category term="linguistics"></category><category term="semantics"></category></entry><entry><title>Talebian software development</title><link href="/talebian-software-development.html" rel="alternate"></link><updated>2018-03-10T16:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2018-03-10:talebian-software-development.html</id><summary type="html">&lt;p&gt;Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices. &lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-03-10T16:20:00+00:00</updated><entry><title>Talebian software development</title><link href="/talebian-software-development.html" rel="alternate"></link><updated>2018-03-10T16:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:,2018-03-10:talebian-software-development.html</id><summary type="html">&lt;p&gt;Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices. &lt;/p&gt;
 &lt;h2&gt;Antifragile as chaos engineering, fuzzing and testing&lt;/h2&gt;
 &lt;p&gt;Taleb coins the term antifragile to emphasise a class of organisms and organisations that evolve under external stress. The word is contrasted to fragile and robust, which worsens or remains the same (up to a point) respectivly. Combined with the inability to predict the future, antifragile organisms are those that will improve when subject to unpredictable external stress. Given the second law of thermodynamics (total entropy of a closed system can't decrease), fragile systems are expected to degrade with time, while antifragile systems get stronger. &lt;/p&gt;
 &lt;p&gt;I find that similar to chaos engineering, fuzzing and testing. &lt;/p&gt;
