@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -63,17 +62,17 @@
 <h2>Namespaces</h2>
 <p>Define the set of functions, which are used during method name resolution. @jbcoe suggested to avoid it, as it can get messy with several conflicting namespaces.</p>
 <p>Adding this to the top of the file</p>
-<div class="highlight"><pre><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
 </pre></div>
 
 
 <p>defines where method names will be looked up, which would save 5 chars</p>
-<div class="highlight"><pre><span class="n">cout</span>
+<div class="highlight"><pre><span></span><span class="n">cout</span>
 </pre></div>
 
 
 <p>instead of </p>
-<div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">cout</span>
+<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span>
 </pre></div>
 
 

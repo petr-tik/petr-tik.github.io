@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -68,7 +67,7 @@
 <h2>Brute force</h2>
 <p>Generate all combinations of operations (4**5 = 1024) and calculate them. If any one of them gives the target_value, return True. Otherwise, return False at the end.</p>
 <h2>First attempt</h2>
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">arr_index</span><span class="p">,</span> <span class="n">results_so_far</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">arr_index</span><span class="p">,</span> <span class="n">results_so_far</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">results_so_far</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">results_so_far</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">results_so_far</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>

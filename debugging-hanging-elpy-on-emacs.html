@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -62,35 +61,35 @@
             <p>I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input. I could still switch windows and work with another applications, but emacs hang up on me. </p>
 <p>Having spent a couple of hours stracing, <a href="/drafts/stracing-emacs-part-1.html">grepping and awking emacs start-up syscalls</a>, I was in the mood to debug some more. </p>
 <p>Attaching my shell to the pid of emacs (I usually only run 1 emacs instance, hence pgrep emacs). </p>
-<div class="highlight"><pre>sudo strace -p <span class="k">$(</span>pgrep emacs<span class="k">)</span>
+<div class="highlight"><pre><span></span>sudo strace -p <span class="k">$(</span>pgrep emacs<span class="k">)</span>
 </pre></div>
 
 
 <p>Returns the same error messages repeated.</p>
-<div class="highlight"><pre>pselect6<span class="o">(</span>14, <span class="o">[</span><span class="m">7</span> 13<span class="o">]</span>, <span class="o">[]</span>, NULL, <span class="o">{</span>0, 19999519<span class="o">}</span>, <span class="o">{</span>NULL, 8<span class="o">})</span> <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
-poll<span class="o">([{</span><span class="nv">fd</span><span class="o">=</span>7, <span class="nv">events</span><span class="o">=</span>POLLIN<span class="o">}]</span>, 1, 0<span class="o">)</span>     <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
-write<span class="o">(</span>12, <span class="s2">&quot;{\&quot;id\&quot;:91,\&quot;method\&quot;:\&quot;get_calltip\&quot;,&quot;</span>..., 616<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-pselect6<span class="o">(</span>14, <span class="o">[</span><span class="m">7</span> 13<span class="o">]</span>, <span class="o">[]</span>, NULL, <span class="o">{</span>0, 19999519<span class="o">}</span>, <span class="o">{</span>NULL, 8<span class="o">})</span> <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
-poll<span class="o">([{</span><span class="nv">fd</span><span class="o">=</span>7, <span class="nv">events</span><span class="o">=</span>POLLIN<span class="o">}]</span>, 1, 0<span class="o">)</span>     <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
-write<span class="o">(</span>12, <span class="s2">&quot;{\&quot;id\&quot;:91,\&quot;method\&quot;:\&quot;get_calltip\&quot;,&quot;</span>..., 616<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+<div class="highlight"><pre><span></span>pselect6<span class="o">(</span><span class="m">14</span>, <span class="o">[</span><span class="m">7</span> <span class="m">13</span><span class="o">]</span>, <span class="o">[]</span>, NULL, <span class="o">{</span><span class="m">0</span>, <span class="m">19999519</span><span class="o">}</span>, <span class="o">{</span>NULL, <span class="m">8</span><span class="o">})</span> <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
+poll<span class="o">([{</span><span class="nv">fd</span><span class="o">=</span><span class="m">7</span>, <span class="nv">events</span><span class="o">=</span>POLLIN<span class="o">}]</span>, <span class="m">1</span>, <span class="m">0</span><span class="o">)</span>     <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
+write<span class="o">(</span><span class="m">12</span>, <span class="s2">&quot;{\&quot;id\&quot;:91,\&quot;method\&quot;:\&quot;get_calltip\&quot;,&quot;</span>..., <span class="m">616</span><span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+pselect6<span class="o">(</span><span class="m">14</span>, <span class="o">[</span><span class="m">7</span> <span class="m">13</span><span class="o">]</span>, <span class="o">[]</span>, NULL, <span class="o">{</span><span class="m">0</span>, <span class="m">19999519</span><span class="o">}</span>, <span class="o">{</span>NULL, <span class="m">8</span><span class="o">})</span> <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
+poll<span class="o">([{</span><span class="nv">fd</span><span class="o">=</span><span class="m">7</span>, <span class="nv">events</span><span class="o">=</span>POLLIN<span class="o">}]</span>, <span class="m">1</span>, <span class="m">0</span><span class="o">)</span>     <span class="o">=</span> <span class="m">0</span> <span class="o">(</span>Timeout<span class="o">)</span>
+write<span class="o">(</span><span class="m">12</span>, <span class="s2">&quot;{\&quot;id\&quot;:91,\&quot;method\&quot;:\&quot;get_calltip\&quot;,&quot;</span>..., <span class="m">616</span><span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
 </pre></div>
 
 
 <p>Ad nauseum.</p>
 <p>Using the combination of functional programming and bash magic, I nested one function call inside another to get the list of processes. <code>pgrep -P</code> returns the PIDs of all child processes of a given PID. </p>
-<div class="highlight"><pre><span class="nv">$$$$</span> ps -o pid,pcpu,comm -p <span class="k">$(</span>pgrep -P <span class="k">$(</span>pgrep emacs<span class="k">))</span>
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> ps -o pid,pcpu,comm -p <span class="k">$(</span>pgrep -P <span class="k">$(</span>pgrep emacs<span class="k">))</span>
   PID %CPU COMMAND
-<span class="m">31513</span>  97.4 python
+<span class="m">31513</span>  <span class="m">97</span>.4 python
 </pre></div>
 
 
 <p>There is only 1 child process, but it's eating up all the CPU time and killing my battery - it drained 13% in 10 minutes that I was googling and stracing. </p>
-<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">kill</span> <span class="k">$(</span>pgrep -P <span class="k">$(</span>pgrep emacs<span class="k">)</span>
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> <span class="nb">kill</span> <span class="k">$(</span>pgrep -P <span class="k">$(</span>pgrep emacs<span class="k">)</span>
 </pre></div>
 
 
 <p>This made emacs responsive again, so I examined the emacs <em>Messages</em> buffer</p>
-<div class="highlight"><pre>Wrote /home/petr_tik/Coding/misc/misc/dfs.py
+<div class="highlight"><pre><span></span>Wrote /home/petr_tik/Coding/misc/misc/dfs.py
 error in process sentinel: elpy-rpc--default-error-callback: peculiar error: &quot;terminated&quot;
 error in process sentinel: peculiar error: &quot;terminated&quot;
 eldoc error: (file-error Writing to process bad file descriptor  *elpy-rpc [project:~/Coding/misc/misc/ python:/usr/bin/python]*)

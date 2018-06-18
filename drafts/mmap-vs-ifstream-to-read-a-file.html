@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -66,7 +65,7 @@
 <li>Strace analysis</li>
 <li>Assembly analysis</li>
 </ul>
-<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
   <span class="k">auto</span> <span class="n">start</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
   <span class="n">read_file_by_lines</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
   <span class="k">auto</span> <span class="n">stop</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
@@ -79,7 +78,7 @@
 
 <h2>C++ standard</h2>
 <p>The standard C++ way of reading a textfile from disk is by using an input file stream <code>ifstream</code>. Given a path to file and optional arguments, it creates an input filestream associated with the file at the filename. Then using a for-loop, a line of type std::string is created, as we move the input filestream line-by-line.</p>
-<div class="highlight"><pre><span class="kt">void</span> <span class="nf">read_file_by_lines</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">read_file_by_lines</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
   <span class="cm">/* Uses the ifstream from std to open a file given the filename in cur_dir and</span>
 <span class="cm">   * read it out line-by-line */</span>
   <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">input</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span> 
@@ -92,7 +91,7 @@
 
 <h2>mmap txt file</h2>
 <p>The method opens a file descriptor to the filename and starting from the offset of 0, iterates over page_size blocks of memory. </p>
-<div class="highlight"><pre><span class="kt">void</span> <span class="nf">read_mmaped_file_by_lines</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">read_mmaped_file_by_lines</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
   <span class="cm">/*</span>
 <span class="cm">     mmaps the file into memory by pages (not always aligned with line size).</span>
 <span class="cm">  */</span>
@@ -131,14 +130,14 @@
 <h2>Comparison</h2>
 <h3>Time</h3>
 <p>The memory mapped read takes a second longer than the std method.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> clang++-3.7 -Wall -O3 -std<span class="o">=</span>c++11 std_read_lines.cpp -o std_read_lines
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> clang++-3.7 -Wall -O3 -std<span class="o">=</span>c++11 std_read_lines.cpp -o std_read_lines
 <span class="nv">$$$$</span> ./std_read_lines gnews_corpus.txt 
 
-14.8439 seconds
+<span class="m">14</span>.8439 seconds
 <span class="nv">$$$$</span> clang++-3.7 -Wall -O3 -std<span class="o">=</span>c++11 mmap_read_lines.cpp -o map_read_lines
 <span class="nv">$$$$</span> ./map_read_lines gnews_corpus.txt 
 
-16.5109 seconds
+<span class="m">16</span>.5109 seconds
 </pre></div>
 
 

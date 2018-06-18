@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -74,13 +73,13 @@
 <p><a href="https://docs.python.org/3/extending/index.html">Series of tutorials</a> for rolling your own Python3 extension. </p>
 <h3>Debugging</h3>
 <p>After installing debug symbols</p>
-<div class="highlight"><pre>sudo apt-get install python3.5-dbg
+<div class="highlight"><pre><span></span>sudo apt-get install python3.5-dbg
 </pre></div>
 
 
 <p>Compile the extension with <code>-g -O0</code> flags to make sure debug sybmols are available and compiler optimisations (gcc is clever nowadays) don't remove too much of your code. </p>
 <p>Run the line below (inside emacs or terminal).</p>
-<div class="highlight"><pre>gdb -ex r --args python3 test.py
+<div class="highlight"><pre><span></span>gdb -ex r --args python3 test.py
 </pre></div>
 
 
@@ -91,29 +90,29 @@
 <h2>Running and testing</h2>
 <p>After a build is succesful, cTrie is available to any python programme that is run inside the root directory. I wrote tests to make sure both PyTrie and cTrie implementations pass the same test suite. </p>
 <p>Using pytest and its mark.parametrize decorator, I define a list of parameters (different trie constructors) and make sure each test function is run with every trie constructor.</p>
-<div class="highlight"><pre><span class="kn">import</span> <span class="nn">pytest</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="kn">from</span> <span class="nn">ctrie</span> <span class="kn">import</span> <span class="n">cTrie</span>
 <span class="kn">from</span> <span class="nn">py_trie</span> <span class="kn">import</span> <span class="n">PyTrie</span>
 
 <span class="n">constructors</span> <span class="o">=</span> <span class="p">[</span><span class="n">cTrie</span><span class="p">,</span> <span class="n">PyTrie</span><span class="p">]</span>
 
-<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="s">&quot;constructor&quot;</span><span class="p">,</span> <span class="n">constructors</span><span class="p">)</span>
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="s2">&quot;constructor&quot;</span><span class="p">,</span> <span class="n">constructors</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_find_added</span><span class="p">(</span><span class="n">constructor</span><span class="p">):</span>
     <span class="n">tr</span> <span class="o">=</span> <span class="n">constructor</span><span class="p">()</span>
-    <span class="n">tr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;bob&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;bob&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">tr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;bob&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 </pre></div>
 
 
 <h2>What's inside the shared library</h2>
 <p>Using objdump, we can examine the functions of the shared library.</p>
-<div class="highlight"><pre>objdump -d ctrie.cpython-35m-x86_64-linux-gnu.so 
+<div class="highlight"><pre><span></span>objdump -d ctrie.cpython-35m-x86_64-linux-gnu.so 
 </pre></div>
 
 
 <p>eg. the shared library has a <code>char_to_ascii</code> function used to calculate the index of the character in the english alphabet i.e. a gives 0, z - 26. This index is used to retrieve the relevant child node to continue building or querying the trie.</p>
-<div class="highlight"><pre><span class="err">0000000000000</span><span class="nf">b40</span> <span class="err">&lt;</span><span class="no">char_to_ascii</span><span class="err">&gt;</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><span class="err">0000000000000</span><span class="nf">b40</span> <span class="err">&lt;</span><span class="no">char_to_ascii</span><span class="err">&gt;</span><span class="p">:</span>
  <span class="nl">b40:</span>   <span class="err">40</span> <span class="err">0</span><span class="nf">f</span> <span class="no">be</span> <span class="no">c7</span>             <span class="no">movsbl</span> <span class="nv">%dil</span><span class="p">,</span><span class="nv">%eax</span>
  <span class="nl">b44:</span>   <span class="err">83</span> <span class="nf">e8</span> <span class="mi">61</span>                <span class="no">sub</span>    <span class="no">$0x61</span><span class="p">,</span><span class="nv">%eax</span>
  <span class="nl">b47:</span>   <span class="nf">c3</span>                      <span class="no">retq</span>   
@@ -129,12 +128,12 @@
 <p>Now that we know that ctrie shared library is a set of instructions that is exposed to the CPython interpreter, we can dig deeper into it or run the benchmark suite.</p>
 <h2>What performs better - compiled C or Python?</h2>
 <p>The benchmark compiled a fresh version of the library, cleared all caches and run the <code>benchmark.py</code> script. </p>
-<div class="highlight"><pre><span class="n">building</span> <span class="s">&#39;ctrie&#39;</span> <span class="n">extension</span>
+<div class="highlight"><pre><span></span><span class="n">building</span> <span class="s1">&#39;ctrie&#39;</span> <span class="n">extension</span>
 <span class="n">creating</span> <span class="n">build</span>
 <span class="n">creating</span> <span class="n">build</span><span class="o">/</span><span class="n">temp</span><span class="o">.</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="mf">3.5</span>
 <span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">-</span><span class="n">gcc</span> <span class="o">-</span><span class="n">pthread</span> <span class="o">-</span><span class="n">DNDEBUG</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fwrapv</span> <span class="o">-</span><span class="n">O2</span> <span class="o">-</span><span class="n">Wall</span> <span class="o">-</span><span class="n">Wstrict</span><span class="o">-</span><span class="n">prototypes</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fstack</span><span class="o">-</span><span class="n">protector</span><span class="o">-</span><span class="n">strong</span> <span class="o">-</span><span class="n">Wformat</span> <span class="o">-</span><span class="n">Werror</span><span class="o">=</span><span class="n">format</span><span class="o">-</span><span class="n">security</span> <span class="o">-</span><span class="n">D_FORTIFY_SOURCE</span><span class="o">=</span><span class="mi">2</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span><span class="n">m</span> <span class="o">-</span><span class="n">c</span> <span class="n">trie</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">o</span> <span class="n">build</span><span class="o">/</span><span class="n">temp</span><span class="o">.</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="mf">3.5</span><span class="o">/</span><span class="n">trie</span><span class="o">.</span><span class="n">o</span> <span class="o">-</span><span class="n">O3</span>
 <span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">-</span><span class="n">gcc</span> <span class="o">-</span><span class="n">pthread</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">O1</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">Bsymbolic</span><span class="o">-</span><span class="n">functions</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">Bsymbolic</span><span class="o">-</span><span class="n">functions</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">z</span><span class="p">,</span><span class="n">relro</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">Bsymbolic</span><span class="o">-</span><span class="n">functions</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">-</span><span class="n">z</span><span class="p">,</span><span class="n">relro</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">fstack</span><span class="o">-</span><span class="n">protector</span><span class="o">-</span><span class="n">strong</span> <span class="o">-</span><span class="n">Wformat</span> <span class="o">-</span><span class="n">Werror</span><span class="o">=</span><span class="n">format</span><span class="o">-</span><span class="n">security</span> <span class="o">-</span><span class="n">D_FORTIFY_SOURCE</span><span class="o">=</span><span class="mi">2</span> <span class="n">build</span><span class="o">/</span><span class="n">temp</span><span class="o">.</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="mf">3.5</span><span class="o">/</span><span class="n">trie</span><span class="o">.</span><span class="n">o</span> <span class="o">-</span><span class="n">o</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">petr_tik</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">bivittatus</span><span class="o">/</span><span class="n">ctrie</span><span class="o">.</span><span class="n">cpython</span><span class="o">-</span><span class="mi">35</span><span class="n">m</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">.</span><span class="n">so</span>
-<span class="n">free</span> <span class="o">&amp;&amp;</span> <span class="n">sync</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">sh</span> <span class="o">-</span><span class="n">c</span> <span class="s">&quot;echo 3 &gt; /proc/sys/vm/drop_caches&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">free</span>
+<span class="n">free</span> <span class="o">&amp;&amp;</span> <span class="n">sync</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">sh</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;echo 3 &gt; /proc/sys/vm/drop_caches&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">free</span>
 
 <span class="o">...</span>
 

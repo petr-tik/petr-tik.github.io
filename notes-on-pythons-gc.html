@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -73,7 +72,7 @@
 <p>All objects are split into 3 exclusive generations. The idea behind it is that objects won't live long, so younger generations are GC'ed more often than older generations. Generation 0 is where the newly created object lives, until it's spent enough time to be promoted. </p>
 <h3>Global value reuse</h3>
 <p>When a new variable (reference) is created, the python runtime checks if an object with such a value already exists. If it does, the new variable doesn't create a reference, instead it increases the refcount of int_object with value 10 to 2 as below. This works either when the object a new object is created or a primitive object's value is changed to match the value of an already existing object.</p>
-<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">y</span>
 <span class="bp">True</span>

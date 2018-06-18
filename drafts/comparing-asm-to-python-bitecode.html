@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -58,7 +57,7 @@
                         </p>
                 </header>
             </section>
-            <div class="highlight"><pre><span class="err">&gt;&gt;&gt;</span> <span class="nf">from</span> <span class="no">py_trie</span> <span class="no">import</span> <span class="no">PyTrie</span>
+            <div class="highlight"><pre><span></span><span class="err">&gt;&gt;&gt;</span> <span class="nf">from</span> <span class="no">py_trie</span> <span class="no">import</span> <span class="no">PyTrie</span>
 <span class="err">&gt;&gt;&gt;</span> <span class="nf">import</span> <span class="no">dis</span>
 <span class="err">&gt;&gt;&gt;</span> <span class="nf">tr</span> <span class="err">=</span> <span class="no">PyTrie</span><span class="p">()</span>
 <span class="err">&gt;&gt;&gt;</span> <span class="nf">dis.dis</span><span class="p">(</span><span class="no">tr.find</span><span class="p">)</span>
@@ -100,12 +99,12 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span class="nl">b50:</span>    <span class="err">55</span>                      <span class="nf">push</span>   <span class="nv">%rbp</span>
+<div class="highlight"><pre><span></span><span class="nl">b50:</span>    <span class="err">55</span>                      <span class="nf">push</span>   <span class="nv">%rbp</span>
  <span class="nl">b51:</span>   <span class="err">53</span>                      <span class="nf">push</span>   <span class="nv">%rbx</span>
  <span class="nl">b52:</span>   <span class="err">48</span> <span class="err">89</span> <span class="nf">fb</span>                <span class="no">mov</span>    <span class="nv">%rdi</span><span class="p">,</span><span class="nv">%rbx</span>
  <span class="nl">b55:</span>   <span class="err">48</span> <span class="err">89</span> <span class="nf">f7</span>                <span class="no">mov</span>    <span class="nv">%rsi</span><span class="p">,</span><span class="nv">%rdi</span>
  <span class="nl">b58:</span>   <span class="err">48</span> <span class="err">8</span><span class="nf">d</span> <span class="mi">35</span> <span class="mi">0</span><span class="no">e</span> <span class="mi">02</span> <span class="mi">00</span> <span class="mi">00</span>    <span class="no">lea</span>    <span class="mi">0x20e</span><span class="p">(</span><span class="nv">%rip</span><span class="p">),</span><span class="nv">%rsi</span>        <span class="c"># d6d &lt;_fini+0x9&gt;</span>
- <span class="nl">b5f:</span>   <span class="err">48</span> <span class="err">83</span> <span class="nf">ec</span> <span class="mi">28</span>             <span class="no">sub</span>    <span class="no">$0x28</span><span class="p">,</span><span class="nv">%rsp</span>
+ <span class="no">b5f</span><span class="p">:</span>   <span class="mi">48</span> <span class="mi">83</span> <span class="no">ec</span> <span class="mi">28</span>             <span class="no">sub</span>    <span class="no">$0x28</span><span class="p">,</span><span class="nv">%rsp</span>
  <span class="nl">b63:</span>   <span class="err">64</span> <span class="err">48</span> <span class="err">8</span><span class="nf">b</span> <span class="mi">04</span> <span class="mi">25</span> <span class="mi">28</span> <span class="mi">00</span>    <span class="no">mov</span>    <span class="nv">%fs</span><span class="p">:</span><span class="mi">0x28</span><span class="p">,</span><span class="nv">%rax</span>
  <span class="nl">b6a:</span>   <span class="err">00</span> <span class="err">00</span> 
  <span class="nl">b6c:</span>   <span class="err">48</span> <span class="err">89</span> <span class="err">44</span> <span class="err">24</span> <span class="err">18</span>          <span class="nf">mov</span>    <span class="nv">%rax</span><span class="p">,</span><span class="mi">0x18</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">)</span>
@@ -140,7 +139,7 @@
  <span class="nl">bd1:</span>   <span class="err">75</span> <span class="nf">d5</span>                   <span class="no">jne</span>    <span class="mh">ba8</span> <span class="p">&lt;</span><span class="no">trie_find</span><span class="p">+</span><span class="mi">0x58</span><span class="p">&gt;</span>
  <span class="nl">bd3:</span>   <span class="err">31</span> <span class="nf">f6</span>                   <span class="no">xor</span>    <span class="nv">%esi</span><span class="p">,</span><span class="nv">%esi</span>
  <span class="nl">bd5:</span>   <span class="err">48</span> <span class="err">8</span><span class="nf">d</span> <span class="mi">3</span><span class="no">d</span> <span class="mi">94</span> <span class="mi">01</span> <span class="mi">00</span> <span class="mi">00</span>    <span class="no">lea</span>    <span class="mi">0x194</span><span class="p">(</span><span class="nv">%rip</span><span class="p">),</span><span class="nv">%rdi</span>        <span class="c"># d70 &lt;_fini+0xc&gt;</span>
- <span class="nl">bdc:</span>   <span class="err">31</span> <span class="nf">c0</span>                   <span class="no">xor</span>    <span class="nv">%eax</span><span class="p">,</span><span class="nv">%eax</span>
+ <span class="no">bdc</span><span class="p">:</span>   <span class="mi">31</span> <span class="no">c0</span>                   <span class="no">xor</span>    <span class="nv">%eax</span><span class="p">,</span><span class="nv">%eax</span>
  <span class="nl">bde:</span>   <span class="nf">e8</span> <span class="mi">7</span><span class="no">d</span> <span class="no">fd</span> <span class="no">ff</span> <span class="no">ff</span>          <span class="no">callq</span>  <span class="mh">960</span> <span class="p">&lt;</span><span class="no">Py_BuildValue@plt</span><span class="p">&gt;</span>
  <span class="nl">be3:</span>   <span class="err">48</span> <span class="err">8</span><span class="nf">b</span> <span class="mi">4</span><span class="no">c</span> <span class="mi">24</span> <span class="mi">18</span>          <span class="no">mov</span>    <span class="mi">0x18</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">),</span><span class="nv">%rcx</span>
  <span class="nl">be8:</span>   <span class="err">64</span> <span class="err">48</span> <span class="err">33</span> <span class="err">0</span><span class="nf">c</span> <span class="mi">25</span> <span class="mi">28</span> <span class="mi">00</span>    <span class="no">xor</span>    <span class="nv">%fs</span><span class="p">:</span><span class="mi">0x28</span><span class="p">,</span><span class="nv">%rcx</span>

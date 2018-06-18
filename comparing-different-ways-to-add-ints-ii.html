@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -63,30 +62,30 @@
 <p>The script from part 1 had to be changed to profile the relevant function calls and save the results. This effectively wraps the function calls with cProfiler and then saves the results into a .dmp type. Afterwards results are plotted.</p>
 <h3>Plot results</h3>
 <p>Instead of using a scatter plot, normal plot was used, which made the increase in gradient more obvious. It also takes the right and left limits to the x values (lengths of the array). Setting xlim to the plot will help us focus the picture. We will not exceed recursion depth in this example. Hence we won't be marking the last point in recursive times.</p>
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">plot_results_for_cprofile</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">r_limit</span><span class="p">,</span> <span class="n">l_limit</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_results_for_cprofile</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">r_limit</span><span class="p">,</span> <span class="n">l_limit</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">r_limit</span><span class="p">,</span> <span class="n">l_limit</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Size of input arrays&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Time to calculate sum (ms)&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Comparing iterative vs recursive sum methods&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Size of input arrays&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Time to calculate sum (ms)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Comparing iterative vs recursive sum methods&#39;</span><span class="p">)</span>
 
     <span class="n">iter_arr_lengths</span><span class="p">,</span> <span class="n">recur_arr_lengths</span> <span class="o">=</span> <span class="n">xs</span>
     <span class="n">iters</span><span class="p">,</span> <span class="n">recurs</span> <span class="o">=</span> <span class="n">ys</span>
 
-    <span class="c"># plot iterative times</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">iter_arr_lengths</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">iters</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s">&quot;red&quot;</span><span class="p">)</span>
+    <span class="c1"># plot iterative times</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">iter_arr_lengths</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">iters</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
 
-    <span class="c"># plot recursive times</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recur_arr_lengths</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recurs</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s">&quot;green&quot;</span><span class="p">)</span>
+    <span class="c1"># plot recursive times</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recur_arr_lengths</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recurs</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
 
-    <span class="n">fname</span> <span class="o">=</span> <span class="s">&quot;plot_sum_ints.png&quot;</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="s2">&quot;plot_sum_ints.png&quot;</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">1200</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Saved plot as {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Saved plot as {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
 </pre></div>
 
 
 <h3>Profile run</h3>
 <p>Profile run method instantiates 2 <code>cProfile.Profile()</code> classes for iterative and recursive solution profiling. Looping over different array lengths, the <code>iter_sum</code> and <code>recur_sum</code> solutions are profiled. The profiling information is saved to disk using the <code>dump_stats()</code> method, which takes a string for argument name. </p>
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">profile_run</span><span class="p">(</span><span class="n">r_limit</span><span class="p">,</span> <span class="n">l_limit</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">profile_run</span><span class="p">(</span><span class="n">r_limit</span><span class="p">,</span> <span class="n">l_limit</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">cProfile</span>
     <span class="n">iter_arr_lengths</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">recur_arr_lengths</span> <span class="o">=</span> <span class="p">[]</span>
@@ -103,14 +102,14 @@
         <span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
         <span class="n">res_iter</span><span class="p">,</span> <span class="n">time_iter</span> <span class="o">=</span> <span class="n">iter_sum</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">)</span>
         <span class="n">pr</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
-        <span class="n">pr</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s">&quot;iter_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)))</span>
+        <span class="n">pr</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s2">&quot;iter_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)))</span>
         <span class="n">iter_arr_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)</span>
         <span class="n">iter_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_iter</span><span class="p">)</span>
 
         <span class="n">pr2</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
         <span class="n">res_recur</span><span class="p">,</span> <span class="n">time_recur</span> <span class="o">=</span> <span class="n">recur_sum</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">)</span>
         <span class="n">pr2</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
-        <span class="n">pr2</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s">&quot;recur_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)))</span>
+        <span class="n">pr2</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s2">&quot;recur_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)))</span>
         <span class="n">recur_arr_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)</span>
         <span class="n">recur_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_recur</span><span class="p">)</span>
 
@@ -121,9 +120,9 @@
 
 <h3>Dumping stats</h3>
 <p>Used the length of input arrays as id of this profiler run. Looking at the <a href="https://github.com/python/cpython/blob/6f0eb93183519024cb360162bdd81b9faec97ba6/Lib/cProfile.py#L44-L48">source</a> for cProfile.Profile.dump_stats()</p>
-<div class="highlight"><pre>    <span class="k">def</span> <span class="nf">dump_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+<div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">dump_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">marshal</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">create_stats</span><span class="p">()</span>
             <span class="n">marshal</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 </pre></div>
@@ -138,16 +137,16 @@
 <p>What joy! <code>cProfile</code> (the builtin python profiler) uses a badly documented, backwards-incompatible, insecure module with incomplete support for Python types.</p>
 <h3>Line profiling</h3>
 <p>Line profiling was implemented by changing the code for the <code>timeit</code> decorator function. This allowed repeat measurements to stay consistent between recursive and iterative methods. Assuming that the overhead of line profiling of the recursive and iterative solution is in the same order of magnitude, wrapping both <code>recur_sum</code> and <code>iter_sum</code> wasn't expected to change the difference between them too much. <code>recur_sum_helper</code> and <code>iter_sum_helper</code> had to be moved above <code>timeit</code> in the source code (reasons below). </p>
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="n">str_func_to_profile</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="n">str_func_to_profile</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">func_to_prof</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">str_func_to_profile</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">newfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c"># locals() returns a dictionary, where &#39;args&#39; is key for local vars</span>
-        <span class="c"># ASSUMPTION: both input arrays have the same length, use either</span>
-        <span class="n">arr_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">locals</span><span class="p">()[</span><span class="s">&#39;args&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="c"># make a new instance of LineProfiler for each time iter_sum() is</span>
-        <span class="c"># called with new input arrays</span>
+        <span class="c1"># locals() returns a dictionary, where &#39;args&#39; is key for local vars</span>
+        <span class="c1"># ASSUMPTION: both input arrays have the same length, use either</span>
+        <span class="n">arr_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">locals</span><span class="p">()[</span><span class="s1">&#39;args&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># make a new instance of LineProfiler for each time iter_sum() is</span>
+        <span class="c1"># called with new input arrays</span>
         <span class="n">line_prof</span> <span class="o">=</span> <span class="n">LineProfiler</span><span class="p">()</span>
         <span class="n">func_prof</span> <span class="o">=</span> <span class="n">line_prof</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="n">line_prof</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">func_to_prof</span><span class="p">)</span>
@@ -155,9 +154,9 @@
         <span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">func_prof</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">elapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span>
-        <span class="n">line_prof</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s">&quot;ll_{}_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">line_prof</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s2">&quot;ll_{}_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">str_func_to_profile</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">arr_length</span><span class="p">)))</span>
-        <span class="n">time_as_string</span> <span class="o">=</span> <span class="s">&#39;{:.6f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsedTime</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">time_as_string</span> <span class="o">=</span> <span class="s1">&#39;{:.6f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsedTime</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">time_as_string</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">newfunc</span>
@@ -167,8 +166,8 @@
 <p>Below is a quick introduction to python decorators and how the timeit function had to change to include line profiling.</p>
 <h4>Decorators are evaluated at runtime</h4>
 <p>When a python module is loaded or runs, the wrappers are evaluated, as soon as they are encountered. Regardless if the wrapped function is even called anywhere in the module, the decorator processes and returns the new function, as soon as it is given a function to wrape. When the wrapped function is called, it has already been modified, so the function being executed is function that the decorator returned, when it was evaluated earler. To prove that decorators work at wrap-time, not call-time, set breakpoits <code>pdb.set_trace()</code> as below. </p>
-<div class="highlight"><pre><span class="kn">import</span> <span class="nn">pdb</span>
-<span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span> <span class="c"># breakpoint 1</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pdb</span>
+<span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span> <span class="c1"># breakpoint 1</span>
 
 <span class="nd">@timeit</span>
 <span class="k">def</span> <span class="nf">iter_sum</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">):</span>
@@ -176,13 +175,13 @@
     <span class="n">r_arr2</span> <span class="o">=</span> <span class="n">arr2</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">iter_sum_helper</span><span class="p">(</span><span class="n">r_arr1</span><span class="p">,</span> <span class="n">r_arr2</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-<span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span> <span class="c"># breakpoint 2</span>
+<span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span> <span class="c1"># breakpoint 2</span>
 </pre></div>
 
 
 <p>When breakpoint 1 is hit, <code>iter_sum</code> hasn't been defined, so the Python interpreter throws a NameError. </p>
-<div class="highlight"><pre><span class="nv">$$$$</span> python3 sum_ints_as_arrays.py 
-&gt; /home/petr_tik/Coding/misc/misc/sum_ints_profile/sum_ints_as_arrays.py<span class="o">(</span>115<span class="o">)</span>&lt;module&gt;<span class="o">()</span>
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> python3 sum_ints_as_arrays.py 
+&gt; /home/petr_tik/Coding/misc/misc/sum_ints_profile/sum_ints_as_arrays.py<span class="o">(</span><span class="m">115</span><span class="o">)</span>&lt;module&gt;<span class="o">()</span>
 -&gt; @timeit
 <span class="o">(</span>Pdb<span class="o">)</span> iter_sum.__name__
 *** NameError: name <span class="s1">&#39;iter_sum&#39;</span> is not defined
@@ -190,8 +189,8 @@
 
 
 <p><code>(c)ontinuing</code> to breakpoint 2, now <code>iter_sum</code> has been defined and wrapped. <code>newfunc</code> is the name that  came from the closure of <code>timeit</code>. This proves that <code>iter_sum</code> has already been wrapped by timeit, before it's first called.</p>
-<div class="highlight"><pre><span class="o">(</span>Pdb<span class="o">)</span> c
-&gt; /home/petr_tik/Coding/misc/misc/sum_ints_profile/sum_ints_as_arrays.py<span class="o">(</span>124<span class="o">)</span>&lt;module&gt;<span class="o">()</span>
+<div class="highlight"><pre><span></span><span class="o">(</span>Pdb<span class="o">)</span> c
+&gt; /home/petr_tik/Coding/misc/misc/sum_ints_profile/sum_ints_as_arrays.py<span class="o">(</span><span class="m">124</span><span class="o">)</span>&lt;module&gt;<span class="o">()</span>
 -&gt; @timeit
 <span class="o">(</span>Pdb<span class="o">)</span> iter_sum.__name__
 <span class="s1">&#39;newfunc&#39;</span>
@@ -200,7 +199,7 @@
 
 <h4>Closures</h4>
 <p>Decorators in Python rely on the concept of closure. At the time when newfunc is defined inside the <code>timeit</code> function, there are 3 variables available to newfunc: str_func_to_profile, func_to_prof and func (wrapped function) itself. Continuing the same pdb session, freevars inside the code object of <code>iter_sum</code> were examined.</p>
-<div class="highlight"><pre><span class="o">(</span>Pdb<span class="o">)</span> iter_sum.__code__.co_freevars
+<div class="highlight"><pre><span></span><span class="o">(</span>Pdb<span class="o">)</span> iter_sum.__code__.co_freevars
 <span class="o">(</span><span class="s1">&#39;func&#39;</span>, <span class="s1">&#39;func_to_prof&#39;</span>, <span class="s1">&#39;str_func_to_profile&#39;</span><span class="o">)</span>
 </pre></div>
 
@@ -211,56 +210,56 @@
 <p>Overall running times are still collected and returned and they are expected to increase with the overhead of line profiling. The line profiler dumps stats into a file called by its function name and array length. The result and elapsed time are returned, used by <code>profile_run</code> to collect and plot time for each function call.</p>
 <h2>Results</h2>
 <h3>Plot</h3>
-<p><img alt="Photo" src="/images/plot_sum_ints_profiler.png" /></p>
+<p><img alt="Photo" src="/images/plot_sum_ints_profiler.png"></p>
 <p>In the graph, green is still recursive, red is iterative times. There are several notables differences - times are higher overall - profiling has a noticeable overhead. The difference between iterative and recursive is still present and the shape of ups/downs is similar in both lines . There is a huge spike for the recursive solution when the input arrays are of size 907. This makes it easy to investigate function calls.</p>
 <h3>Reading the cProfile dump</h3>
 <h4>Read function</h4>
 <p>All instances of cProfile for each array length <code>dump_stats</code> into plaintext files recur_{arr_length} or iter_{arr_length}. <code>read_dump.py</code> is defined to print the dump to terminal to investigate, grep and read through it.</p>
-<div class="highlight"><pre><span class="kn">import</span> <span class="nn">pstats</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pstats</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Supply a filename&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Supply a filename&quot;</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">fname</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="n">stats</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-    <span class="n">stats</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="s">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">stats</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 
 
 <h4>Results</h4>
 <p>Using this script, we examine the dumps of recursive calls with arrays of lengths 917 and 918 (before, during and after the peak).</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> ./read_dump.py recur_917 <span class="p">|</span> grep seconds
-         <span class="m">5542</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4625</span> primitive calls<span class="o">)</span> in 0.011 seconds
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> ./read_dump.py recur_917 <span class="p">|</span> grep seconds
+         <span class="m">5542</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4625</span> primitive calls<span class="o">)</span> in <span class="m">0</span>.011 seconds
 <span class="nv">$$$$</span> ./read_dump.py recur_918 <span class="p">|</span> grep seconds
-         <span class="m">5548</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4630</span> primitive calls<span class="o">)</span> in 0.039 seconds
+         <span class="m">5548</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4630</span> primitive calls<span class="o">)</span> in <span class="m">0</span>.039 seconds
 <span class="nv">$$$$</span> ./read_dump.py recur_919 <span class="p">|</span> grep seconds
-         <span class="m">5554</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4635</span> primitive calls<span class="o">)</span> in 0.011 seconds
+         <span class="m">5554</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4635</span> primitive calls<span class="o">)</span> in <span class="m">0</span>.011 seconds
 </pre></div>
 
 
 <p>At the peak, the number of function calls increases by 5, but the execution time more than triples.</p>
-<div class="highlight"><pre>petr_tik@merluza:~/Coding/misc/misc/sum_ints_profile<span class="nv">$ </span>./read_dump.py recur_917 <span class="o">&amp;&amp;</span> ./read_dump.py recur_918 <span class="o">&amp;&amp;</span> ./read_dump.py recur_919
-Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_917
-         <span class="m">5542</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4625</span> primitive calls<span class="o">)</span> in 0.011 seconds
+<div class="highlight"><pre><span></span>petr_tik@merluza:~/Coding/misc/misc/sum_ints_profile$ ./read_dump.py recur_917 <span class="o">&amp;&amp;</span> ./read_dump.py recur_918 <span class="o">&amp;&amp;</span> ./read_dump.py recur_919
+Sun Jul <span class="m">23</span> <span class="m">19</span>:18:39 <span class="m">2017</span>    recur_917
+         <span class="m">5542</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4625</span> primitive calls<span class="o">)</span> in <span class="m">0</span>.011 seconds
    ncalls  tottime  percall  cumtime  percall filename:lineno<span class="o">(</span><span class="k">function</span><span class="o">)</span>
-    918/1    0.010    0.000    0.011    0.011 sum_ints_as_arrays.py:52<span class="o">(</span>recur_sum_helper<span class="o">)</span>
+    <span class="m">918</span>/1    <span class="m">0</span>.010    <span class="m">0</span>.000    <span class="m">0</span>.011    <span class="m">0</span>.011 sum_ints_as_arrays.py:52<span class="o">(</span>recur_sum_helper<span class="o">)</span>
 
-Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_918
-         <span class="m">5548</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4630</span> primitive calls<span class="o">)</span> in 0.039 seconds
+Sun Jul <span class="m">23</span> <span class="m">19</span>:18:39 <span class="m">2017</span>    recur_918
+         <span class="m">5548</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4630</span> primitive calls<span class="o">)</span> in <span class="m">0</span>.039 seconds
    ncalls  tottime  percall  cumtime  percall filename:lineno<span class="o">(</span><span class="k">function</span><span class="o">)</span>
-    919/1    0.038    0.000    0.038    0.038 sum_ints_as_arrays.py:52<span class="o">(</span>recur_sum_helper<span class="o">)</span>
+    <span class="m">919</span>/1    <span class="m">0</span>.038    <span class="m">0</span>.000    <span class="m">0</span>.038    <span class="m">0</span>.038 sum_ints_as_arrays.py:52<span class="o">(</span>recur_sum_helper<span class="o">)</span>
 
-Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_919
-         <span class="m">5554</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4635</span> primitive calls<span class="o">)</span> in 0.011 seconds
+Sun Jul <span class="m">23</span> <span class="m">19</span>:18:39 <span class="m">2017</span>    recur_919
+         <span class="m">5554</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4635</span> primitive calls<span class="o">)</span> in <span class="m">0</span>.011 seconds
    ncalls  tottime  percall  cumtime  percall filename:lineno<span class="o">(</span><span class="k">function</span><span class="o">)</span>
-    920/1    0.010    0.000    0.011    0.011 sum_ints_as_arrays.py:52<span class="o">(</span>recur_sum_helper<span class="o">)</span>
+    <span class="m">920</span>/1    <span class="m">0</span>.010    <span class="m">0</span>.000    <span class="m">0</span>.011    <span class="m">0</span>.011 sum_ints_as_arrays.py:52<span class="o">(</span>recur_sum_helper<span class="o">)</span>
 </pre></div>
 
 
@@ -268,7 +267,7 @@ Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_
 <h3>Reading line profiling dump</h3>
 <h4>Read function</h4>
 <p>The line_profiler module has separate function for loading stats and showing text of the stats object. For serialisation, the line profiler module uses the builtin pickle module, which has wider coverage and better support. </p>
-<div class="highlight"><pre><span class="c">#! /usr/bin/env python3</span>
+<div class="highlight"><pre><span></span><span class="ch">#! /usr/bin/env python3</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -276,150 +275,150 @@ Sun Jul <span class="m">23</span> 19:18:39 <span class="m">2017</span>    recur_
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Supply a filename&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Supply a filename&quot;</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">fname</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="n">stats</span> <span class="o">=</span> <span class="n">load_stats</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
     <span class="n">show_text</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">timings</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 
 
 <h4>Results</h4>
-<div class="highlight"><pre><span class="nv">$$$$</span> ./read_ll.py ll_recur_sum_helper_917
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> ./read_ll.py ll_recur_sum_helper_917
 Timer unit: 1e-06 s
 
-Total <span class="nb">time</span>: 0.006587 s
+Total time: <span class="m">0</span>.006587 s
 File: sum_ints_as_arrays.py
-Function: recur_sum_helper at line 52
+Function: recur_sum_helper at line <span class="m">52</span>
 
-Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</span>
+Line <span class="c1">#      Hits         Time  Per Hit   % Time  Line Contents</span>
 <span class="o">==============================================================</span>
-    <span class="m">52</span>                                           def recur_sum_helper<span class="o">(</span>arr1, arr2, <span class="nv">idx</span><span class="o">=</span>0, <span class="nv">res</span><span class="o">=[]</span>, <span class="nv">carry</span><span class="o">=</span>0<span class="o">)</span>:
-    <span class="m">53</span>       <span class="m">918</span>          <span class="m">481</span>      0.5      7.3      <span class="k">if</span> not res:
-    <span class="m">54</span>         <span class="m">1</span>            <span class="m">2</span>      2.0      0.0          <span class="nv">res</span> <span class="o">=</span> list<span class="o">()</span>
-    <span class="m">55</span>       <span class="m">918</span>          <span class="m">926</span>      1.0     14.1      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span> and idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
-    <span class="m">56</span>         <span class="m">1</span>            <span class="m">1</span>      1.0      0.0          <span class="k">if</span> <span class="nv">carry</span> <span class="o">==</span> 1:
-    <span class="m">57</span>         <span class="m">1</span>            <span class="m">1</span>      1.0      0.0              res.append<span class="o">(</span>1<span class="o">)</span>
-    <span class="m">58</span>         <span class="m">1</span>            <span class="m">1</span>      1.0      0.0          <span class="k">return</span> res
-    <span class="m">59</span>       <span class="m">917</span>          <span class="m">797</span>      0.9     12.1      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span>:
-    <span class="m">60</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr2<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
+    <span class="m">52</span>                                           def recur_sum_helper<span class="o">(</span>arr1, arr2, <span class="nv">idx</span><span class="o">=</span><span class="m">0</span>, <span class="nv">res</span><span class="o">=[]</span>, <span class="nv">carry</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>:
+    <span class="m">53</span>       <span class="m">918</span>          <span class="m">481</span>      <span class="m">0</span>.5      <span class="m">7</span>.3      <span class="k">if</span> not res:
+    <span class="m">54</span>         <span class="m">1</span>            <span class="m">2</span>      <span class="m">2</span>.0      <span class="m">0</span>.0          <span class="nv">res</span> <span class="o">=</span> list<span class="o">()</span>
+    <span class="m">55</span>       <span class="m">918</span>          <span class="m">926</span>      <span class="m">1</span>.0     <span class="m">14</span>.1      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span> and idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
+    <span class="m">56</span>         <span class="m">1</span>            <span class="m">1</span>      <span class="m">1</span>.0      <span class="m">0</span>.0          <span class="k">if</span> <span class="nv">carry</span> <span class="o">==</span> <span class="m">1</span>:
+    <span class="m">57</span>         <span class="m">1</span>            <span class="m">1</span>      <span class="m">1</span>.0      <span class="m">0</span>.0              res.append<span class="o">(</span><span class="m">1</span><span class="o">)</span>
+    <span class="m">58</span>         <span class="m">1</span>            <span class="m">1</span>      <span class="m">1</span>.0      <span class="m">0</span>.0          <span class="k">return</span> res
+    <span class="m">59</span>       <span class="m">917</span>          <span class="m">797</span>      <span class="m">0</span>.9     <span class="m">12</span>.1      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span>:
+    <span class="m">60</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr2<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
     <span class="m">61</span>                                                   res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">62</span>                                                   idx +<span class="o">=</span> 1
+    <span class="m">62</span>                                                   <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
     <span class="m">63</span>                                                   <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
-    <span class="m">64</span>       <span class="m">917</span>          <span class="m">782</span>      0.9     11.9      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
-    <span class="m">65</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
+    <span class="m">64</span>       <span class="m">917</span>          <span class="m">782</span>      <span class="m">0</span>.9     <span class="m">11</span>.9      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
+    <span class="m">65</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
     <span class="m">66</span>                                                   res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">67</span>                                                   idx +<span class="o">=</span> 1
+    <span class="m">67</span>                                                   <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
     <span class="m">68</span>                                                   <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
     <span class="m">69</span>                                           
-    <span class="m">70</span>       <span class="m">917</span>         <span class="m">1109</span>      1.2     16.8      carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span> + arr2<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
-    <span class="m">71</span>       <span class="m">917</span>          <span class="m">842</span>      0.9     12.8      res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">72</span>       <span class="m">917</span>          <span class="m">564</span>      0.6      8.6      idx +<span class="o">=</span> 1
-    <span class="m">73</span>       <span class="m">917</span>         <span class="m">1081</span>      1.2     16.4      <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
+    <span class="m">70</span>       <span class="m">917</span>         <span class="m">1109</span>      <span class="m">1</span>.2     <span class="m">16</span>.8      carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span> + arr2<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
+    <span class="m">71</span>       <span class="m">917</span>          <span class="m">842</span>      <span class="m">0</span>.9     <span class="m">12</span>.8      res.append<span class="o">(</span>item_to_add<span class="o">)</span>
+    <span class="m">72</span>       <span class="m">917</span>          <span class="m">564</span>      <span class="m">0</span>.6      <span class="m">8</span>.6      <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
+    <span class="m">73</span>       <span class="m">917</span>         <span class="m">1081</span>      <span class="m">1</span>.2     <span class="m">16</span>.4      <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
 
-Total <span class="nb">time</span>: 0.010676 s
+Total time: <span class="m">0</span>.010676 s
 File: sum_ints_as_arrays.py
-Function: recur_sum at line 119
+Function: recur_sum at line <span class="m">119</span>
 
-Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</span>
+Line <span class="c1">#      Hits         Time  Per Hit   % Time  Line Contents</span>
 <span class="o">==============================================================</span>
    <span class="m">119</span>                                           @timeit
    <span class="m">120</span>                                           def recur_sum<span class="o">(</span>arr1, arr2<span class="o">)</span>:
-   <span class="m">121</span>         <span class="m">1</span>           <span class="m">11</span>     11.0      0.1      <span class="nv">r_arr1</span> <span class="o">=</span> arr1<span class="o">[</span>::-1<span class="o">]</span>
-   <span class="m">122</span>         <span class="m">1</span>            <span class="m">7</span>      7.0      0.1      <span class="nv">r_arr2</span> <span class="o">=</span> arr2<span class="o">[</span>::-1<span class="o">]</span>
-   <span class="m">123</span>         <span class="m">1</span>        <span class="m">10658</span>  10658.0     99.8      <span class="k">return</span> recur_sum_helper<span class="o">(</span>r_arr1, r_arr2<span class="o">)[</span>::-1<span class="o">]</span>
+   <span class="m">121</span>         <span class="m">1</span>           <span class="m">11</span>     <span class="m">11</span>.0      <span class="m">0</span>.1      <span class="nv">r_arr1</span> <span class="o">=</span> arr1<span class="o">[</span>::-1<span class="o">]</span>
+   <span class="m">122</span>         <span class="m">1</span>            <span class="m">7</span>      <span class="m">7</span>.0      <span class="m">0</span>.1      <span class="nv">r_arr2</span> <span class="o">=</span> arr2<span class="o">[</span>::-1<span class="o">]</span>
+   <span class="m">123</span>         <span class="m">1</span>        <span class="m">10658</span>  <span class="m">10658</span>.0     <span class="m">99</span>.8      <span class="k">return</span> recur_sum_helper<span class="o">(</span>r_arr1, r_arr2<span class="o">)[</span>::-1<span class="o">]</span>
 
 <span class="nv">$$$$</span> ./read_ll.py ll_recur_sum_helper_918
 Timer unit: 1e-06 s
 
-Total <span class="nb">time</span>: 0.034118 s
+Total time: <span class="m">0</span>.034118 s
 File: sum_ints_as_arrays.py
-Function: recur_sum_helper at line 52
+Function: recur_sum_helper at line <span class="m">52</span>
 
-Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</span>
+Line <span class="c1">#      Hits         Time  Per Hit   % Time  Line Contents</span>
 <span class="o">==============================================================</span>
-    <span class="m">52</span>                                           def recur_sum_helper<span class="o">(</span>arr1, arr2, <span class="nv">idx</span><span class="o">=</span>0, <span class="nv">res</span><span class="o">=[]</span>, <span class="nv">carry</span><span class="o">=</span>0<span class="o">)</span>:
-    <span class="m">53</span>       <span class="m">919</span>          <span class="m">472</span>      0.5      1.4      <span class="k">if</span> not res:
-    <span class="m">54</span>         <span class="m">1</span>            <span class="m">3</span>      3.0      0.0          <span class="nv">res</span> <span class="o">=</span> list<span class="o">()</span>
-    <span class="m">55</span>       <span class="m">919</span>          <span class="m">892</span>      1.0      2.6      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span> and idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
-    <span class="m">56</span>         <span class="m">1</span>            <span class="m">0</span>      0.0      0.0          <span class="k">if</span> <span class="nv">carry</span> <span class="o">==</span> 1:
-    <span class="m">57</span>         <span class="m">1</span>            <span class="m">1</span>      1.0      0.0              res.append<span class="o">(</span>1<span class="o">)</span>
-    <span class="m">58</span>         <span class="m">1</span>            <span class="m">1</span>      1.0      0.0          <span class="k">return</span> res
-    <span class="m">59</span>       <span class="m">918</span>          <span class="m">763</span>      0.8      2.2      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span>:
-    <span class="m">60</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr2<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
+    <span class="m">52</span>                                           def recur_sum_helper<span class="o">(</span>arr1, arr2, <span class="nv">idx</span><span class="o">=</span><span class="m">0</span>, <span class="nv">res</span><span class="o">=[]</span>, <span class="nv">carry</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>:
+    <span class="m">53</span>       <span class="m">919</span>          <span class="m">472</span>      <span class="m">0</span>.5      <span class="m">1</span>.4      <span class="k">if</span> not res:
+    <span class="m">54</span>         <span class="m">1</span>            <span class="m">3</span>      <span class="m">3</span>.0      <span class="m">0</span>.0          <span class="nv">res</span> <span class="o">=</span> list<span class="o">()</span>
+    <span class="m">55</span>       <span class="m">919</span>          <span class="m">892</span>      <span class="m">1</span>.0      <span class="m">2</span>.6      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span> and idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
+    <span class="m">56</span>         <span class="m">1</span>            <span class="m">0</span>      <span class="m">0</span>.0      <span class="m">0</span>.0          <span class="k">if</span> <span class="nv">carry</span> <span class="o">==</span> <span class="m">1</span>:
+    <span class="m">57</span>         <span class="m">1</span>            <span class="m">1</span>      <span class="m">1</span>.0      <span class="m">0</span>.0              res.append<span class="o">(</span><span class="m">1</span><span class="o">)</span>
+    <span class="m">58</span>         <span class="m">1</span>            <span class="m">1</span>      <span class="m">1</span>.0      <span class="m">0</span>.0          <span class="k">return</span> res
+    <span class="m">59</span>       <span class="m">918</span>          <span class="m">763</span>      <span class="m">0</span>.8      <span class="m">2</span>.2      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span>:
+    <span class="m">60</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr2<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
     <span class="m">61</span>                                                   res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">62</span>                                                   idx +<span class="o">=</span> 1
+    <span class="m">62</span>                                                   <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
     <span class="m">63</span>                                                   <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
-    <span class="m">64</span>       <span class="m">918</span>          <span class="m">776</span>      0.8      2.3      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
-    <span class="m">65</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
+    <span class="m">64</span>       <span class="m">918</span>          <span class="m">776</span>      <span class="m">0</span>.8      <span class="m">2</span>.3      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
+    <span class="m">65</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
     <span class="m">66</span>                                                   res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">67</span>                                                   idx +<span class="o">=</span> 1
+    <span class="m">67</span>                                                   <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
     <span class="m">68</span>                                                   <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
     <span class="m">69</span>                                           
-    <span class="m">70</span>       <span class="m">918</span>         <span class="m">1062</span>      1.2      3.1      carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span> + arr2<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
-    <span class="m">71</span>       <span class="m">918</span>          <span class="m">814</span>      0.9      2.4      res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">72</span>       <span class="m">918</span>          <span class="m">542</span>      0.6      1.6      idx +<span class="o">=</span> 1
-    <span class="m">73</span>       <span class="m">918</span>        <span class="m">28792</span>     31.4     84.4      <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
+    <span class="m">70</span>       <span class="m">918</span>         <span class="m">1062</span>      <span class="m">1</span>.2      <span class="m">3</span>.1      carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span> + arr2<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
+    <span class="m">71</span>       <span class="m">918</span>          <span class="m">814</span>      <span class="m">0</span>.9      <span class="m">2</span>.4      res.append<span class="o">(</span>item_to_add<span class="o">)</span>
+    <span class="m">72</span>       <span class="m">918</span>          <span class="m">542</span>      <span class="m">0</span>.6      <span class="m">1</span>.6      <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
+    <span class="m">73</span>       <span class="m">918</span>        <span class="m">28792</span>     <span class="m">31</span>.4     <span class="m">84</span>.4      <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
 
-Total <span class="nb">time</span>: 0.038265 s
+Total time: <span class="m">0</span>.038265 s
 File: sum_ints_as_arrays.py
-Function: recur_sum at line 119
+Function: recur_sum at line <span class="m">119</span>
 
-Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</span>
+Line <span class="c1">#      Hits         Time  Per Hit   % Time  Line Contents</span>
 <span class="o">==============================================================</span>
    <span class="m">119</span>                                           @timeit
    <span class="m">120</span>                                           def recur_sum<span class="o">(</span>arr1, arr2<span class="o">)</span>:
-   <span class="m">121</span>         <span class="m">1</span>           <span class="m">11</span>     11.0      0.0      <span class="nv">r_arr1</span> <span class="o">=</span> arr1<span class="o">[</span>::-1<span class="o">]</span>
-   <span class="m">122</span>         <span class="m">1</span>            <span class="m">6</span>      6.0      0.0      <span class="nv">r_arr2</span> <span class="o">=</span> arr2<span class="o">[</span>::-1<span class="o">]</span>
-   <span class="m">123</span>         <span class="m">1</span>        <span class="m">38248</span>  38248.0    100.0      <span class="k">return</span> recur_sum_helper<span class="o">(</span>r_arr1, r_arr2<span class="o">)[</span>::-1<span class="o">]</span>
+   <span class="m">121</span>         <span class="m">1</span>           <span class="m">11</span>     <span class="m">11</span>.0      <span class="m">0</span>.0      <span class="nv">r_arr1</span> <span class="o">=</span> arr1<span class="o">[</span>::-1<span class="o">]</span>
+   <span class="m">122</span>         <span class="m">1</span>            <span class="m">6</span>      <span class="m">6</span>.0      <span class="m">0</span>.0      <span class="nv">r_arr2</span> <span class="o">=</span> arr2<span class="o">[</span>::-1<span class="o">]</span>
+   <span class="m">123</span>         <span class="m">1</span>        <span class="m">38248</span>  <span class="m">38248</span>.0    <span class="m">100</span>.0      <span class="k">return</span> recur_sum_helper<span class="o">(</span>r_arr1, r_arr2<span class="o">)[</span>::-1<span class="o">]</span>
 
 <span class="nv">$$$$</span> ./read_ll.py ll_recur_sum_helper_919
 Timer unit: 1e-06 s
 
-Total <span class="nb">time</span>: 0.006544 s
+Total time: <span class="m">0</span>.006544 s
 File: sum_ints_as_arrays.py
-Function: recur_sum_helper at line 52
+Function: recur_sum_helper at line <span class="m">52</span>
 
-Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</span>
+Line <span class="c1">#      Hits         Time  Per Hit   % Time  Line Contents</span>
 <span class="o">==============================================================</span>
-    <span class="m">52</span>                                           def recur_sum_helper<span class="o">(</span>arr1, arr2, <span class="nv">idx</span><span class="o">=</span>0, <span class="nv">res</span><span class="o">=[]</span>, <span class="nv">carry</span><span class="o">=</span>0<span class="o">)</span>:
-    <span class="m">53</span>       <span class="m">920</span>          <span class="m">495</span>      0.5      7.6      <span class="k">if</span> not res:
-    <span class="m">54</span>         <span class="m">1</span>            <span class="m">2</span>      2.0      0.0          <span class="nv">res</span> <span class="o">=</span> list<span class="o">()</span>
-    <span class="m">55</span>       <span class="m">920</span>          <span class="m">936</span>      1.0     14.3      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span> and idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
-    <span class="m">56</span>         <span class="m">1</span>            <span class="m">0</span>      0.0      0.0          <span class="k">if</span> <span class="nv">carry</span> <span class="o">==</span> 1:
-    <span class="m">57</span>         <span class="m">1</span>            <span class="m">1</span>      1.0      0.0              res.append<span class="o">(</span>1<span class="o">)</span>
-    <span class="m">58</span>         <span class="m">1</span>            <span class="m">0</span>      0.0      0.0          <span class="k">return</span> res
-    <span class="m">59</span>       <span class="m">919</span>          <span class="m">788</span>      0.9     12.0      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span>:
-    <span class="m">60</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr2<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
+    <span class="m">52</span>                                           def recur_sum_helper<span class="o">(</span>arr1, arr2, <span class="nv">idx</span><span class="o">=</span><span class="m">0</span>, <span class="nv">res</span><span class="o">=[]</span>, <span class="nv">carry</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>:
+    <span class="m">53</span>       <span class="m">920</span>          <span class="m">495</span>      <span class="m">0</span>.5      <span class="m">7</span>.6      <span class="k">if</span> not res:
+    <span class="m">54</span>         <span class="m">1</span>            <span class="m">2</span>      <span class="m">2</span>.0      <span class="m">0</span>.0          <span class="nv">res</span> <span class="o">=</span> list<span class="o">()</span>
+    <span class="m">55</span>       <span class="m">920</span>          <span class="m">936</span>      <span class="m">1</span>.0     <span class="m">14</span>.3      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span> and idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
+    <span class="m">56</span>         <span class="m">1</span>            <span class="m">0</span>      <span class="m">0</span>.0      <span class="m">0</span>.0          <span class="k">if</span> <span class="nv">carry</span> <span class="o">==</span> <span class="m">1</span>:
+    <span class="m">57</span>         <span class="m">1</span>            <span class="m">1</span>      <span class="m">1</span>.0      <span class="m">0</span>.0              res.append<span class="o">(</span><span class="m">1</span><span class="o">)</span>
+    <span class="m">58</span>         <span class="m">1</span>            <span class="m">0</span>      <span class="m">0</span>.0      <span class="m">0</span>.0          <span class="k">return</span> res
+    <span class="m">59</span>       <span class="m">919</span>          <span class="m">788</span>      <span class="m">0</span>.9     <span class="m">12</span>.0      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr1<span class="o">)</span>:
+    <span class="m">60</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr2<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
     <span class="m">61</span>                                                   res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">62</span>                                                   idx +<span class="o">=</span> 1
+    <span class="m">62</span>                                                   <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
     <span class="m">63</span>                                                   <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
-    <span class="m">64</span>       <span class="m">919</span>          <span class="m">785</span>      0.9     12.0      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
-    <span class="m">65</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
+    <span class="m">64</span>       <span class="m">919</span>          <span class="m">785</span>      <span class="m">0</span>.9     <span class="m">12</span>.0      <span class="k">if</span> idx &gt;<span class="o">=</span> len<span class="o">(</span>arr2<span class="o">)</span>:
+    <span class="m">65</span>                                                   carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
     <span class="m">66</span>                                                   res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">67</span>                                                   idx +<span class="o">=</span> 1
+    <span class="m">67</span>                                                   <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
     <span class="m">68</span>                                                   <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
     <span class="m">69</span>                                           
-    <span class="m">70</span>       <span class="m">919</span>         <span class="m">1107</span>      1.2     16.9      carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span> + arr2<span class="o">[</span>idx<span class="o">]</span>, 10<span class="o">)</span>
-    <span class="m">71</span>       <span class="m">919</span>          <span class="m">827</span>      0.9     12.6      res.append<span class="o">(</span>item_to_add<span class="o">)</span>
-    <span class="m">72</span>       <span class="m">919</span>          <span class="m">532</span>      0.6      8.1      idx +<span class="o">=</span> 1
-    <span class="m">73</span>       <span class="m">919</span>         <span class="m">1071</span>      1.2     16.4      <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
+    <span class="m">70</span>       <span class="m">919</span>         <span class="m">1107</span>      <span class="m">1</span>.2     <span class="m">16</span>.9      carry, <span class="nv">item_to_add</span> <span class="o">=</span> divmod<span class="o">(</span>carry + arr1<span class="o">[</span>idx<span class="o">]</span> + arr2<span class="o">[</span>idx<span class="o">]</span>, <span class="m">10</span><span class="o">)</span>
+    <span class="m">71</span>       <span class="m">919</span>          <span class="m">827</span>      <span class="m">0</span>.9     <span class="m">12</span>.6      res.append<span class="o">(</span>item_to_add<span class="o">)</span>
+    <span class="m">72</span>       <span class="m">919</span>          <span class="m">532</span>      <span class="m">0</span>.6      <span class="m">8</span>.1      <span class="nv">idx</span> <span class="o">+=</span> <span class="m">1</span>
+    <span class="m">73</span>       <span class="m">919</span>         <span class="m">1071</span>      <span class="m">1</span>.2     <span class="m">16</span>.4      <span class="k">return</span> recur_sum_helper<span class="o">(</span>arr1, arr2, idx, res, carry<span class="o">)</span>
 
-Total <span class="nb">time</span>: 0.010754 s
+Total time: <span class="m">0</span>.010754 s
 File: sum_ints_as_arrays.py
-Function: recur_sum at line 119
+Function: recur_sum at line <span class="m">119</span>
 
-Line <span class="c">#      Hits         Time  Per Hit   % Time  Line Contents</span>
+Line <span class="c1">#      Hits         Time  Per Hit   % Time  Line Contents</span>
 <span class="o">==============================================================</span>
    <span class="m">119</span>                                           @timeit
    <span class="m">120</span>                                           def recur_sum<span class="o">(</span>arr1, arr2<span class="o">)</span>:
-   <span class="m">121</span>         <span class="m">1</span>           <span class="m">11</span>     11.0      0.1      <span class="nv">r_arr1</span> <span class="o">=</span> arr1<span class="o">[</span>::-1<span class="o">]</span>
-   <span class="m">122</span>         <span class="m">1</span>            <span class="m">6</span>      6.0      0.1      <span class="nv">r_arr2</span> <span class="o">=</span> arr2<span class="o">[</span>::-1<span class="o">]</span>
-   <span class="m">123</span>         <span class="m">1</span>        <span class="m">10737</span>  10737.0     99.8      <span class="k">return</span> recur_sum_helper<span class="o">(</span>r_arr1, r_arr2<span class="o">)[</span>::-1<span class="o">]</span>
+   <span class="m">121</span>         <span class="m">1</span>           <span class="m">11</span>     <span class="m">11</span>.0      <span class="m">0</span>.1      <span class="nv">r_arr1</span> <span class="o">=</span> arr1<span class="o">[</span>::-1<span class="o">]</span>
+   <span class="m">122</span>         <span class="m">1</span>            <span class="m">6</span>      <span class="m">6</span>.0      <span class="m">0</span>.1      <span class="nv">r_arr2</span> <span class="o">=</span> arr2<span class="o">[</span>::-1<span class="o">]</span>
+   <span class="m">123</span>         <span class="m">1</span>        <span class="m">10737</span>  <span class="m">10737</span>.0     <span class="m">99</span>.8      <span class="k">return</span> recur_sum_helper<span class="o">(</span>r_arr1, r_arr2<span class="o">)[</span>::-1<span class="o">]</span>
 </pre></div>
 
 

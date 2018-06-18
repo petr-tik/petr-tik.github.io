@@ -33,7 +33,6 @@
                         <hgroup>
                             <h1 class="brand-main"><a href="">My blog</a></h1>
                             <p class="tagline"></p>
-                                <p class="links"><a href="/pages/about">About</a></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
                                         <i class="fa fa-GitHub fa-3x"></i>
@@ -62,7 +61,7 @@
             <p>In this series of posts, I investigate and report Emacs start-up procedure and how to optimise it. Emacs is a beautiful OS with a built-in ELisp interpreter and some text editing capabilities. </p>
 <p>I used strace by examining the start up of emacs. <a href="https://github.com/petr-tik/emacs-config">My emacs config is different</a> and will be compared to a vanilla emacs start-up. For each syscall I investigated and summarised return values, their frequency to find out how I can improve it. </p>
 <p>I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table.</p>
-<div class="highlight"><pre>strace -C -o emacs_strace_output emacs
+<div class="highlight"><pre><span></span>strace -C -o emacs_strace_output emacs
 </pre></div>
 
 
@@ -70,19 +69,19 @@
 <p>I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.</p>
 <h2>Top 10 by time</h2>
 <p>From the <code>man strace | grep -A 4 sort</code> page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and awk magic.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> tail -n <span class="m">69</span> emacs_strace_output <span class="p">|</span> head -n 12
-% <span class="nb">time     </span>seconds  usecs/call     calls    errors syscall
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> tail -n <span class="m">69</span> emacs_strace_output <span class="p">|</span> head -n <span class="m">12</span>
+% <span class="nb">time</span>     seconds  usecs/call     calls    errors syscall
 ------ ----------- ----------- --------- --------- ----------------
- 27.05    0.000109           <span class="m">0</span>     <span class="m">18973</span>     <span class="m">17979</span> open
- 23.33    0.000094           <span class="m">0</span>      <span class="m">5192</span>      <span class="m">3609</span> recvmsg
- 15.88    0.000064           <span class="m">0</span>      <span class="m">2432</span>           munmap
- 13.65    0.000055           <span class="m">0</span>      <span class="m">3179</span>           poll
-  8.44    0.000034           <span class="m">0</span>      <span class="m">3208</span>         <span class="m">1</span> <span class="nb">read</span>
-<span class="nb">  </span>6.45    0.000026           <span class="m">0</span>      <span class="m">1610</span>           writev
-  2.73    0.000011           <span class="m">0</span>      <span class="m">5127</span>           lseek
-  2.48    0.000010           <span class="m">0</span>      <span class="m">1005</span>           close
-  0.00    0.000000           <span class="m">0</span>        <span class="m">14</span>           write
-  0.00    0.000000           <span class="m">0</span>       <span class="m">605</span>       <span class="m">119</span> stat
+ <span class="m">27</span>.05    <span class="m">0</span>.000109           <span class="m">0</span>     <span class="m">18973</span>     <span class="m">17979</span> open
+ <span class="m">23</span>.33    <span class="m">0</span>.000094           <span class="m">0</span>      <span class="m">5192</span>      <span class="m">3609</span> recvmsg
+ <span class="m">15</span>.88    <span class="m">0</span>.000064           <span class="m">0</span>      <span class="m">2432</span>           munmap
+ <span class="m">13</span>.65    <span class="m">0</span>.000055           <span class="m">0</span>      <span class="m">3179</span>           poll
+  <span class="m">8</span>.44    <span class="m">0</span>.000034           <span class="m">0</span>      <span class="m">3208</span>         <span class="m">1</span> <span class="nb">read</span>
+  <span class="m">6</span>.45    <span class="m">0</span>.000026           <span class="m">0</span>      <span class="m">1610</span>           writev
+  <span class="m">2</span>.73    <span class="m">0</span>.000011           <span class="m">0</span>      <span class="m">5127</span>           lseek
+  <span class="m">2</span>.48    <span class="m">0</span>.000010           <span class="m">0</span>      <span class="m">1005</span>           close
+  <span class="m">0</span>.00    <span class="m">0</span>.000000           <span class="m">0</span>        <span class="m">14</span>           write
+  <span class="m">0</span>.00    <span class="m">0</span>.000000           <span class="m">0</span>       <span class="m">605</span>       <span class="m">119</span> stat
 </pre></div>
 
 
@@ -91,15 +90,15 @@
 <p>Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order. </p>
 <h4>Errors:</h4>
 <p>Used the magic of grep and awk to extract, count and summarise the number of times each return value (including errors) occured.</p>
-<div class="highlight"><pre>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span></span>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 </pre></div>
 
 
 <p><code>grep "open(" emacs_strace_output</code>- returns the lines with open syscall trace. "^open(" guarantees that we only examine lines starting with "open"</p>
 <p><code>awk 'BEGIN { FS=")"} { print $2 }'</code></p>
 <p>Takes the lines and prints column 2 after the ")" separator, which comes at the end of the open syscall. Return values come in different formats</p>
-<div class="highlight"><pre> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
- 8
+<div class="highlight"><pre><span></span> -1 ENOENT <span class="o">(</span>No such file or directory<span class="o">)</span>
+ <span class="m">8</span>
 </pre></div>
 
 
@@ -107,27 +106,27 @@
 <p><code>awk '{ print $2}'</code> - which uses the default field separator " " and prints the second column, which will be the return value.</p>
 <p>Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts. </p>
 <p>Below is the end bash one-liner and the resulting table.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;count   ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^open(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;)&quot; } { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 count   ret_val
   <span class="m">17979</span> -1
-    <span class="m">624</span> 7
-    <span class="m">131</span> 8
-     <span class="m">86</span> 3
-     <span class="m">83</span> 9
-     <span class="m">20</span> 6
-     <span class="m">15</span> 4
-     <span class="m">11</span> 11
-     <span class="m">10</span> 5
-      <span class="m">6</span> 10
-      <span class="m">5</span> 14
-      <span class="m">2</span> 12
-      <span class="m">1</span> 13
+    <span class="m">624</span> <span class="m">7</span>
+    <span class="m">131</span> <span class="m">8</span>
+     <span class="m">86</span> <span class="m">3</span>
+     <span class="m">83</span> <span class="m">9</span>
+     <span class="m">20</span> <span class="m">6</span>
+     <span class="m">15</span> <span class="m">4</span>
+     <span class="m">11</span> <span class="m">11</span>
+     <span class="m">10</span> <span class="m">5</span>
+      <span class="m">6</span> <span class="m">10</span>
+      <span class="m">5</span> <span class="m">14</span>
+      <span class="m">2</span> <span class="m">12</span>
+      <span class="m">1</span> <span class="m">13</span>
 </pre></div>
 
 
 <p>As seen in the summary, 17979 open syscalls returned the error value -1, which stands for ENOINT - no such file or directory. Judging by the greatest return value, not more than 14 files are open simultaneously during the start-up process. 18973 - 17979 = 994 and there are 1005 succesful <code>close</code> syscalls, so 11 times an fd must have been closed and reused. </p>
 <p>Looking at each open syscall with return value 7. </p>
-<div class="highlight"><pre><span class="nv">$$$ </span>grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\&quot;| &quot; } { print $2,$6 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot; 7&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $1 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span></span><span class="nv">$$</span>$ grep <span class="s2">&quot;^open&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\&quot;| &quot; } { print $2,$6 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot; 7&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;{ print $1 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
      <span class="m">23</span> /usr/share/icons/default/index.theme
      <span class="m">12</span> /home/petr_tik/.emacs.d/elpa/dash-20161121.55/dash-autoloads.el
       <span class="m">8</span> /home/petr_tik/.emacs.d/elpa/s-20140714.707/s-autoloads.el
@@ -141,23 +140,23 @@ count   ret_val
 
 <p>shows that several files are repeatedly opened on the same file descriptor. </p>
 <p>Looking at the usr/share/icons/default/index.theme</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep -n <span class="s2">&quot;usr/share/icons/default/index.theme&quot;</span> emacs_strace_output 
-1530:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
-3412:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 7
-3446:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 7
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep -n <span class="s2">&quot;usr/share/icons/default/index.theme&quot;</span> emacs_strace_output 
+<span class="m">1530</span>:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> <span class="m">6</span>
+<span class="m">3412</span>:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> <span class="m">7</span>
+<span class="m">3446</span>:open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> <span class="m">7</span>
     ...
     more filespaths
 </pre></div>
 
 
 <p>we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, out of which we will need the last 20). </p>
-<div class="highlight"><pre><span class="nv">$$$ </span>head -n <span class="m">1535</span> emacs_strace_output <span class="p">|</span> tail -n 6
-open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> 6
-fstat<span class="o">(</span>6, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>32, ...<span class="o">})</span> <span class="o">=</span> 0
-mmap<span class="o">(</span>NULL, 4096, PROT_READ<span class="p">|</span>PROT_WRITE, MAP_PRIVATE<span class="p">|</span>MAP_ANONYMOUS, -1, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
-<span class="nb">read</span><span class="o">(</span>6, <span class="s2">&quot;[Icon Theme]\nInherits=DMZ-White\n&quot;</span>, 4096<span class="o">)</span> <span class="o">=</span> 32
-close<span class="o">(</span>6<span class="o">)</span>                                <span class="o">=</span> 0
-munmap<span class="o">(</span>0x7f24722d7000, 4096<span class="o">)</span>            <span class="o">=</span> 0
+<div class="highlight"><pre><span></span><span class="nv">$$</span>$ head -n <span class="m">1535</span> emacs_strace_output <span class="p">|</span> tail -n <span class="m">6</span>
+open<span class="o">(</span><span class="s2">&quot;/usr/share/icons/default/index.theme&quot;</span>, O_RDONLY<span class="o">)</span> <span class="o">=</span> <span class="m">6</span>
+fstat<span class="o">(</span><span class="m">6</span>, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span><span class="m">0644</span>, <span class="nv">st_size</span><span class="o">=</span><span class="m">32</span>, ...<span class="o">})</span> <span class="o">=</span> <span class="m">0</span>
+mmap<span class="o">(</span>NULL, <span class="m">4096</span>, PROT_READ<span class="p">|</span>PROT_WRITE, MAP_PRIVATE<span class="p">|</span>MAP_ANONYMOUS, -1, <span class="m">0</span><span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
+read<span class="o">(</span><span class="m">6</span>, <span class="s2">&quot;[Icon Theme]\nInherits=DMZ-White\n&quot;</span>, <span class="m">4096</span><span class="o">)</span> <span class="o">=</span> <span class="m">32</span>
+close<span class="o">(</span><span class="m">6</span><span class="o">)</span>                                <span class="o">=</span> <span class="m">0</span>
+munmap<span class="o">(</span>0x7f24722d7000, <span class="m">4096</span><span class="o">)</span>            <span class="o">=</span> <span class="m">0</span>
 </pre></div>
 
 
@@ -167,40 +166,40 @@ munmap<span class="o">(</span>0x7f24722d7000, 4096<span class="o">)</span>      
 <p>Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
 <p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments. </p>
 <h4>Errors:</h4>
-<div class="highlight"><pre><span class="nv">$$$ </span><span class="nb">echo</span> <span class="s2">&quot;freq    ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;) &quot;} { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39; { print $2 } &#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span></span><span class="nv">$$</span>$ <span class="nb">echo</span> <span class="s2">&quot;freq    ret_val&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;) &quot;} { print $2 }&#39;</span> <span class="p">|</span> awk <span class="s1">&#39; { print $2 } &#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 freq    ret_val
    <span class="m">3609</span> -1
-   <span class="m">1369</span> 32
-     <span class="m">97</span> 224
-     <span class="m">44</span> 48
-     <span class="m">17</span> 64
-     <span class="m">17</span> 40
-      <span class="m">8</span> 96
-      <span class="m">5</span> 36
-      <span class="m">4</span> 128
-      <span class="m">3</span> 4096
-      <span class="m">3</span> 1360
-      <span class="m">2</span> 76
-      <span class="m">2</span> 160
-      <span class="m">1</span> 896
-      <span class="m">1</span> 832
-      <span class="m">1</span> 56
-      <span class="m">1</span> 336
-      <span class="m">1</span> 3348
-      <span class="m">1</span> 3316
-      <span class="m">1</span> 268
-      <span class="m">1</span> 256
-      <span class="m">1</span> 208
-      <span class="m">1</span> 1948
-      <span class="m">1</span> 1236
-      <span class="m">1</span> 1188
+   <span class="m">1369</span> <span class="m">32</span>
+     <span class="m">97</span> <span class="m">224</span>
+     <span class="m">44</span> <span class="m">48</span>
+     <span class="m">17</span> <span class="m">64</span>
+     <span class="m">17</span> <span class="m">40</span>
+      <span class="m">8</span> <span class="m">96</span>
+      <span class="m">5</span> <span class="m">36</span>
+      <span class="m">4</span> <span class="m">128</span>
+      <span class="m">3</span> <span class="m">4096</span>
+      <span class="m">3</span> <span class="m">1360</span>
+      <span class="m">2</span> <span class="m">76</span>
+      <span class="m">2</span> <span class="m">160</span>
+      <span class="m">1</span> <span class="m">896</span>
+      <span class="m">1</span> <span class="m">832</span>
+      <span class="m">1</span> <span class="m">56</span>
+      <span class="m">1</span> <span class="m">336</span>
+      <span class="m">1</span> <span class="m">3348</span>
+      <span class="m">1</span> <span class="m">3316</span>
+      <span class="m">1</span> <span class="m">268</span>
+      <span class="m">1</span> <span class="m">256</span>
+      <span class="m">1</span> <span class="m">208</span>
+      <span class="m">1</span> <span class="m">1948</span>
+      <span class="m">1</span> <span class="m">1236</span>
+      <span class="m">1</span> <span class="m">1188</span>
 </pre></div>
 
 
 <p>The number of -1 matches the one 3609 in the summary table confirming that the bash oneliner was correct. The return value is usually the number of bytes read from the socket, which we can expect to be a power of 2. </p>
-<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq socket_descriptor&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot;= -1&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\\\\(+|,+&quot; } { print $2 }&#39;</span> <span class="p">|</span> uniq -c
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq socket_descriptor&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^recvmsg(&quot;</span> emacs_strace_output <span class="p">|</span> grep -v <span class="s2">&quot;= -1&quot;</span> <span class="p">|</span> awk <span class="s1">&#39;BEGIN { FS=&quot;\\\\(+|,+&quot; } { print $2 }&#39;</span> <span class="p">|</span> uniq -c
    freq socket_descriptor
-   <span class="m">1583</span> 5
+   <span class="m">1583</span> <span class="m">5</span>
 </pre></div>
 
 
@@ -216,7 +215,7 @@ freq    ret_val
 <p>mmap - takes more parameters like flags and protection flags, which determine the access rights to those pages. </p>
 <p>Examining output. No errors, just invocation patterns. </p>
 <h5>bash command</h5>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
 </pre></div>
 
 
@@ -228,46 +227,46 @@ freq    ret_val
 <li>count each uniq value and return a table of counts</li>
 <li>sort the table in descending order</li>
 </ol>
-<div class="highlight"><pre><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq  size_t&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> <span class="nb">echo</span> <span class="s2">&quot;   freq  size_t&quot;</span><span class="p">;</span> grep <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;,|\\\\)&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr
    freq  size_t
-   <span class="m">2067</span>  69632
-    <span class="m">265</span>  4096
-     <span class="m">84</span>  790528
-      <span class="m">5</span>  117548
-      <span class="m">2</span>  565248
-      <span class="m">2</span>  245760
-      <span class="m">2</span>  2339
-      <span class="m">1</span>  99000
-      <span class="m">1</span>  606208
-      <span class="m">1</span>  475136
-      <span class="m">1</span>  424408
-      <span class="m">1</span>  122880
+   <span class="m">2067</span>  <span class="m">69632</span>
+    <span class="m">265</span>  <span class="m">4096</span>
+     <span class="m">84</span>  <span class="m">790528</span>
+      <span class="m">5</span>  <span class="m">117548</span>
+      <span class="m">2</span>  <span class="m">565248</span>
+      <span class="m">2</span>  <span class="m">245760</span>
+      <span class="m">2</span>  <span class="m">2339</span>
+      <span class="m">1</span>  <span class="m">99000</span>
+      <span class="m">1</span>  <span class="m">606208</span>
+      <span class="m">1</span>  <span class="m">475136</span>
+      <span class="m">1</span>  <span class="m">424408</span>
+      <span class="m">1</span>  <span class="m">122880</span>
 </pre></div>
 
 
 <p>Funny values of size_t. I found 2339 an interesting value for size_t and deciding to dig into it. </p>
-<div class="highlight"><pre>grep -n <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> grep <span class="s2">&quot;, 2339&quot;</span>
-1016:munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
-1023:munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
+<div class="highlight"><pre><span></span>grep -n <span class="s2">&quot;^munmap(&quot;</span> emacs_strace_output <span class="p">|</span> grep <span class="s2">&quot;, 2339&quot;</span>
+<span class="m">1016</span>:munmap<span class="o">(</span>0x7f24722d7000, <span class="m">2339</span><span class="o">)</span>            <span class="o">=</span> <span class="m">0</span>
+<span class="m">1023</span>:munmap<span class="o">(</span>0x7f24722d7000, <span class="m">2339</span><span class="o">)</span>            <span class="o">=</span> <span class="m">0</span>
 </pre></div>
 
 
 <p>returns the matched lines with the line number from the original strace_file. So I made a head and tail pipe, which opens the relevant region of the strace output. <a href="https://www.youtube.com/watch?v=Zk5Il6KQrd8">oh that's a bingo!</a> - it happens to be the region, when /etc/passwd was opened. </p>
-<div class="highlight"><pre><span class="nv">$$$$</span> head -n <span class="m">1024</span> emacs_strace_output <span class="p">|</span> tail -n 14
-open<span class="o">(</span><span class="s2">&quot;/etc/passwd&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> 4
-lseek<span class="o">(</span>4, 0, SEEK_CUR<span class="o">)</span>                   <span class="o">=</span> 0
-fstat<span class="o">(</span>4, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>2339, ...<span class="o">})</span> <span class="o">=</span> 0
-mmap<span class="o">(</span>NULL, 2339, PROT_READ, MAP_SHARED, 4, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
-lseek<span class="o">(</span>4, 2339, SEEK_SET<span class="o">)</span>                <span class="o">=</span> 2339
-munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
-close<span class="o">(</span>4<span class="o">)</span>                                <span class="o">=</span> 0
-open<span class="o">(</span><span class="s2">&quot;/etc/passwd&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> 4
-lseek<span class="o">(</span>4, 0, SEEK_CUR<span class="o">)</span>                   <span class="o">=</span> 0
-fstat<span class="o">(</span>4, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span>0644, <span class="nv">st_size</span><span class="o">=</span>2339, ...<span class="o">})</span> <span class="o">=</span> 0
-mmap<span class="o">(</span>NULL, 2339, PROT_READ, MAP_SHARED, 4, 0<span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
-lseek<span class="o">(</span>4, 2339, SEEK_SET<span class="o">)</span>                <span class="o">=</span> 2339
-munmap<span class="o">(</span>0x7f24722d7000, 2339<span class="o">)</span>            <span class="o">=</span> 0
-close<span class="o">(</span>4<span class="o">)</span>                                <span class="o">=</span> 0
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> head -n <span class="m">1024</span> emacs_strace_output <span class="p">|</span> tail -n <span class="m">14</span>
+open<span class="o">(</span><span class="s2">&quot;/etc/passwd&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> <span class="m">4</span>
+lseek<span class="o">(</span><span class="m">4</span>, <span class="m">0</span>, SEEK_CUR<span class="o">)</span>                   <span class="o">=</span> <span class="m">0</span>
+fstat<span class="o">(</span><span class="m">4</span>, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span><span class="m">0644</span>, <span class="nv">st_size</span><span class="o">=</span><span class="m">2339</span>, ...<span class="o">})</span> <span class="o">=</span> <span class="m">0</span>
+mmap<span class="o">(</span>NULL, <span class="m">2339</span>, PROT_READ, MAP_SHARED, <span class="m">4</span>, <span class="m">0</span><span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
+lseek<span class="o">(</span><span class="m">4</span>, <span class="m">2339</span>, SEEK_SET<span class="o">)</span>                <span class="o">=</span> <span class="m">2339</span>
+munmap<span class="o">(</span>0x7f24722d7000, <span class="m">2339</span><span class="o">)</span>            <span class="o">=</span> <span class="m">0</span>
+close<span class="o">(</span><span class="m">4</span><span class="o">)</span>                                <span class="o">=</span> <span class="m">0</span>
+open<span class="o">(</span><span class="s2">&quot;/etc/passwd&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> <span class="m">4</span>
+lseek<span class="o">(</span><span class="m">4</span>, <span class="m">0</span>, SEEK_CUR<span class="o">)</span>                   <span class="o">=</span> <span class="m">0</span>
+fstat<span class="o">(</span><span class="m">4</span>, <span class="o">{</span><span class="nv">st_mode</span><span class="o">=</span>S_IFREG<span class="p">|</span><span class="m">0644</span>, <span class="nv">st_size</span><span class="o">=</span><span class="m">2339</span>, ...<span class="o">})</span> <span class="o">=</span> <span class="m">0</span>
+mmap<span class="o">(</span>NULL, <span class="m">2339</span>, PROT_READ, MAP_SHARED, <span class="m">4</span>, <span class="m">0</span><span class="o">)</span> <span class="o">=</span> 0x7f24722d7000
+lseek<span class="o">(</span><span class="m">4</span>, <span class="m">2339</span>, SEEK_SET<span class="o">)</span>                <span class="o">=</span> <span class="m">2339</span>
+munmap<span class="o">(</span>0x7f24722d7000, <span class="m">2339</span><span class="o">)</span>            <span class="o">=</span> <span class="m">0</span>
+close<span class="o">(</span><span class="m">4</span><span class="o">)</span>                                <span class="o">=</span> <span class="m">0</span>
 </pre></div>
 
 
@@ -282,9 +281,9 @@ close<span class="o">(</span>4<span class="o">)</span>                          
     0 if timed out and/or no fds became ready
     -1 on error</p>
 <h4>Inspecting</h4>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^poll(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot; =&quot;</span> <span class="s1">&#39; { print $2 }&#39;</span> <span class="p">|</span> awk -F<span class="s2">&quot; |=|,&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
-     <span class="m">61</span> 0
-   <span class="m">3118</span> 1
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep <span class="s2">&quot;^poll(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot; =&quot;</span> <span class="s1">&#39; { print $2 }&#39;</span> <span class="p">|</span> awk -F<span class="s2">&quot; |=|,&quot;</span> <span class="s1">&#39;{ print $2 }&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
+     <span class="m">61</span> <span class="m">0</span>
+   <span class="m">3118</span> <span class="m">1</span>
 </pre></div>
 
 
@@ -300,9 +299,9 @@ close<span class="o">(</span>4<span class="o">)</span>                          
     if successfully read - returns int number of read bytes, by which the file position is also advanced. The return value may be less than the count (bytes that were requested to read), if a signal interrupts the syscall or we reach EOF. 
     on error, -1 is set to errno. Unspecified if the file position value changes. </p>
 <p>The only error happens when we try to read from the paredit.elc file descriptor.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep -n <span class="s2">&quot;^open(.* = 7\|^read(.* = -1&quot;</span> emacs_strace_output <span class="p">|</span> tail -n 2
-50481:open<span class="o">(</span><span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/paredit-20140128.1248/paredit.elc&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> 7
-51237:read<span class="o">(</span>7, 0x7fffe3761b80, 16<span class="o">)</span>             <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep -n <span class="s2">&quot;^open(.* = 7\|^read(.* = -1&quot;</span> emacs_strace_output <span class="p">|</span> tail -n <span class="m">2</span>
+<span class="m">50481</span>:open<span class="o">(</span><span class="s2">&quot;/home/petr_tik/.emacs.d/elpa/paredit-20140128.1248/paredit.elc&quot;</span>, O_RDONLY<span class="p">|</span>O_CLOEXEC<span class="o">)</span> <span class="o">=</span> <span class="m">7</span>
+<span class="m">51237</span>:read<span class="o">(</span><span class="m">7</span>, 0x7fffe3761b80, <span class="m">16</span><span class="o">)</span>             <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
 </pre></div>
 
 
@@ -312,8 +311,8 @@ close<span class="o">(</span>4<span class="o">)</span>                          
     number of bytes written.
     -1 if error</p>
 <h4>Inspecting</h4>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^writev(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;\\\\(|,&quot;</span> <span class="s1">&#39; {print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
-   <span class="m">1610</span> 5
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep <span class="s2">&quot;^writev(&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;\\\\(|,&quot;</span> <span class="s1">&#39; {print $2}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c
+   <span class="m">1610</span> <span class="m">5</span>
 </pre></div>
 
 
@@ -337,13 +336,13 @@ close<span class="o">(</span>4<span class="o">)</span>                          
 <p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
 <h4>Errors</h4>
 <p>Confirming that the bash one-liner catches all the errors.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^stat(.* = -1&quot;</span> emacs_strace_output <span class="p">|</span> wc -l
-119
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep <span class="s2">&quot;^stat(.* = -1&quot;</span> emacs_strace_output <span class="p">|</span> wc -l
+<span class="m">119</span>
 </pre></div>
 
 
 <p>Now print the list of pathnames that return errors and the ret_values.</p>
-<div class="highlight"><pre><span class="nv">$$$$</span> grep <span class="s2">&quot;^stat(.* = -&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;\\\\(\&quot;|\&quot;,| =| &quot;</span> <span class="s1">&#39; { print $2, $6 }&#39;</span> <span class="p">|</span> sort
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span> grep <span class="s2">&quot;^stat(.* = -&quot;</span> emacs_strace_output <span class="p">|</span> awk -F<span class="s2">&quot;\\\\(\&quot;|\&quot;,| =| &quot;</span> <span class="s1">&#39; { print $2, $6 }&#39;</span> <span class="p">|</span> sort
 </pre></div>
 
 

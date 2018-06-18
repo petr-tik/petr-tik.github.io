@@ -7,7 +7,7 @@
 
         <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
 
-        <title>Depth-first search and Topological sort // My blog // </title>
+        <title>Learning rust by writing a matching engine // My blog // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -50,20 +50,42 @@
         <div class="content">
             <section class="post">
                 <header class="post-header">
-                    <h1>Depth-first search and Topological sort</h1>
+                    <h1>Learning rust by writing a matching engine</h1>
                         <p class="post-meta">
-                            // under                                 <a class="post-category" href="/tag/algorithms.html">algorithms</a>
-                                <a class="post-category" href="/tag/graphs.html">graphs</a>
+                            // under                                 <a class="post-category" href="/tag/rust.html">rust</a>
                         </p>
                 </header>
             </section>
-            <p>There are 2 main graph traversal algorithms - breadth- and depth- first searches. As the name suggests, they explore as far wide or as deep down (respectively )as possible. While each algorithm has its own uses:</p>
-<ul>
-<li>BFS gives the shortest path (if any exists) between 2 nodes</li>
-<li>DFS can be used for topological sorting, finding cycles in a graph and other applications.</li>
-</ul>
-<h2>DFS</h2>
-<p>The main idea is to explore each child before exploring siblings. </p>
+            <h3>Intro</h3>
+<p>I want to write about the time that I decided to try Rust for myself instead of making fun of people, who tell everyone to re-write everything in Rust. </p>
+<h3>Problem</h3>
+<p>People who know me well can confirm my smugness when discussing Rust and its powerful advocacy in the developer community. I decided to be more open-minded and use the language for a small project, before I continue making fun of it.</p>
+<p>Came across Ludwig Pacifici's order book project, where he implemented a matching engine with interface to add and reduce/remove limit orders and report stats. </p>
+<h3>Matching Engine design</h3>
+<p>Mine is a toy matching engine, for big boy MEs - watch <a href="https://www.youtube.com/watch?v=b1e4t2k2KJY">Brian Nigito's talk</a>. It provides 2 types of input and 1 output. </p>
+<h3>Original design</h3>
+<p>After glancing through the spec, I googled more information about matching engines, found Martin Thompson's advice on optimising the design by combining bids and asks (as negative bids). Implementing a clever design from the start made me excited, so I quickly implemented it. Later I re-read the spec and realised that I need to track and report 2 sides separately and it makes more sense to split them. </p>
+<h3>Conclusion</h3>
+<p>Rust compiler + tooling (racer, completion, documentation) make it easy to become immediately productive. Helpful error messages with detailed explanations of concepts are great. The only minor downside, less related to the language and more to my laziness - the immediate feeling of proficiency with auto-complete gives a false hope that you remember rust APIs and can write anything in it. </p>
+<h2>Benchmark</h2>
+<div class="highlight"><pre><span></span>petr_tik@merluza:~/Coding/order_book/order-book-pricer/src$ <span class="nb">time</span> ../../target/release/order_book <span class="m">200</span> &lt; ../data/pricer.in <span class="p">&amp;</span>&gt; /dev/null 
+
+real    2m41.530s
+user    1m39.293s
+sys 1m2.143s
+petr_tik@merluza:~/Coding/order_book/order-book-pricer/src$ <span class="nb">time</span> ./order-book-pricer <span class="m">200</span> &lt; ../data/pricer.in &gt; /dev/null
+
+real    0m2.552s
+user    0m2.485s
+sys 0m0.065s
+</pre></div>
+
+
+<h3>Future work to do</h3>
+<p>Learn rust idioms to parametrise classes and methods to avoid repetitive boiler plate
+Get better at Error handling inside functions
+Implement unit tests using cargo's well-regarded test suite
+Learn more about the build system and integration testing.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
