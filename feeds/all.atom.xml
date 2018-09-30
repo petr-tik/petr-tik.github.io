@@ -126,7 +126,7 @@ src/core/segment_reader.rs:1
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using. &lt;/p&gt;
+&lt;p&gt;Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using now. &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$$$$&lt;/span&gt; &lt;span class="n"&gt;cargo&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;nightly&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;verbose&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;release&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;no&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;features&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="n"&gt;wasm32&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;unknown&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;unknown&lt;/span&gt;
 
 &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;E0432&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt; &lt;span class="n"&gt;unresolved&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="sb"&gt;`std::collections::range`&lt;/span&gt;                                                                                                                    
@@ -138,16 +138,24 @@ src/core/segment_reader.rs:1
 
 
 &lt;p&gt;I needed to decide if I should investigate how to compile old version of wasm branch, which didn't seem to have memmap issues or go back to my branch based on the most recent release of tantivy. &lt;/p&gt;
+&lt;h2&gt;How hard can it be to compile an old version?&lt;/h2&gt;
 &lt;p&gt;Removing &lt;code&gt;range_query&lt;/code&gt; and associated imports seemed to have helped to compile tantivy to wasm. Although compilation ends successfully, only a binary file is compiled to .wasm file in the target directory.&lt;/p&gt;
 &lt;p&gt;The only .wasm file in the target directory was for a bin package. &lt;/p&gt;
 &lt;h2&gt;Would adding a file with wasm bindings to bin help solve the problem?&lt;/h2&gt;
 &lt;p&gt;I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Photo" src="{attach}images/otter.jpeg"&gt;&lt;/p&gt;
+&lt;p&gt;I was getting tired and decided to try the ot(t|h)er, original method.&lt;/p&gt;
 &lt;h2&gt;Back to current version of tantivy and the wonders of memmap&lt;/h2&gt;
 &lt;p&gt;I have now decided to solve the problem of memmap breaking compilation for wasm. &lt;/p&gt;
-&lt;p&gt;TODO:
-    * Find all dependencies that use memmap.
-    * Find all files that import and use those dependencies. 
-    * Record and trace full call stack of functions called when a query is processed as described in the wasm query function. Use this information to conditionally compile that call stack with fewer imports.&lt;/p&gt;
+&lt;h2&gt;What are the next steps.&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;Find&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt; &lt;span class="n"&gt;dependencies&lt;/span&gt; &lt;span class="n"&gt;that&lt;/span&gt; &lt;span class="n"&gt;use&lt;/span&gt; &lt;span class="n"&gt;memmap&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+
+&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;Find&lt;/span&gt; &lt;span class="nb"&gt;all&lt;/span&gt; &lt;span class="n"&gt;files&lt;/span&gt; &lt;span class="n"&gt;that&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;and&lt;/span&gt; &lt;span class="nn"&gt;use&lt;/span&gt; &lt;span class="nn"&gt;those&lt;/span&gt; &lt;span class="nn"&gt;dependencies.&lt;/span&gt;
+
+&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;Record&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;trace&lt;/span&gt; &lt;span class="n"&gt;full&lt;/span&gt; &lt;span class="n"&gt;call&lt;/span&gt; &lt;span class="n"&gt;stack&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;functions&lt;/span&gt; &lt;span class="n"&gt;called&lt;/span&gt; &lt;span class="n"&gt;when&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="n"&gt;processed&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;described&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;wasm&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt; &lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt; &lt;span class="n"&gt;Use&lt;/span&gt; &lt;span class="n"&gt;this&lt;/span&gt; &lt;span class="n"&gt;information&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;conditionally&lt;/span&gt; &lt;span class="nb"&gt;compile&lt;/span&gt; &lt;span class="n"&gt;that&lt;/span&gt; &lt;span class="n"&gt;call&lt;/span&gt; &lt;span class="n"&gt;stack&lt;/span&gt; &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;fewer&lt;/span&gt; &lt;span class="n"&gt;imports&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;If you have any ideas - give me a shout.&lt;/p&gt;</content><category term="rust"></category><category term="wasm"></category></entry><entry><title>Talebian software development</title><link href="/talebian-software-development.html" rel="alternate"></link><published>2018-03-10T16:20:00+00:00</published><updated>2018-03-10T16:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-03-10:/talebian-software-development.html</id><summary type="html">&lt;p&gt;Philosophical ideas behind development practices&lt;/p&gt;</summary><content type="html">&lt;p&gt;Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices. &lt;/p&gt;
 &lt;h2&gt;Antifragile as chaos engineering, fuzzing and testing&lt;/h2&gt;
 &lt;p&gt;Taleb coins the term antifragile to emphasise a class of organisms and organisations that evolve under external stress. The word is contrasted to fragile and robust, which worsens or remains the same (up to a point) respectivly. Combined with the inability to predict the future, antifragile organisms are those that will improve when subject to unpredictable external stress. Given the second law of thermodynamics (total entropy of a closed system can't decrease), fragile systems are expected to degrade with time, while antifragile systems get stronger. &lt;/p&gt;

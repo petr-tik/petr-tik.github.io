@@ -184,7 +184,7 @@ src/core/segment_reader.rs:1
 </pre></div>
 
 
-<p>Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using. </p>
+<p>Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using now. </p>
 <div class="highlight"><pre><span></span><span class="err">$$$$</span> <span class="n">cargo</span> <span class="o">+</span><span class="n">nightly</span> <span class="n">build</span> <span class="o">--</span><span class="n">verbose</span> <span class="o">--</span><span class="n">release</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">default</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">target</span> <span class="n">wasm32</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">unknown</span>
 
 <span class="n">error</span><span class="p">[</span><span class="n">E0432</span><span class="p">]:</span> <span class="n">unresolved</span> <span class="kn">import</span> <span class="sb">`std::collections::range`</span>                                                                                                                    
@@ -196,16 +196,24 @@ src/core/segment_reader.rs:1
 
 
 <p>I needed to decide if I should investigate how to compile old version of wasm branch, which didn't seem to have memmap issues or go back to my branch based on the most recent release of tantivy. </p>
+<h2>How hard can it be to compile an old version?</h2>
 <p>Removing <code>range_query</code> and associated imports seemed to have helped to compile tantivy to wasm. Although compilation ends successfully, only a binary file is compiled to .wasm file in the target directory.</p>
 <p>The only .wasm file in the target directory was for a bin package. </p>
 <h2>Would adding a file with wasm bindings to bin help solve the problem?</h2>
 <p>I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.</p>
+<p><img alt="Photo" src="{attach}images/otter.jpeg"></p>
+<p>I was getting tired and decided to try the ot(t|h)er, original method.</p>
 <h2>Back to current version of tantivy and the wonders of memmap</h2>
 <p>I have now decided to solve the problem of memmap breaking compilation for wasm. </p>
-<p>TODO:
-    * Find all dependencies that use memmap.
-    * Find all files that import and use those dependencies. 
-    * Record and trace full call stack of functions called when a query is processed as described in the wasm query function. Use this information to conditionally compile that call stack with fewer imports.</p>
+<h2>What are the next steps.</h2>
+<div class="highlight"><pre><span></span><span class="o">*</span> <span class="n">Find</span> <span class="nb">all</span> <span class="n">dependencies</span> <span class="n">that</span> <span class="n">use</span> <span class="n">memmap</span><span class="o">.</span>
+
+<span class="o">*</span> <span class="n">Find</span> <span class="nb">all</span> <span class="n">files</span> <span class="n">that</span> <span class="kn">import</span> <span class="nn">and</span> <span class="nn">use</span> <span class="nn">those</span> <span class="nn">dependencies.</span>
+
+<span class="o">*</span> <span class="n">Record</span> <span class="ow">and</span> <span class="n">trace</span> <span class="n">full</span> <span class="n">call</span> <span class="n">stack</span> <span class="n">of</span> <span class="n">functions</span> <span class="n">called</span> <span class="n">when</span> <span class="n">a</span> <span class="n">query</span> <span class="ow">is</span> <span class="n">processed</span> <span class="k">as</span> <span class="n">described</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">wasm</span> <span class="n">query</span> <span class="n">function</span><span class="o">.</span> <span class="n">Use</span> <span class="n">this</span> <span class="n">information</span> <span class="n">to</span> <span class="n">conditionally</span> <span class="nb">compile</span> <span class="n">that</span> <span class="n">call</span> <span class="n">stack</span> <span class="k">with</span> <span class="n">fewer</span> <span class="n">imports</span><span class="o">.</span>
+</pre></div>
+
+
 <p>If you have any ideas - give me a shout.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
