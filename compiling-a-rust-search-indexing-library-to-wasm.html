@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>Compiling a Rust search indexing library to wasm // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Compiling a Rust search indexing library to wasm</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/rust.html">rust</a>
+                                <a class="post-category" href="/tag/wasm.html">wasm</a>
+                        </p>
+                </header>
+            </section>
+            <p>Since finding the <a href="https://github.com/tantivy-search/tantivy/">tantivy searching/indexing library</a>, I thought it would be cool to make it available for the browser. The rust-wasm WG is working on tooling, which makes hugely simplifies solving this problem.</p>
+<h2>Intended design of tantivy</h2>
+<p>I want to make it possible to compile tantivy:
+    1. As a wasm library to ship to the browser
+    2. As the usual server-side indexer + serialiser</p>
+<h3>wasm library</h3>
+<p>Will load and deserialise the index from a binary file sent to the browser. After an index is instantiated, wasm will process recieve queries from javascript, process them using the index loaded earlier and return results back to javascript to present to the user.</p>
+<h3>Indexer + serialiser</h3>
+<p>The indexer will remain same as before. When indexing is over, walk over the index directory and build a binary file.</p>
+<h3>Advantages of this design</h3>
+<p>Sharing code, testing and building the same library, so we can guarantee that an index built and serialised on the server will be deserialised and give the same results in the client.</p>
+<h3>Disadvantages</h3>
+<p>Compiling for wasm is hard, because it requires that all dependencies and their dependencies (recursively) can compile to wasm. The library is most likely going to take a lot of space on disk.</p>
+<h2>Other design aims</h2>
+<p>Use cargo and conditional compilation to the max to find efficiency gains and minimise both server- and wasm library size.</p>
+<h1>Sunday afternoon debugging session</h1>
+<p>Below is the description of my Sunday afternoon spent trying to build tantivy for the wasm target. First Current version of tantivy, then an exploration of Paul's previous effort. I found the dependencies, whose dependencies break the compilation for the target. </p>
+<h2>Directory layout</h2>
+<p>Using tantivy library after version 0.7.0, I created a <code>wasm</code> sub-directory in the root directory of <code>tantivy</code>. </p>
+<div class="highlight"><pre><span></span>tantivy<span class="nv">$$</span>$ tree -L <span class="m">1</span> wasm/
+wasm/
+├── Cargo.lock
+├── Cargo.toml
+├── rust-toolchain
+├── src/
+├── target/
+└── wasm-pack.log
+</pre></div>
+
+
+<h3>Why not make a new directory/crate and import tantivy in Cargo?</h3>
+<p>While it might seem easier to create a new project and import tantivy, I expect this work to require changes in the tantivy library, so best keep the directories nested together. </p>
+<h3>I'm bringing s.... StaticDirectory back</h3>
+<p>Paul Maurusel's previous attempt to compile tantivy for wasm included an abstraction called <code>StaticDirectory</code>. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the <code>tantivy</code> library. </p>
+<p>After getting the <code>tantivy</code> library to compile for normal target with StaticDirectory, I went to the <code>wasm/</code> directory to compile the release version for wasm32 using nightly version of the compiler.</p>
+<div class="highlight"><pre><span></span><span class="nb">cd</span> wasm/
+wasm<span class="nv">$$</span>$ /home/petr_tik/.cargo/bin/cargo +nightly build --release --target wasm32-unknown-unknown
+   Compiling memmap v0.6.2
+   Compiling utf8-ranges v1.0.1
+   Compiling safemem v0.3.0
+   Compiling bit-vec v0.5.0
+error<span class="o">[</span>E0433<span class="o">]</span>: failed to resolve. Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:188:9
+    <span class="p">|</span>
+<span class="m">188</span> <span class="p">|</span>         MmapInner::map<span class="o">(</span>self.get_len<span class="o">(</span>file<span class="o">)</span>?, file, self.offset<span class="o">)</span>.map<span class="o">(</span><span class="p">|</span>inner<span class="p">|</span> Mmap <span class="o">{</span> inner: inner <span class="o">})</span>
+    <span class="p">|</span>         ^^^^^^^^^ Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+
+error<span class="o">[</span>E0433<span class="o">]</span>: failed to resolve. Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:198:9
+    <span class="p">|</span>
+<span class="m">198</span> <span class="p">|</span>         MmapInner::map_exec<span class="o">(</span>self.get_len<span class="o">(</span>file<span class="o">)</span>?, file, self.offset<span class="o">)</span>
+    <span class="p">|</span>         ^^^^^^^^^ Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+
+error<span class="o">[</span>E0433<span class="o">]</span>: failed to resolve. Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:237:9
+    <span class="p">|</span>
+<span class="m">237</span> <span class="p">|</span>         MmapInner::map_mut<span class="o">(</span>self.get_len<span class="o">(</span>file<span class="o">)</span>?, file, self.offset<span class="o">)</span>
+    <span class="p">|</span>         ^^^^^^^^^ Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+
+error<span class="o">[</span>E0433<span class="o">]</span>: failed to resolve. Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:267:9
+    <span class="p">|</span>
+<span class="m">267</span> <span class="p">|</span>         MmapInner::map_copy<span class="o">(</span>self.get_len<span class="o">(</span>file<span class="o">)</span>?, file, self.offset<span class="o">)</span>
+    <span class="p">|</span>         ^^^^^^^^^ Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+
+error<span class="o">[</span>E0433<span class="o">]</span>: failed to resolve. Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:280:9
+    <span class="p">|</span>
+<span class="m">280</span> <span class="p">|</span>         MmapInner::map_anon<span class="o">(</span>self.len.unwrap_or<span class="o">(</span><span class="m">0</span><span class="o">)</span>, self.stack<span class="o">)</span>.map<span class="o">(</span><span class="p">|</span>inner<span class="p">|</span> MmapMut <span class="o">{</span> inner: inner <span class="o">})</span>
+    <span class="p">|</span>         ^^^^^^^^^ Use of undeclared <span class="nb">type</span> or module <span class="sb">`</span>MmapInner<span class="sb">`</span>
+
+error<span class="o">[</span>E0412<span class="o">]</span>: cannot find <span class="nb">type</span> <span class="sb">`</span>MmapInner<span class="sb">`</span> in this scope
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:310:12
+    <span class="p">|</span>
+<span class="m">310</span> <span class="p">|</span>     inner: MmapInner,
+    <span class="p">|</span>            ^^^^^^^^^ not found in this scope
+
+error<span class="o">[</span>E0412<span class="o">]</span>: cannot find <span class="nb">type</span> <span class="sb">`</span>MmapInner<span class="sb">`</span> in this scope
+   --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:425:12
+    <span class="p">|</span>
+<span class="m">425</span> <span class="p">|</span>     inner: MmapInner,
+    <span class="p">|</span>            ^^^^^^^^^ not found in this scope
+
+error: aborting due to <span class="m">7</span> previous errors
+error: Could not compile <span class="sb">`</span>memmap<span class="sb">`</span>.
+</pre></div>
+
+
+<p>The <code>memmap</code> dependency of tantivy wasn't compiling, which broke the build of wasm. I first needed to compile <code>tantivy</code> for the wasm target. </p>
+<h3>Where did memmap come from?</h3>
+<p>my <code>wasm/src/lib.rs</code> file had minimal dependencies, so memmap wasn't a problem with wasm-bindgen or my wasm crate. </p>
+<p>Examining the root <code>Cargo.toml</code> I couldn't find memmap as a dependency. </p>
+<h3>If memmap isn't a dependency in Cargo.toml, why is it breaking my build?</h3>
+<p>This suggested that it was a dependency of another dependency. </p>
+<p>I looked for files using mmap features and what crates those files import. Grep for all files that use <code>mmap</code>, removing files that never use it and sorting by the number of matching lines suggests <code>directory</code> module is the biggest culprit. </p>
+<div class="highlight"><pre><span></span><span class="nv">$$$$</span>$ grep -rc <span class="s2">&quot;mmap&quot;</span> src/* <span class="p">|</span> grep -v <span class="s2">&quot;:0&quot;</span> <span class="p">|</span> sort -rn -k2 -t <span class="s1">&#39;:&#39;</span>
+src/directory/mmap_directory.rs:45
+src/directory/managed_directory.rs:15
+src/core/index.rs:10
+src/directory/read_only_source.rs:8
+src/directory/mod.rs:8
+src/termdict/termdict.rs:3
+src/lib.rs:2
+src/store/mod.rs:1
+src/functional_test.rs:1
+src/core/segment_reader.rs:1
+</pre></div>
+
+
+<p>one of the imports in <code>src/directory/mmap_directory.rs</code> is <code>use fst::raw::MmapReadOnly;</code>, whose name correctly suggests it uses memmap features. Looking inside <code>memmap-0.6.2/lib.rs</code> shows it's configured to build for unix or windows. Building for the wasm target misses all calls to macros below</p>
+<div class="highlight"><pre><span></span><span class="p">[</span><span class="n">cfg</span><span class="p">(</span><span class="n">windows</span><span class="p">)]</span><span class="w"></span>
+</pre></div>
+
+
+<p>and the crate fails to compile.</p>
+<h2>How did Paul compile tantivy to wasm back in the days of v0.5.0?</h2>
+<p>I decided to go back to Paul's wasm branch based off v0.5.0 release and see if it would compile to wasm target without problems with memmap. There was a problem with the bitpacking crate, whose dependency was a path "../bitpacking". Paul must have developed it locally at the time. Changing bitpacking as below, before building core tantivy for wasm.</p>
+<div class="highlight"><pre><span></span>-bitpacking <span class="o">=</span> <span class="o">{</span><span class="nv">path</span> <span class="o">=</span> <span class="s2">&quot;../bitpacking&quot;</span><span class="o">}</span>
++bitpacking <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+</pre></div>
+
+
+<p>Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using. </p>
+<div class="highlight"><pre><span></span><span class="err">$$$$</span> <span class="n">cargo</span> <span class="o">+</span><span class="n">nightly</span> <span class="n">build</span> <span class="o">--</span><span class="n">verbose</span> <span class="o">--</span><span class="n">release</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">default</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">target</span> <span class="n">wasm32</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">unknown</span>
+
+<span class="n">error</span><span class="p">[</span><span class="n">E0432</span><span class="p">]:</span> <span class="n">unresolved</span> <span class="kn">import</span> <span class="sb">`std::collections::range`</span>                                                                                                                    
+  <span class="o">--&gt;</span> <span class="n">src</span><span class="o">/</span><span class="n">query</span><span class="o">/</span><span class="n">range_query</span><span class="o">.</span><span class="n">rs</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">23</span>                                                                                                                                         
+   <span class="o">|</span>                                                                                                                                                                         
+<span class="mi">11</span> <span class="o">|</span> <span class="n">use</span> <span class="n">std</span><span class="p">::</span><span class="n">collections</span><span class="p">::</span><span class="nb">range</span><span class="p">::</span><span class="n">RangeArgument</span><span class="p">;</span>                                                                                                                             
+   <span class="o">|</span>                       <span class="o">^^^^^</span> <span class="n">Could</span> <span class="ow">not</span> <span class="n">find</span> <span class="sb">`range`</span> <span class="ow">in</span> <span class="sb">`collections`</span>                                                                                                     
+</pre></div>
+
+
+<p>I needed to decide if I should investigate how to compile old version of wasm branch, which didn't seem to have memmap issues or go back to my branch based on the most recent release of tantivy. </p>
+<p>Removing <code>range_query</code> and associated imports seemed to have helped to compile tantivy to wasm. Although compilation ends successfully, only a binary file is compiled to .wasm file in the target directory.</p>
+<p>The only .wasm file in the target directory was for a bin package. </p>
+<h2>Would adding a file with wasm bindings to bin help solve the problem?</h2>
+<p>I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.</p>
+<h2>Back to current version of tantivy and the wonders of memmap</h2>
+<p>I have now decided to solve the problem of memmap breaking compilation for wasm. </p>
+<p>TODO:
+    * Find all dependencies that use memmap.
+    * Find all files that import and use those dependencies. 
+    * Record and trace full call stack of functions called when a query is processed as described in the wasm query function. Use this information to conditionally compile that call stack with fewer imports.</p>
+<p>If you have any ideas - give me a shout.</p>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>

@@ -7,7 +7,7 @@
 
         <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
 
-        <title>Learning rust by writing an order book // My blog // </title>
+        <title>Rust - from 0 to productive in 2 weeks // My blog // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -50,37 +50,35 @@
         <div class="content">
             <section class="post">
                 <header class="post-header">
-                    <h1>Learning rust by writing an order book</h1>
+                    <h1>Rust - from 0 to productive in 2 weeks</h1>
                         <p class="post-meta">
                             // under                                 <a class="post-category" href="/tag/rust.html">rust</a>
                         </p>
                 </header>
             </section>
-            <h3>Intro</h3>
-<p>After making fun of people, who tell everyone to re-write everything in Rust, I have now decided to learn Rust and see what the rave is all about. </p>
-<p>People who know me well can confirm my smugness when discussing Rust and its powerful advocacy in the developer community. I decided to be more open-minded and use the language for a small project, before I continue making fun of it.</p>
+            <h3>tl;dr</h3>
+<p>Used to be sarcastic about Rust fan boys. Decided to learn the language to implement a small order book application. Became quickly productive and became interested in optimising the application. Beat the C++ application on benchmarks.</p>
+<h3>Introduction</h3>
+<p>People who know me well can confirm my smugness when discussing Rust and its powerful advocacy in the developer community. I decided to be more open-minded and use the language for a small project, instead of continusly making fun of it. </p>
+<h3>Order book design</h3>
+<p>Mine is a toy order book, for big boy MEs - watch <a href="https://www.youtube.com/watch?v=b1e4t2k2KJY">Brian Nigito's talk</a>. It provides 2 types of input and 1 output. </p>
 <h3>Problem</h3>
-<p>An order book is a </p>
-<h3>Matching Engine design</h3>
-<p>Mine is a toy matching engine, for big boy MEs - watch <a href="https://www.youtube.com/watch?v=b1e4t2k2KJY">Brian Nigito's talk</a>. It provides 2 types of input and 1 output. </p>
+<p>An order book is an application that keeps track of buy and sell orders for different securities. Implement an order book for 1 security. The order book can add new orders and reduce the size of existing orders. At application start-up the order book recieves the target_size. If at any point, there are more bids (buy orders) or asks (sell orders) than the target_size, print a summary to stdout.</p>
 <h3>Original design</h3>
-<p>After glancing through the spec, I googled more information about matching engines, found Martin Thompson's advice on optimising the design by combining bids and asks (as negative bids). Implementing a clever design from the start made me excited, so I quickly implemented it. Later I re-read the spec and realised that I need to track and report 2 sides separately and it makes more sense to split them. </p>
-<h3>Conclusion</h3>
-<p>Rust compiler + tooling (racer, completion, documentation) make it easy to become immediately productive. Helpful error messages with detailed explanations of concepts are great. The only minor downside, less related to the language and more to my laziness - the immediate feeling of proficiency with auto-complete gives a false hope that you remember rust APIs and can write anything in it. </p>
-<h2>Benchmark</h2>
-<div class="highlight"><pre><span></span>petr_tik@merluza:~/Coding/order_book/order-book-pricer/src$ <span class="nb">time</span> ../../target/release/order_book <span class="m">200</span> &lt; ../data/pricer.in <span class="p">&amp;</span>&gt; /dev/null 
-
-real    2m41.530s
-user    1m39.293s
-sys 1m2.143s
-petr_tik@merluza:~/Coding/order_book/order-book-pricer/src$ <span class="nb">time</span> ./order-book-pricer <span class="m">200</span> &lt; ../data/pricer.in &gt; /dev/null
-
-real    0m2.552s
-user    0m2.485s
-sys 0m0.065s
+<h3>Tooling</h3>
+<h4>Derive Love</h4>
+<p>The rust compiler allows you to shortcut generating boilerplate for your custom types. I defined a type that was a wrapper around i64. The derive(Hash) macro generated the Hash <code>Trait</code> (interface). </p>
+<p>Compiler unwraps Amount into underlying i64 and implements traits for the struct to be used in HashMap and BTreeMap (needs ordering)</p>
+<div class="highlight"><pre><span></span><span class="cp">#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]</span><span class="w"> </span>
+<span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">Amount</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">as_int</span>: <span class="kt">i64</span><span class="p">,</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 
 
+<p>The biggest gain wasn't time, it was the opportunity to continue solving the problem without context switching to implement hashing.</p>
+<h3>Conclusion</h3>
+<p>Rust compiler + tooling (racer, completion, documentation) make it easy to become immediately productive. Helpful error messages with detailed explanations of concepts are great. The only minor downside, less related to the language and more to my laziness - the immediate feeling of proficiency with auto-complete gives a false hope that you remember rust APIs and can write anything in it. </p>
 <h3>Future work to do</h3>
 <p>Learn rust idioms to parametrise classes and methods to avoid repetitive boiler plate
 Get better at Error handling inside functions

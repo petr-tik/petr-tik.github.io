@@ -1,5 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog - hacking</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-03-10T16:20:00+00:00</updated><entry><title>Talebian software development</title><link href="/talebian-software-development.html" rel="alternate"></link><published>2018-03-10T16:20:00+00:00</published><updated>2018-03-10T16:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-03-10:/talebian-software-development.html</id><summary type="html">&lt;p&gt;Philosophical ideas behind development practices&lt;/p&gt;</summary><content type="html">&lt;p&gt;Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices. &lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog - hacking</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-09-30T20:20:00+01:00</updated><entry><title>Compiling a Rust search indexing library to wasm</title><link href="/compiling-a-rust-search-indexing-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-search-indexing-library-to-wasm.html</id><summary type="html">&lt;p&gt;Since finding the &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make it available for the browser. The rust-wasm WG is working on tooling, which makes hugely simplifies solving this problem.&lt;/p&gt;
+&lt;h2&gt;Intended design of tantivy&lt;/h2&gt;
+&lt;p&gt;I want to make it possible to compile tantivy:
+    1. As a …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding the &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make it available for the browser. The rust-wasm WG is working on tooling, which makes hugely simplifies solving this problem.&lt;/p&gt;
+&lt;h2&gt;Intended design of tantivy&lt;/h2&gt;
+&lt;p&gt;I want to make it possible to compile tantivy:
+    1. As a wasm library to ship to the browser
+    2. As the usual server-side indexer + serialiser&lt;/p&gt;
+&lt;h3&gt;wasm library&lt;/h3&gt;
+&lt;p&gt;Will load and deserialise the index from a binary file sent to the browser. After an index is instantiated, wasm will process recieve queries from javascript, process them using the index loaded earlier and return results back to javascript to present to the user.&lt;/p&gt;
+&lt;h3&gt;Indexer + serialiser&lt;/h3&gt;
+&lt;p&gt;The indexer will remain same as before. When indexing is over, walk over the index directory and build a binary file.&lt;/p&gt;
+&lt;h3&gt;Advantages of this design&lt;/h3&gt;
+&lt;p&gt;Sharing code, testing and building the same library, so we can guarantee that an index built and serialised on the server will be deserialised and give the same results in the client.&lt;/p&gt;
+&lt;h3&gt;Disadvantages&lt;/h3&gt;
+&lt;p&gt;Compiling for wasm is hard, because it requires that all dependencies and their dependencies (recursively) can compile to wasm. The library is most likely going to take a lot of space on disk.&lt;/p&gt;
+&lt;h2&gt;Other design aims&lt;/h2&gt;
+&lt;p&gt;Use cargo and conditional compilation to the max to find efficiency gains and minimise both server- and wasm library size.&lt;/p&gt;
+&lt;h1&gt;Sunday afternoon debugging session&lt;/h1&gt;
+&lt;p&gt;Below is the description of my Sunday afternoon spent trying to build tantivy for the wasm target. First Current version of tantivy, then an exploration of Paul's previous effort. I found the dependencies, whose dependencies break the compilation for the target. &lt;/p&gt;
+&lt;h2&gt;Directory layout&lt;/h2&gt;
+&lt;p&gt;Using tantivy library after version 0.7.0, I created a &lt;code&gt;wasm&lt;/code&gt; sub-directory in the root directory of &lt;code&gt;tantivy&lt;/code&gt;. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tantivy&lt;span class="nv"&gt;$$&lt;/span&gt;$ tree -L &lt;span class="m"&gt;1&lt;/span&gt; wasm/
+wasm/
+├── Cargo.lock
+├── Cargo.toml
+├── rust-toolchain
+├── src/
+├── target/
+└── wasm-pack.log
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Why not make a new directory/crate and import tantivy in Cargo?&lt;/h3&gt;
+&lt;p&gt;While it might seem easier to create a new project and import tantivy, I expect this work to require changes in the tantivy library, so best keep the directories nested together. &lt;/p&gt;
+&lt;h3&gt;I'm bringing s.... StaticDirectory back&lt;/h3&gt;
+&lt;p&gt;Paul Maurusel's previous attempt to compile tantivy for wasm included an abstraction called &lt;code&gt;StaticDirectory&lt;/code&gt;. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the &lt;code&gt;tantivy&lt;/code&gt; library. &lt;/p&gt;
+&lt;p&gt;After getting the &lt;code&gt;tantivy&lt;/code&gt; library to compile for normal target with StaticDirectory, I went to the &lt;code&gt;wasm/&lt;/code&gt; directory to compile the release version for wasm32 using nightly version of the compiler.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; wasm/
+wasm&lt;span class="nv"&gt;$$&lt;/span&gt;$ /home/petr_tik/.cargo/bin/cargo +nightly build --release --target wasm32-unknown-unknown
+   Compiling memmap v0.6.2
+   Compiling utf8-ranges v1.0.1
+   Compiling safemem v0.3.0
+   Compiling bit-vec v0.5.0
+error&lt;span class="o"&gt;[&lt;/span&gt;E0433&lt;span class="o"&gt;]&lt;/span&gt;: failed to resolve. Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:188:9
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;188&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;         MmapInner::map&lt;span class="o"&gt;(&lt;/span&gt;self.get_len&lt;span class="o"&gt;(&lt;/span&gt;file&lt;span class="o"&gt;)&lt;/span&gt;?, file, self.offset&lt;span class="o"&gt;)&lt;/span&gt;.map&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;inner&lt;span class="p"&gt;|&lt;/span&gt; Mmap &lt;span class="o"&gt;{&lt;/span&gt; inner: inner &lt;span class="o"&gt;})&lt;/span&gt;
+    &lt;span class="p"&gt;|&lt;/span&gt;         ^^^^^^^^^ Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+
+error&lt;span class="o"&gt;[&lt;/span&gt;E0433&lt;span class="o"&gt;]&lt;/span&gt;: failed to resolve. Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:198:9
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;198&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;         MmapInner::map_exec&lt;span class="o"&gt;(&lt;/span&gt;self.get_len&lt;span class="o"&gt;(&lt;/span&gt;file&lt;span class="o"&gt;)&lt;/span&gt;?, file, self.offset&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;|&lt;/span&gt;         ^^^^^^^^^ Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+
+error&lt;span class="o"&gt;[&lt;/span&gt;E0433&lt;span class="o"&gt;]&lt;/span&gt;: failed to resolve. Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:237:9
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;237&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;         MmapInner::map_mut&lt;span class="o"&gt;(&lt;/span&gt;self.get_len&lt;span class="o"&gt;(&lt;/span&gt;file&lt;span class="o"&gt;)&lt;/span&gt;?, file, self.offset&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;|&lt;/span&gt;         ^^^^^^^^^ Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+
+error&lt;span class="o"&gt;[&lt;/span&gt;E0433&lt;span class="o"&gt;]&lt;/span&gt;: failed to resolve. Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:267:9
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;267&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;         MmapInner::map_copy&lt;span class="o"&gt;(&lt;/span&gt;self.get_len&lt;span class="o"&gt;(&lt;/span&gt;file&lt;span class="o"&gt;)&lt;/span&gt;?, file, self.offset&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;|&lt;/span&gt;         ^^^^^^^^^ Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+
+error&lt;span class="o"&gt;[&lt;/span&gt;E0433&lt;span class="o"&gt;]&lt;/span&gt;: failed to resolve. Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:280:9
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;280&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;         MmapInner::map_anon&lt;span class="o"&gt;(&lt;/span&gt;self.len.unwrap_or&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;, self.stack&lt;span class="o"&gt;)&lt;/span&gt;.map&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;inner&lt;span class="p"&gt;|&lt;/span&gt; MmapMut &lt;span class="o"&gt;{&lt;/span&gt; inner: inner &lt;span class="o"&gt;})&lt;/span&gt;
+    &lt;span class="p"&gt;|&lt;/span&gt;         ^^^^^^^^^ Use of undeclared &lt;span class="nb"&gt;type&lt;/span&gt; or module &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt;
+
+error&lt;span class="o"&gt;[&lt;/span&gt;E0412&lt;span class="o"&gt;]&lt;/span&gt;: cannot find &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt; in this scope
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:310:12
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;310&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;     inner: MmapInner,
+    &lt;span class="p"&gt;|&lt;/span&gt;            ^^^^^^^^^ not found in this scope
+
+error&lt;span class="o"&gt;[&lt;/span&gt;E0412&lt;span class="o"&gt;]&lt;/span&gt;: cannot find &lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;MmapInner&lt;span class="sb"&gt;`&lt;/span&gt; in this scope
+   --&amp;gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:425:12
+    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="m"&gt;425&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;     inner: MmapInner,
+    &lt;span class="p"&gt;|&lt;/span&gt;            ^^^^^^^^^ not found in this scope
+
+error: aborting due to &lt;span class="m"&gt;7&lt;/span&gt; previous errors
+error: Could not compile &lt;span class="sb"&gt;`&lt;/span&gt;memmap&lt;span class="sb"&gt;`&lt;/span&gt;.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;memmap&lt;/code&gt; dependency of tantivy wasn't compiling, which broke the build of wasm. I first needed to compile &lt;code&gt;tantivy&lt;/code&gt; for the wasm target. &lt;/p&gt;
+&lt;h3&gt;Where did memmap come from?&lt;/h3&gt;
+&lt;p&gt;my &lt;code&gt;wasm/src/lib.rs&lt;/code&gt; file had minimal dependencies, so memmap wasn't a problem with wasm-bindgen or my wasm crate. &lt;/p&gt;
+&lt;p&gt;Examining the root &lt;code&gt;Cargo.toml&lt;/code&gt; I couldn't find memmap as a dependency. &lt;/p&gt;
+&lt;h3&gt;If memmap isn't a dependency in Cargo.toml, why is it breaking my build?&lt;/h3&gt;
+&lt;p&gt;This suggested that it was a dependency of another dependency. &lt;/p&gt;
+&lt;p&gt;I looked for files using mmap features and what crates those files import. Grep for all files that use &lt;code&gt;mmap&lt;/code&gt;, removing files that never use it and sorting by the number of matching lines suggests &lt;code&gt;directory&lt;/code&gt; module is the biggest culprit. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;$$$$&lt;/span&gt;$ grep -rc &lt;span class="s2"&gt;&amp;quot;mmap&amp;quot;&lt;/span&gt; src/* &lt;span class="p"&gt;|&lt;/span&gt; grep -v &lt;span class="s2"&gt;&amp;quot;:0&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; sort -rn -k2 -t &lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;
+src/directory/mmap_directory.rs:45
+src/directory/managed_directory.rs:15
+src/core/index.rs:10
+src/directory/read_only_source.rs:8
+src/directory/mod.rs:8
+src/termdict/termdict.rs:3
+src/lib.rs:2
+src/store/mod.rs:1
+src/functional_test.rs:1
+src/core/segment_reader.rs:1
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;one of the imports in &lt;code&gt;src/directory/mmap_directory.rs&lt;/code&gt; is &lt;code&gt;use fst::raw::MmapReadOnly;&lt;/code&gt;, whose name correctly suggests it uses memmap features. Looking inside &lt;code&gt;memmap-0.6.2/lib.rs&lt;/code&gt; shows it's configured to build for unix or windows. Building for the wasm target misses all calls to macros below&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;cfg&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;windows&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and the crate fails to compile.&lt;/p&gt;
+&lt;h2&gt;How did Paul compile tantivy to wasm back in the days of v0.5.0?&lt;/h2&gt;
+&lt;p&gt;I decided to go back to Paul's wasm branch based off v0.5.0 release and see if it would compile to wasm target without problems with memmap. There was a problem with the bitpacking crate, whose dependency was a path "../bitpacking". Paul must have developed it locally at the time. Changing bitpacking as below, before building core tantivy for wasm.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;-bitpacking &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;../bitpacking&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
++bitpacking &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;*&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$$$$&lt;/span&gt; &lt;span class="n"&gt;cargo&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;nightly&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;verbose&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;release&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;no&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;features&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="n"&gt;wasm32&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;unknown&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;unknown&lt;/span&gt;
+
+&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;E0432&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt; &lt;span class="n"&gt;unresolved&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="sb"&gt;`std::collections::range`&lt;/span&gt;                                                                                                                    
+  &lt;span class="o"&gt;--&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;range_query&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rs&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;23&lt;/span&gt;                                                                                                                                         
+   &lt;span class="o"&gt;|&lt;/span&gt;                                                                                                                                                                         
+&lt;span class="mi"&gt;11&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;use&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;collections&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RangeArgument&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;                                                                                                                             
+   &lt;span class="o"&gt;|&lt;/span&gt;                       &lt;span class="o"&gt;^^^^^&lt;/span&gt; &lt;span class="n"&gt;Could&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;find&lt;/span&gt; &lt;span class="sb"&gt;`range`&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="sb"&gt;`collections`&lt;/span&gt;                                                                                                     
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I needed to decide if I should investigate how to compile old version of wasm branch, which didn't seem to have memmap issues or go back to my branch based on the most recent release of tantivy. &lt;/p&gt;
+&lt;p&gt;Removing &lt;code&gt;range_query&lt;/code&gt; and associated imports seemed to have helped to compile tantivy to wasm. Although compilation ends successfully, only a binary file is compiled to .wasm file in the target directory.&lt;/p&gt;
+&lt;p&gt;The only .wasm file in the target directory was for a bin package. &lt;/p&gt;
+&lt;h2&gt;Would adding a file with wasm bindings to bin help solve the problem?&lt;/h2&gt;
+&lt;p&gt;I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.&lt;/p&gt;
+&lt;h2&gt;Back to current version of tantivy and the wonders of memmap&lt;/h2&gt;
+&lt;p&gt;I have now decided to solve the problem of memmap breaking compilation for wasm. &lt;/p&gt;
+&lt;p&gt;TODO:
+    * Find all dependencies that use memmap.
+    * Find all files that import and use those dependencies. 
+    * Record and trace full call stack of functions called when a query is processed as described in the wasm query function. Use this information to conditionally compile that call stack with fewer imports.&lt;/p&gt;
+&lt;p&gt;If you have any ideas - give me a shout.&lt;/p&gt;</content><category term="rust"></category><category term="wasm"></category></entry><entry><title>Talebian software development</title><link href="/talebian-software-development.html" rel="alternate"></link><published>2018-03-10T16:20:00+00:00</published><updated>2018-03-10T16:20:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-03-10:/talebian-software-development.html</id><summary type="html">&lt;p&gt;Philosophical ideas behind development practices&lt;/p&gt;</summary><content type="html">&lt;p&gt;Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices. &lt;/p&gt;
 &lt;h2&gt;Antifragile as chaos engineering, fuzzing and testing&lt;/h2&gt;
 &lt;p&gt;Taleb coins the term antifragile to emphasise a class of organisms and organisations that evolve under external stress. The word is contrasted to fragile and robust, which worsens or remains the same (up to a point) respectivly. Combined with the inability to predict the future, antifragile organisms are those that will improve when subject to unpredictable external stress. Given the second law of thermodynamics (total entropy of a closed system can't decrease), fragile systems are expected to degrade with time, while antifragile systems get stronger. &lt;/p&gt;
 &lt;p&gt;I find that similar to chaos engineering, fuzzing and testing. &lt;/p&gt;
