@@ -205,15 +205,10 @@ src/core/segment_reader.rs:1
 <p>I was getting tired and decided to try the ot(t|h)er, original method.</p>
 <h2>Back to current version of tantivy and the wonders of memmap</h2>
 <p>I have now decided to solve the problem of memmap breaking compilation for wasm. </p>
-<h2>What are the next steps.</h2>
-<div class="highlight"><pre><span></span><span class="o">*</span> <span class="n">Find</span> <span class="nb">all</span> <span class="n">dependencies</span> <span class="n">that</span> <span class="n">use</span> <span class="n">memmap</span><span class="o">.</span>
-
-<span class="o">*</span> <span class="n">Find</span> <span class="nb">all</span> <span class="n">files</span> <span class="n">that</span> <span class="kn">import</span> <span class="nn">and</span> <span class="nn">use</span> <span class="nn">those</span> <span class="nn">dependencies.</span>
-
-<span class="o">*</span> <span class="n">Record</span> <span class="ow">and</span> <span class="n">trace</span> <span class="n">full</span> <span class="n">call</span> <span class="n">stack</span> <span class="n">of</span> <span class="n">functions</span> <span class="n">called</span> <span class="n">when</span> <span class="n">a</span> <span class="n">query</span> <span class="ow">is</span> <span class="n">processed</span> <span class="k">as</span> <span class="n">described</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">wasm</span> <span class="n">query</span> <span class="n">function</span><span class="o">.</span> <span class="n">Use</span> <span class="n">this</span> <span class="n">information</span> <span class="n">to</span> <span class="n">conditionally</span> <span class="nb">compile</span> <span class="n">that</span> <span class="n">call</span> <span class="n">stack</span> <span class="k">with</span> <span class="n">fewer</span> <span class="n">imports</span><span class="o">.</span>
-</pre></div>
-
-
+<h2>What are the next steps?</h2>
+<p>Find all dependencies that use memmap.</p>
+<p>Find all files that import and use those dependencies. </p>
+<p>Record and trace full call stack of functions called when a query is processed as described in the wasm query function. Use this information to conditionally compile that call stack with fewer imports.</p>
 <p>If you have any ideas - give me a shout.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
