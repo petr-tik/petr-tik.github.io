@@ -143,7 +143,7 @@ src/core/segment_reader.rs:1
 &lt;p&gt;The only .wasm file in the target directory was for a bin package. &lt;/p&gt;
 &lt;h2&gt;Would adding a file with wasm bindings to bin help solve the problem?&lt;/h2&gt;
 &lt;p&gt;I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.&lt;/p&gt;
-&lt;p&gt;&lt;img alt="Photo" src="{attach}images/otter.jpeg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Photo" src="/images/otter.jpg"&gt;&lt;/p&gt;
 &lt;p&gt;I was getting tired and decided to try the ot(t|h)er, original method.&lt;/p&gt;
 &lt;h2&gt;Back to current version of tantivy and the wonders of memmap&lt;/h2&gt;
 &lt;p&gt;I have now decided to solve the problem of memmap breaking compilation for wasm. &lt;/p&gt;
