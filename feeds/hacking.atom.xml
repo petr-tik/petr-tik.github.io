@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog - hacking</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-09-30T20:20:00+01:00</updated><entry><title>Compiling a Rust search indexing library to wasm</title><link href="/compiling-a-rust-search-indexing-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-search-indexing-library-to-wasm.html</id><summary type="html">&lt;p&gt;Going down rabbit holes of conditional compilation&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding the &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make it available for the browser. The rust-wasm WG is working on tooling, which makes hugely simplifies solving this problem.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog - hacking</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-09-30T20:20:00+01:00</updated><entry><title>Compiling a Rust search indexing library to wasm</title><link href="/compiling-a-rust-search-indexing-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-search-indexing-library-to-wasm.html</id><summary type="html">&lt;p&gt;Going down rabbit holes of conditional compilation&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding Paul Maurusel's &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make the library available for the browser. The rust-wasm WG is working on tooling, which simplifies solving this problem.&lt;/p&gt;
 &lt;h2&gt;Intended design of tantivy&lt;/h2&gt;
 &lt;p&gt;I want to make it possible to compile tantivy:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1. As a wasm library to ship to the browser
@@ -32,11 +32,11 @@ wasm/
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;I took Paul's earlier effort to build a wasm-ready tantivy searcher.&lt;/p&gt;
+&lt;p&gt;I took Paul's earlier effort to build a wasm-ready tantivy searcher in an older wasm branch. He based his branch off tantivy v0.5.0. so I expect that the library will need new code to compile again.&lt;/p&gt;
 &lt;h3&gt;Why not make a new directory/crate and import tantivy in Cargo?&lt;/h3&gt;
 &lt;p&gt;While it might seem easier to create a new project and import tantivy, I expect this work to require changes in the tantivy library, so best keep the directories nested together. &lt;/p&gt;
 &lt;h3&gt;I'm bringing s.... StaticDirectory back&lt;/h3&gt;
-&lt;p&gt;Paul Maurusel's previous attempt to compile tantivy for wasm included an abstraction called &lt;code&gt;StaticDirectory&lt;/code&gt;. By the time we got to v0.7.0, StaticDirectory disappeared and was replaced by several other directories inside the &lt;code&gt;directory&lt;/code&gt; module. Using StaticDirectory inside the &lt;code&gt;wasm/lib/src.rs&lt;/code&gt; didn't compile, because tantivy didn't have StaticDirectory anymore. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the &lt;code&gt;tantivy&lt;/code&gt; library. &lt;/p&gt;
+&lt;p&gt;Paul's previous attempt to compile tantivy for wasm included an abstraction called &lt;code&gt;StaticDirectory&lt;/code&gt;. By the time we got to v0.7.0, StaticDirectory disappeared and was replaced by several other directories inside the &lt;code&gt;directory&lt;/code&gt; module. Using StaticDirectory inside the &lt;code&gt;wasm/lib/src.rs&lt;/code&gt; didn't compile, because tantivy didn't have StaticDirectory anymore. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the &lt;code&gt;tantivy&lt;/code&gt; library. &lt;/p&gt;
 &lt;p&gt;After getting the &lt;code&gt;tantivy&lt;/code&gt; library to compile for normal target with StaticDirectory, I went to the &lt;code&gt;wasm/&lt;/code&gt; directory to compile the release version for wasm32 using nightly version of the compiler.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; wasm/
 wasm&lt;span class="nv"&gt;$$&lt;/span&gt;$ /home/petr_tik/.cargo/bin/cargo +nightly build --release --target wasm32-unknown-unknown
@@ -144,7 +144,7 @@ src/core/segment_reader.rs:1
 &lt;h2&gt;Would adding a file with wasm bindings to bin help solve the problem?&lt;/h2&gt;
 &lt;p&gt;I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Photo" src="/images/otter.jpg"&gt;&lt;/p&gt;
-&lt;p&gt;I was getting tired and decided to try the ot(t|h)er, original method.&lt;/p&gt;
+&lt;p&gt;I was getting tired and decided to try the ot[t|h]er method that I originally decided against.&lt;/p&gt;
 &lt;h2&gt;Back to current version of tantivy and the wonders of memmap&lt;/h2&gt;
 &lt;p&gt;I have now decided to solve the problem of memmap breaking compilation for wasm. &lt;/p&gt;
 &lt;h2&gt;What are the next steps?&lt;/h2&gt;

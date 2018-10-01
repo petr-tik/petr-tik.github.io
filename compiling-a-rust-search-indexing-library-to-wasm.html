@@ -57,7 +57,7 @@
                         </p>
                 </header>
             </section>
-            <p>Since finding the <a href="https://github.com/tantivy-search/tantivy/">tantivy searching/indexing library</a>, I thought it would be cool to make it available for the browser. The rust-wasm WG is working on tooling, which makes hugely simplifies solving this problem.</p>
+            <p>Since finding Paul Maurusel's <a href="https://github.com/tantivy-search/tantivy/">tantivy searching/indexing library</a>, I thought it would be cool to make the library available for the browser. The rust-wasm WG is working on tooling, which simplifies solving this problem.</p>
 <h2>Intended design of tantivy</h2>
 <p>I want to make it possible to compile tantivy:</p>
 <div class="highlight"><pre><span></span>1. As a wasm library to ship to the browser
@@ -90,11 +90,11 @@ wasm/
 </pre></div>
 
 
-<p>I took Paul's earlier effort to build a wasm-ready tantivy searcher.</p>
+<p>I took Paul's earlier effort to build a wasm-ready tantivy searcher in an older wasm branch. He based his branch off tantivy v0.5.0. so I expect that the library will need new code to compile again.</p>
 <h3>Why not make a new directory/crate and import tantivy in Cargo?</h3>
 <p>While it might seem easier to create a new project and import tantivy, I expect this work to require changes in the tantivy library, so best keep the directories nested together. </p>
 <h3>I'm bringing s.... StaticDirectory back</h3>
-<p>Paul Maurusel's previous attempt to compile tantivy for wasm included an abstraction called <code>StaticDirectory</code>. By the time we got to v0.7.0, StaticDirectory disappeared and was replaced by several other directories inside the <code>directory</code> module. Using StaticDirectory inside the <code>wasm/lib/src.rs</code> didn't compile, because tantivy didn't have StaticDirectory anymore. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the <code>tantivy</code> library. </p>
+<p>Paul's previous attempt to compile tantivy for wasm included an abstraction called <code>StaticDirectory</code>. By the time we got to v0.7.0, StaticDirectory disappeared and was replaced by several other directories inside the <code>directory</code> module. Using StaticDirectory inside the <code>wasm/lib/src.rs</code> didn't compile, because tantivy didn't have StaticDirectory anymore. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the <code>tantivy</code> library. </p>
 <p>After getting the <code>tantivy</code> library to compile for normal target with StaticDirectory, I went to the <code>wasm/</code> directory to compile the release version for wasm32 using nightly version of the compiler.</p>
 <div class="highlight"><pre><span></span><span class="nb">cd</span> wasm/
 wasm<span class="nv">$$</span>$ /home/petr_tik/.cargo/bin/cargo +nightly build --release --target wasm32-unknown-unknown
@@ -202,7 +202,7 @@ src/core/segment_reader.rs:1
 <h2>Would adding a file with wasm bindings to bin help solve the problem?</h2>
 <p>I tried compiling and it gave me new errors, so I decided to stop making an old version of the library compile.</p>
 <p><img alt="Photo" src="/images/otter.jpg"></p>
-<p>I was getting tired and decided to try the ot(t|h)er, original method.</p>
+<p>I was getting tired and decided to try the ot[t|h]er method that I originally decided against.</p>
 <h2>Back to current version of tantivy and the wonders of memmap</h2>
 <p>I have now decided to solve the problem of memmap breaking compilation for wasm. </p>
 <h2>What are the next steps?</h2>
