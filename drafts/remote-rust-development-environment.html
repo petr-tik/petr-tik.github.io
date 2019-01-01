@@ -59,7 +59,6 @@
             </section>
             <h2>Problem</h2>
 <p>Working on large-ish Rust projects using a resource constrained laptop means your compile times are longer and your battery life is worse. If you have a VPS it might be easier to use your laptop as a terminal and use the VPS for CPU-heavy compiles. This post outlines my design to keep my laptop running for longer, while saving resource. </p>
-<h2>How hungry is rustc?</h2>
 <h2>What are we working with?</h2>
 <p>I use emacs, which comes with tramp for remote access and editing and it works like a charm.</p>
 <p>I also have a laptop that I chose for its weight and ergonomics rather than CPU and RAM characteristics. While it might change in the future, cloud compute offers are currently racing to the bottom wrt price to the consumer, so I might as well use it, while there is plenty of VC money.</p>
@@ -76,11 +75,18 @@
 </pre></div>
 
 
-<p>I want to sync Cargo.toml as well as everything in <code>src/</code> and <code>tests/</code> directories. I </p>
+<p>I want to sync Cargo.toml as well as everything in <code>src/</code> and <code>tests/</code> directories. We can use the bash script below to find executables inside the target release folder.</p>
 <div class="highlight"><pre><span></span>find target/release/ -maxdepth <span class="m">1</span> -type f -executable
 </pre></div>
 
 
+<h2>Tools</h2>
+<ul>
+<li>Unison</li>
+<li>VPS </li>
+<li>Laptop</li>
+<li>Bash scripts for glue</li>
+</ul>
 <h2>Outline</h2>
 <p>I need a system that checks for an internet connection and defaults to the VPS, if there is one. If the laptop isn't connected, I continue to work locally. </p>
 <p>If I can reach the VPS, the rust project that I am working on, should be copied to the VPS and all queries for that file should be resolved with tramp. for</p>
@@ -96,6 +102,9 @@
 </li>
 <li>
 <p>Save disk space locally. </p>
+</li>
+<li>
+<p>Update <code>~/.cargo/bin/</code> by compiling it on VPS and mirroring to local <code>~/.cargo/bin/</code>. Not sure, if it's that easy considering that <code>rustup</code> manages all of this for you. </p>
 </li>
 </ul>
 <h2>Drawbacks</h2>
@@ -115,7 +124,10 @@
 </ul>
 <h2>Work outside/after implementing this</h2>
 <p>Upgrade VPS to current Linux version locally.
-Write a script to keep them updated/on par in all aspects.</p>
+Write a script to keep local and VPS updated/on par in all aspects.
+Check that that cargo run can work without any other libraries/binaries apart from <code>target/release/executable</code>. 
+Will need to mess around and make sure that cargo still works the same way over ssh. 
+Set up a cargo-gc/clean-up</p>
 <h2>Outcome</h2>
 <p>Whenever possible CPU-heavy compilation will take place on the VPS. All source code changes will be updated, so at every point both local and VPS version of the code match. Apart from the source code, my laptop will also receive 
 executables from <code>target/release</code>, leaving all the debug and dependencies on the VPS. </p>

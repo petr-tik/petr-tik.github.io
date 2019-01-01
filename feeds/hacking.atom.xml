@@ -1,5 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog - hacking</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2018-09-30T20:20:00+01:00</updated><entry><title>Compiling a Rust library to wasm</title><link href="/compiling-a-rust-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-library-to-wasm.html</id><summary type="html">&lt;p&gt;Going down rabbit holes of conditional compilation&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding Paul Masurel's &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make the library available for the browser. The rust-wasm WG is working on tooling, which simplifies solving this problem.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>My blog - hacking</title><link href="/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>/</id><updated>2019-01-01T22:50:00+00:00</updated><entry><title>How to update your changelog automatically</title><link href="/how-to-update-your-changelog-automatically.html" rel="alternate"></link><published>2019-01-01T22:50:00+00:00</published><updated>2019-01-01T22:50:00+00:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2019-01-01:/how-to-update-your-changelog-automatically.html</id><summary type="html">&lt;p&gt;The magic of xargs and git log&lt;/p&gt;</summary><content type="html">&lt;p&gt;If you ever needed a quick way to update your changelog - you should find the post below interesting. &lt;/p&gt;
+&lt;h2&gt;How did I get here?&lt;/h2&gt;
+&lt;p&gt;I have been using the SurfingKeys extension for Chrome and Firefox (thanks again for a great extension + shout-outs below). &lt;/p&gt;
+&lt;p&gt;After a recent update to 0.9.42, I clicked on the changelog option in browser and realised that the last version summarised in the changelog was 0.9.30. &lt;/p&gt;
+&lt;p&gt;All of development takes place on GitHub, so it is easy to fork and prepare a PR. &lt;/p&gt;
+&lt;h2&gt;How do you summarise changes since a given version?&lt;/h2&gt;
+&lt;p&gt;I needed to populate the changelog with all changes that have been committed since the last time the changelog was updated. The last tag was 0.4.1, so instead of using git tags, I needed to find another way. &lt;/p&gt;
+&lt;p&gt;So I wrote a bash script to dump a summary of all commits between last version in the changelog and current git HEAD. &lt;/p&gt;
+&lt;p&gt;Here it is in all its splendour. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;grep -oP -m1 &lt;span class="s2"&gt;&amp;quot;(?## )[0-9].+&amp;quot;&lt;/span&gt; pages/changelog.md &lt;span class="p"&gt;|&lt;/span&gt; xargs -I LAST_VERSION git log --format&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;%H&amp;quot;&lt;/span&gt; --grep&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;LAST_VERSION&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; xargs -I COMMIT_HASH git log --format&lt;span class="o"&gt;=&lt;/span&gt;%s%n%b COMMIT_HASH..HEAD
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Let's break it down into constituent parts. &lt;/p&gt;
+&lt;h2&gt;Step one - find the latest version in the changelog&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;grep -oP -m1 "(?## )[0-9].+" pages/changelog.md&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Finds the first match (&lt;code&gt;-m1&lt;/code&gt;) of the given regex in the changelog file. The changelog file is written in reverse chronological order, so the first entry is the latest version. &lt;/p&gt;
+&lt;p&gt;&lt;code&gt;-oP&lt;/code&gt; enables me to ignore the "## " at the start of the line to pass clean version number to the next stage. &lt;/p&gt;
+&lt;h2&gt;Step two - find git commit with given version in diff&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;xargs -I LAST_VERSION git log --format="%H" --grep="LAST_VERSION"&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;This is where xargs magic begins. We define a variable name &lt;code&gt;LAST_VERSION&lt;/code&gt;, which will be replaced with the given value. I taught myself a mnemonic to remember &lt;code&gt;-I&lt;/code&gt; as Instead.&lt;/p&gt;
+&lt;p&gt;xargs is due to receive the most recent version number found in pages/changelog.md&lt;/p&gt;
+&lt;h2&gt;Step three - print every commit between now and then&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;xargs -I COMMIT_HASH git log --format=%s%n%b COMMIT_HASH..HEAD&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Using the same trick as above to substitute hash of the commit with the most last logged version found in pages/changelog.md&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--format=%s%n%b&lt;/code&gt; prints subject and body of every commit separated by a newline. &lt;/p&gt;
+&lt;h2&gt;Result&lt;/h2&gt;
+&lt;p&gt;You will have the dump of git log since the version that was last mentioned in the changelog. You can add it to the changelog and tidy it up before committing the new changelog.&lt;/p&gt;
+&lt;h2&gt;Shoutouts&lt;/h2&gt;
+&lt;p&gt;Brook Hong for developing such a great Chrome extension and later porting it to Firefox New Edition. 
+Other contributors to Surfing Keys.
+Douglas McIlroy - the creator of Unix pipelines&lt;/p&gt;</content><category term="bash"></category><category term="git"></category></entry><entry><title>Compiling a Rust library to wasm</title><link href="/compiling-a-rust-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-library-to-wasm.html</id><summary type="html">&lt;p&gt;Going down rabbit holes of conditional compilation&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding Paul Masurel's &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make the library available for the browser. The rust-wasm WG is working on tooling, which simplifies solving this problem.&lt;/p&gt;
 &lt;h2&gt;Intended design of tantivy&lt;/h2&gt;
 &lt;p&gt;I want to make it possible to compile tantivy:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1. As a wasm library to ship to the browser
