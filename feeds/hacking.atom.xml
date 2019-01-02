@@ -20,7 +20,7 @@
 &lt;h2&gt;Step two - find git commit with given version in diff&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;xargs -I LAST_VERSION git log --format="%H" --grep="LAST_VERSION"&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;This is where xargs magic begins. We define a variable name &lt;code&gt;LAST_VERSION&lt;/code&gt;, which will be replaced with the given value. I taught myself a mnemonic to remember &lt;code&gt;-I&lt;/code&gt; as Instead.&lt;/p&gt;
-&lt;p&gt;xargs is due to receive the most recent version number found in pages/changelog.md&lt;/p&gt;
+&lt;p&gt;xargs is due to receive the most recent version number found in pages/changelog.md and &lt;/p&gt;
 &lt;h2&gt;Step three - print every commit between now and then&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;xargs -I COMMIT_HASH git log --format=%s%n%b COMMIT_HASH..HEAD&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;Using the same trick as above to substitute hash of the commit with the most last logged version found in pages/changelog.md&lt;/p&gt;
@@ -28,9 +28,9 @@
 &lt;h2&gt;Result&lt;/h2&gt;
 &lt;p&gt;You will have the dump of git log since the version that was last mentioned in the changelog. You can add it to the changelog and tidy it up before committing the new changelog.&lt;/p&gt;
 &lt;h2&gt;Shoutouts&lt;/h2&gt;
-&lt;p&gt;Brook Hong for developing such a great Chrome extension and later porting it to Firefox New Edition. 
-Other contributors to Surfing Keys.
-Douglas McIlroy - the creator of Unix pipelines&lt;/p&gt;</content><category term="bash"></category><category term="git"></category></entry><entry><title>Compiling a Rust library to wasm</title><link href="/compiling-a-rust-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-library-to-wasm.html</id><summary type="html">&lt;p&gt;Going down rabbit holes of conditional compilation&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding Paul Masurel's &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make the library available for the browser. The rust-wasm WG is working on tooling, which simplifies solving this problem.&lt;/p&gt;
+&lt;p&gt;Brook Hong for developing such a great Chrome extension and later porting it to Firefox New Edition. &lt;/p&gt;
+&lt;p&gt;Other contributors to Surfing Keys.&lt;/p&gt;
+&lt;p&gt;Douglas McIlroy - the creator of Unix pipelines&lt;/p&gt;</content><category term="bash"></category><category term="git"></category></entry><entry><title>Compiling a Rust library to wasm</title><link href="/compiling-a-rust-library-to-wasm.html" rel="alternate"></link><published>2018-09-30T20:20:00+01:00</published><updated>2018-09-30T20:20:00+01:00</updated><author><name>Petr Tikilyaynen</name></author><id>tag:None,2018-09-30:/compiling-a-rust-library-to-wasm.html</id><summary type="html">&lt;p&gt;Going down rabbit holes of conditional compilation&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since finding Paul Masurel's &lt;a href="https://github.com/tantivy-search/tantivy/"&gt;tantivy searching/indexing library&lt;/a&gt;, I thought it would be cool to make the library available for the browser. The rust-wasm WG is working on tooling, which simplifies solving this problem.&lt;/p&gt;
 &lt;h2&gt;Intended design of tantivy&lt;/h2&gt;
 &lt;p&gt;I want to make it possible to compile tantivy:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1. As a wasm library to ship to the browser

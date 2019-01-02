@@ -78,7 +78,7 @@
 <h2>Step two - find git commit with given version in diff</h2>
 <p><code>xargs -I LAST_VERSION git log --format="%H" --grep="LAST_VERSION"</code></p>
 <p>This is where xargs magic begins. We define a variable name <code>LAST_VERSION</code>, which will be replaced with the given value. I taught myself a mnemonic to remember <code>-I</code> as Instead.</p>
-<p>xargs is due to receive the most recent version number found in pages/changelog.md</p>
+<p>xargs is due to receive the most recent version number found in pages/changelog.md and </p>
 <h2>Step three - print every commit between now and then</h2>
 <p><code>xargs -I COMMIT_HASH git log --format=%s%n%b COMMIT_HASH..HEAD</code></p>
 <p>Using the same trick as above to substitute hash of the commit with the most last logged version found in pages/changelog.md</p>
@@ -86,9 +86,9 @@
 <h2>Result</h2>
 <p>You will have the dump of git log since the version that was last mentioned in the changelog. You can add it to the changelog and tidy it up before committing the new changelog.</p>
 <h2>Shoutouts</h2>
-<p>Brook Hong for developing such a great Chrome extension and later porting it to Firefox New Edition. 
-Other contributors to Surfing Keys.
-Douglas McIlroy - the creator of Unix pipelines</p>
+<p>Brook Hong for developing such a great Chrome extension and later porting it to Firefox New Edition. </p>
+<p>Other contributors to Surfing Keys.</p>
+<p>Douglas McIlroy - the creator of Unix pipelines</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
