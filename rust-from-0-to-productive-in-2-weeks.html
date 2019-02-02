@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My blog, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+
+        <title>Rust - from 0 to productive in 2 weeks // My blog // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <p class="tagline"></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Rust - from 0 to productive in 2 weeks</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/rust.html">rust</a>
+                        </p>
+                </header>
+            </section>
+            <h3>tl;dr</h3>
+<p>This is a story of me going from making sarcastic jokes about rewriting everything in Rust to ~~becoming one of them~~ growing to like the language. </p>
+<p>I found a C++17 implementation of an order book (a common take home exercise for interviews with trading firms) and decided to implement a solution in Rust. Following getting started tutorials, documentation and using great tooling, I found myself becoming productive in the language. Profiling and optimising the application allowed me to learn more about Rust data structures. It beat the C++ implementation on benchmarks. Full disclosure - I don't think the author of the C++ version spent much time optimising it. </p>
+<h3>Why did you do it?</h3>
+<p>People who know me well could confirm my smugness when discussing Rust and its powerful advocacy in the developer community at the start of 2018. My goto suggestion was to rewrite your application in Rust, because it would "solve all your problems". After I watching rust evangelists on twitter, I decided to be more open-minded and use the language for a small project, instead of continusly making fun of it. </p>
+<h3>What is an order book?</h3>
+<p>An order book is an application that stores buy and sell orders for different securities (shares, derivatives, other financial instruments). Institutions that engage in electronic trading have an implementation of an order book in their systems. Exchanges and market makers, which effectively run their own exchanges, are legally obliged to guarantee the best execution according to price-time priority. Keeping orders in an order book allows them to guarantee best execution and efficiently process thousands of entries per second. Clients of exchanges - brokers or individual investors - also run an order book to represent the state of the market. They can use it to find trading opportunities or implement their own ways of publishing orders to different exchanges. </p>
+<p>The requirements for such distributed fault-tolerant and low latency. (I think I got all the buzzwords in). </p>
+<p>If you want to learn the structure of big boy exchanges - watch <a href="https://www.youtube.com/watch?v=b1e4t2k2KJY">Brian Nigito's talk</a>. </p>
+<h3>So, did you build a trading system?</h3>
+<p>If I had, I would be writing this from my house in Mexico between playing beach volleyball and surfing. </p>
+<p>I implemented an order book for one unnamed security. The biggest differences between my order book and grown-up exchanges are: OB doesn't match orders across buy and sell sides, OB isn't distributed and my OB handles one financial product. </p>
+<p>The order book can add new orders and reduce the size of existing orders. It receives orders as multi-line input on stdin. If at any point, there are more bids (buy orders) or asks (sell orders) than the target_size, print a summary to stdout.</p>
+<h3>What made you so productive in Rust?</h3>
+<h4>rustfmt (nee cargo-fmt)</h4>
+<p>I enjoy using an opinionated linter. It solves the problem of inconsistency between collaborators and across projects. Not only does it stop bickering between programmers, it also lifts my mental burden of getting used to different styles of Rust. After integrating into your IDE, you will have your .rs files formatted on every save. </p>
+<h4>Derive Love</h4>
+<p>The rust compiler allows you to shortcut generating boilerplate for your custom types. I was working with a type that featured as a key in an ordered map (BTreeMap) and unordered map (HashMap). The type was a wrapper around i64. The derive(Hash) macro generated the Hash <code>Trait</code> (interface). </p>
+<p>Compiler unwraps Amount into underlying i64 and implements traits for the struct to be used in HashMap and BTreeMap (needs ordering)</p>
+<div class="highlight"><pre><span></span><span class="cp">#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]</span><span class="w"> </span>
+<span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">Amount</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">as_int</span>: <span class="kt">i64</span><span class="p">,</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+
+<p>For me the biggest gain wasn't saving time to type lines of code. The opportunity to continue solving the problem of storing an ordered collection of amounts without context switching to implement hashing was the winner for me. Later I needed to implement a custom way of ordering amounts. </p>
+<p>There was only one minor downside, less related to the language and more to my laziness. The immediate feeling of proficiency with auto-complete gave me an illusion that I know rust APIs and can write them from memory. </p>
+<h3>What made your implementation efficient?</h3>
+<p>This should be another post on its own. I will leave a teaser here and write something up, if people really want to know. </p>
+<p>Tricks that helped performance:
+    * Replaced <code>println!</code> with a stdout lock and <code>writeln!</code>
+    * Enabled LTO in Cargo.toml and pre-allocated all heap-based data structures.
+    * Replaced BTreeMap with a memory-contiguous vector, which implements its own ordering using ... binary search.
+    * Used llvm-profdata and rustc nightly, ran the application for PGO. Didn't get a meaningful improvement. </p>
+<p>Correcting my own design blunders (infinite source of optimisations:
+    * Turned timestamps into ints instead of using heap-allocated strings.</p>
+<h3>So, should we rewrite everything in Rust?</h3>
+<p>The rust compiler, tooling (racer, completion, clippy) and the culture of thorough documentation made it easy for me to become immediately productive. Helpful error messages with detailed explanations of language concepts helped me learn, while solving problems. </p>
+<p>Recently, I have noticed fewer calls/posts/tweets calling people to rewrite critical pieces of infrastructure in Rust. Ironically, as the Rust strike force grew more level-headed, I became more of an ardent advocate for the language.</p>
+<p>Bryan Cantrill expressed a view that I have now adopted. Rust should continue to emphasise its usefulness for <em>new</em> projects in systems engineering. The sunk cost of 1000s of programmer-hours has given us OSes like Linux, BSD and Emacs; database engines like sqlite and postgres and web servers like nginx. </p>
+<p>Taking another 1000s of hours to rewrite <em>only</em> (weekend project anyone?) one of them in Rust will not help anyone. Contributors to those projects, who have accumulated domain expertise, are unlikely to solve the same problem, just because they can use a new language. Most experienced systems programmers have already etched into their brain a version of the ownership system. </p>
+<p>Organisations using such systems in the critical path are not going to fix what isn't broken. Users of the end product won't care, if the sqlite they are running on their Android phone is now in Rust. </p>
+<p>Instead we should leverage the expressiveness of the language, the ease of use helped by great tools and good FFI support to solve new problems. We should praise appreciate the work of systems programmers, whose products are powering most of our infrastructure and work together with them. </p>
+<!--  LocalWords:  dr
+ -->
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
