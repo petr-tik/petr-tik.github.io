@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Articles, ">
+
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="Articles Full Atom Feed"/>
+
+        <title>Notes from the soul of a new machine // Articles // </title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background: none repeat scroll 0% 0% #3D4F5D">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href="">Articles</a></h1>
+                            <p class="tagline"></p>
+                                <p class="social">
+                                    <a href="https://github.com/petr-tik">
+                                        <i class="fa fa-GitHub fa-3x"></i>
+                                    </a>
+                                    <a href="https://twitter.com/petr_tik">
+                                        <i class="fa fa-Twitter fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Notes from the soul of a new machine</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/books.html">books</a>
+                        </p>
+                </header>
+            </section>
+            <p>Bryan Cantrill recently recommended a book on his twitter. The Soul of a New Machine talks about the Data General corporation building a new generation 32-bit (what a time) computer that Data General were building to compete with DEC's VAX. </p>
+<p>Below are my notes from the book. </p>
+<h2>Business-savvy developers</h2>
+<p>According to the book, people in Data General didn’t feel or act siloed according to their business function.</p>
+<p>Tom West focuses on the Eagle as a profitable project that will win market share from DEC. The technological aspects were decided by assessing trends of customer demands. Tom didn't take it up as an experiment for the sake of tech, he promised a business deliverable with a market-driven deadline.</p>
+<p>Ed Rasala, who ran the hardware dev team, applied to Data General after seeing their job ad in a paper. He drove to the office and presented himself for an interview.</p>
+<p>Nowadays, there is a belief that business people are qualitatively different in values and actions from technologists. Developers are treated like yak shavers who don't care about business impact and obsess over the nitty gritty of new technologies. The business acumen expressed by Tom West and Ed Resala could be a sign of a different time or lucky artefact of hiring people from different backgrounds.</p>
+<p>The early commercial success of Data General is another possible explanation. The company was profitable through technology, so technologists bought into the idea of impacting the bottom line.</p>
+<h2>Leadership/mentorship</h2>
+<p>Alsing gave a task to young engineers, whose completion depended on some information from secretary. I like that method of teaching the value of cooperation and appreciation for non-technical members of the team.</p>
+<h2>Product vision</h2>
+<p>Tom West shows a different type of product obsession than that of Steve Jobs.</p>
+<p>West was an engineer and he understood that engineering isn't magic, which can be made perfect. Some of his maxims were:
+"Not everything worth doing is worth doing well."
+"There's no such thing as a perfect design."</p>
+<p>Contrast that with Steve Jobs, who was a humanities person in engineering. Steve insisted that the motherboard in early apple computers had to be aesthetically pleasing. This caused additional problems for hardware designers, who now had to pack functionality under 2-dimensional constrains: physics of the board and Steve's sense of beauty. He drove his designers up the wall with his requirements, while keeping a tight deadline. </p>
+<p>Their ability to deliver small hardware proved useful in the future, when Apple started producing slimmer laptops than most competitors. </p>
+<p>I think it was accidental, rather than Jobs' foresight.</p>
+<h2>Tom West’s personal attitude to computers</h2>
+<p>Tom West was aware of the downsides of technology. Smarter checkout kiosks make the staff less intellectually capable to do mental arithmetic.</p>
+<p>He also insisted on keeping no computers at home for personal use. His attitude so early in the development of personal computers seems prescient now.</p>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Petr Tikilyaynen &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>

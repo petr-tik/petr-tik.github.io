@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="My blog, ">
+    <meta name="description" content="Articles, ">
 
-        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="My blog Full Atom Feed"/>
+        <link rel="alternate"  href="/feeds/all.atom.xml" type="application/atom+xml" title="Articles Full Atom Feed"/>
 
-        <title>Diving into CPython GC module // My blog // </title>
+        <title>Diving into CPython GC module // Articles // </title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -31,7 +31,7 @@
                 <div class="cover-body">
                     <header class="header">
                         <hgroup>
-                            <h1 class="brand-main"><a href="">My blog</a></h1>
+                            <h1 class="brand-main"><a href="">Articles</a></h1>
                             <p class="tagline"></p>
                                 <p class="social">
                                     <a href="https://github.com/petr-tik">
@@ -357,7 +357,7 @@ gc_list_merge<span class="o">(</span>PyGC_Head<span class="w"> </span><span clas
 <p>As soon as it’s added to a generation list its <code>gc_refs</code> is updated to GC_REACHABLE.</p>
 <p>During a collection <code>gc_refs</code> may take other values. The most important is GC_TENTATIVELY_UNREACHABLE, which means the object has been moved to the unreachable set temporarily. Even when ref updating is over and an object is GC_TENTATIVELY_UNREACHABLE, it may be made reachable again. </p>
 <h2>Summary</h2>
-<p>This blog is a read-through of the <code>Modules/gcmodule.c</code> of the CPython interpreter. I explained my understanding of the <code>collect</code> method, which is called by <code>PyGC_collect</code> or <code>_PyObject_GC_Alloc</code>. The collecting process is outlined from preparing the generation, moving unreachable objects, recovering or deleting garbage to collecting and returning stats. The difference between a full collection and a collection of generation 0 or 1 is explained. Some heuristics and tips to use CPython efficiently were explained and internals of object allocation/collection were outlined. </p>
+<p>This article is a read-through of the <code>Modules/gcmodule.c</code> of the CPython interpreter. I explained my understanding of the <code>collect</code> method, which is called by <code>PyGC_collect</code> or <code>_PyObject_GC_Alloc</code>. The collecting process is outlined from preparing the generation, moving unreachable objects, recovering or deleting garbage to collecting and returning stats. The difference between a full collection and a collection of generation 0 or 1 is explained. Some heuristics and tips to use CPython efficiently were explained and internals of object allocation/collection were outlined. </p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Petr Tikilyaynen &ndash;
