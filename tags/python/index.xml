@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/python/</link>
+    <description>Recent content in Python on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Search text fast or die trie-ing</title>
+      <link>http://petr-tik.github.io/posts/bivittatus/</link>
+      <pubDate>Mon, 12 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/bivittatus/</guid>
+      <description>Benchmarking the Python and C implementation of a trie-as-a-dictionary.</description>
+    </item>
+    
+    <item>
+      <title>Diving into CPython GC module</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python_part_two/</link>
+      <pubDate>Sat, 05 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/gc_in_python_part_two/</guid>
+      <description>This is a deep dive into the source code for Modules/gcmodule.</description>
+    </item>
+    
+    <item>
+      <title>Comparing different ways to add ints II</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</link>
+      <pubDate>Sun, 16 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</guid>
+      <description>Background As outlined in part 1, we are comparing recursive and iterative implementations of long arithmetic of 2 arrays.</description>
+    </item>
+    
+    <item>
+      <title>Comparing different ways to add ints I</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</link>
+      <pubDate>Tue, 27 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</guid>
+      <description>Puzzle Given 2 ints represented as array of digits in order (eg.</description>
+    </item>
+    
+    <item>
+      <title>Debugging hanging elpy on emacs</title>
+      <link>http://petr-tik.github.io/posts/emacs_error/</link>
+      <pubDate>Thu, 06 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/emacs_error/</guid>
+      <description>I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input.</description>
+    </item>
+    
+    <item>
+      <title>Notes on python&#39;s GC</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python/</link>
+      <pubDate>Tue, 07 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/gc_in_python/</guid>
+      <description>Notes on Memory Management in Python - YouTube</description>
+    </item>
+    
+    <item>
+      <title>CI for Solent-eng</title>
+      <link>http://petr-tik.github.io/posts/ci_for_solent/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/ci_for_solent/</guid>
+      <description>Spent the day working on a plan to build custom CI pipeline for solent.</description>
+    </item>
+    
+    <item>
+      <title>Unexpected breadth-first search</title>
+      <link>http://petr-tik.github.io/posts/candies_puzzle/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/candies_puzzle/</guid>
+      <description>This puzzle is in the dynamic programming section of HackerRank.</description>
+    </item>
+    
+  </channel>
+</rss>

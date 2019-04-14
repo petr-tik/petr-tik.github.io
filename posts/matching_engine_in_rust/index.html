@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Rust - from 0 to productive in 2 weeks | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/rust">#rust</a>
+
+
+
+      
+    </div>
+    <h2 class="subtitle is-6">January 19, 2019</h2>
+    <h1 class="title">Rust - from 0 to productive in 2 weeks</h1>
+    
+    <div class="content">
+      
+
+<p>This is a story of me going from making sarcastic jokes about rewriting everything in Rust to <del>becoming one of them</del> growing to like the language.</p>
+
+<p>I found a C++17 implementation of an order book (a common take home exercise for interviews with trading firms) and decided to implement a solution in Rust. Following getting started tutorials, documentation and using great tooling, I found myself becoming productive in the language. Profiling and optimising the application allowed me to learn more about Rust data structures. It beat the C++ implementation on benchmarks. Full disclosure - I don&rsquo;t think the author of the C++ version spent much time optimising it.</p>
+
+<p><a href="https://github.com/petr-tik/dark_rusty_pool">Here is the code</a></p>
+
+<h3 id="why-did-you-do-it">Why did you do it?</h3>
+
+<p>People who know me well could confirm my smugness when discussing Rust and its powerful advocacy in the developer community at the start of 2018. My goto suggestion was to rewrite your application in Rust, because it would &ldquo;solve all your problems&rdquo;. After I watching rust evangelists on twitter, I decided to be more open-minded and use the language for a small project, instead of continusly making fun of it.</p>
+
+<h3 id="what-is-an-order-book">What is an order book?</h3>
+
+<p>An order book is an application that stores buy and sell orders for different securities (shares, derivatives, other financial instruments). Institutions that engage in electronic trading have an implementation of an order book in their systems. Exchanges and market makers, which effectively run their own exchanges, are legally obliged to guarantee the best execution according to price-time priority. Keeping orders in an order book allows them to guarantee best execution and efficiently process thousands of entries per second. Clients of exchanges - brokers or individual investors - also run an order book to represent the state of the market. They can use it to find trading opportunities or implement their own ways of publishing orders to different exchanges.</p>
+
+<p>The requirements for such distributed fault-tolerant and low latency. (I think I got all the buzzwords in).</p>
+
+<p>If you want to learn the structure of big boy exchanges - watch <a href="https://www.youtube.com/watch?v=b1e4t2k2KJY">Brian Nigito&rsquo;s talk</a>.</p>
+
+<h3 id="so-did-you-build-a-trading-system">So, did you build a trading system?</h3>
+
+<p>If I had, I would be writing this from my house in Mexico between playing beach volleyball and surfing.</p>
+
+<p>I implemented an order book for one unnamed security. The biggest differences between my order book and grown-up exchanges are: OB doesn&rsquo;t match orders across buy and sell sides, OB isn&rsquo;t distributed and my OB handles one financial product.</p>
+
+<p>The order book can add new orders and reduce the size of existing orders. It receives orders as multi-line input on stdin. If at any point, there are more bids (buy orders) or asks (sell orders) than the target_size, print a summary to stdout.</p>
+
+<h3 id="what-made-you-so-productive-in-rust">What made you so productive in Rust?</h3>
+
+<h4 id="rustfmt-nee-cargo-fmt">rustfmt (nee cargo-fmt)</h4>
+
+<p>I enjoy using an opinionated linter. It solves the problem of inconsistency between collaborators and across projects. Not only does it stop bickering between programmers, it also lifts my mental burden of getting used to different styles of Rust. After integrating into your IDE, you will have your .rs files formatted on every save.</p>
+
+<h4 id="derive-love">Derive Love</h4>
+
+<p>The rust compiler allows you to shortcut generating boilerplate for your custom types. I was working with a type that featured as a key in an ordered map (BTreeMap) and unordered map (HashMap). The type was a wrapper around i64. The derive(Hash) macro generated the Hash <code>Trait</code> (interface).</p>
+
+<p>Compiler unwraps Amount into underlying i64 and implements traits for the struct to be used in HashMap and BTreeMap (needs ordering)</p>
+
+<pre><code class="language-rust">#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)] 
+pub struct Amount {
+    pub as_int: i64,
+}
+</code></pre>
+
+<p>For me the biggest gain wasn&rsquo;t saving time to type lines of code. The opportunity to continue solving the problem of storing an ordered collection of amounts without context switching to implement hashing was the winner for me. Later I needed to implement a custom way of ordering amounts.</p>
+
+<p>There was only one minor downside, less related to the language and more to my laziness. The immediate feeling of proficiency with auto-complete gave me an illusion that I know rust APIs and can write them from memory.</p>
+
+<h3 id="what-made-your-implementation-efficient">What made your implementation efficient?</h3>
+
+<p>This should be another post on its own. I will leave a teaser here and write something up, if people really want to know.</p>
+
+<p>Tricks that helped performance:
+    * Replaced <code>println!</code> with a stdout lock and <code>writeln!</code>
+    * Enabled LTO in Cargo.toml and pre-allocated all heap-based data structures.
+    * Replaced BTreeMap with a memory-contiguous vector, which implements its own ordering using &hellip; binary search.
+    * Used llvm-profdata and rustc nightly, ran the application for PGO. Didn&rsquo;t get a meaningful improvement.</p>
+
+<p>Correcting my own design blunders (infinite source of optimisations:
+    * Turned timestamps into ints instead of using heap-allocated strings.</p>
+
+<h3 id="so-should-we-rewrite-everything-in-rust">So, should we rewrite everything in Rust?</h3>
+
+<p>The rust compiler, tooling (racer, completion, clippy) and the culture of thorough documentation made it easy for me to become immediately productive. Helpful error messages with detailed explanations of language concepts helped me learn, while solving problems.</p>
+
+<p>Recently, I have noticed fewer calls/posts/tweets calling people to rewrite critical pieces of infrastructure in Rust. Ironically, as the Rust strike force grew more level-headed, I became more of an ardent advocate for the language.</p>
+
+<p>Bryan Cantrill expressed a view that I have now adopted. Rust should continue to emphasise its usefulness for <em>new</em> projects in systems engineering. The sunk cost of 1000s of programmer-hours has given us OSes like Linux, BSD and Emacs; database engines like sqlite and postgres and web servers like nginx.</p>
+
+<p>Taking another 1000s of hours to rewrite <em>only</em> (weekend project anyone?) one of them in Rust will not help anyone. Contributors to those projects, who have accumulated domain expertise, are unlikely to solve the same problem, just because they can use a new language. Most experienced systems programmers have already etched into their brain a version of the ownership system.</p>
+
+<p>Organisations using such systems in the critical path are not going to fix what isn&rsquo;t broken. Users of the end product won&rsquo;t care, if the sqlite they are running on their Android phone is now in Rust.</p>
+
+<p>Instead we should leverage the expressiveness of the language, the ease of use helped by great tools and good FFI support to solve new problems. We should praise the work of systems programmers, whose products are powering most of our infrastructure and work together with them.</p>
+
+<!--  LocalWords:  dr
+ -->
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+

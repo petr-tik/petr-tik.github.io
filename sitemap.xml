@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/matching_engine_in_rust/</loc>
+    <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/xargs_magic/</loc>
+    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</loc>
+    <lastmod>2018-09-30T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/sitg/</loc>
+    <lastmod>2018-03-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/bivittatus/</loc>
+    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/gc_in_python_part_two/</loc>
+    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</loc>
+    <lastmod>2017-07-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</loc>
+    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/emacs_error/</loc>
+    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/gc_in_python/</loc>
+    <lastmod>2017-03-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/ci_for_solent/</loc>
+    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/candies_puzzle/</loc>
+    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/clojure_start/</loc>
+    <lastmod>2016-02-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/algorithms/</loc>
+    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/bash/</loc>
+    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/c/</loc>
+    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/ci/</loc>
+    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/clojure/</loc>
+    <lastmod>2016-02-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/emacs/</loc>
+    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/gc/</loc>
+    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/git/</loc>
+    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/hackerrank/</loc>
+    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/memory/</loc>
+    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/</loc>
+    <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/python/</loc>
+    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/rust/</loc>
+    <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/</loc>
+    <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/solent/</loc>
+    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/strace/</loc>
+    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/</loc>
+    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/wasm/</loc>
+    <lastmod>2018-09-30T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/about/</loc>
+  </url>
+  
+</urlset>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Emacs on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/emacs/</link>
+    <description>Recent content in Emacs on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 06 Apr 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/emacs/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Debugging hanging elpy on emacs</title>
+      <link>http://petr-tik.github.io/posts/emacs_error/</link>
+      <pubDate>Thu, 06 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/emacs_error/</guid>
+      <description>I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input.</description>
+    </item>
+    
+  </channel>
+</rss>

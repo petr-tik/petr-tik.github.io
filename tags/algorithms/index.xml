@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Algorithms on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/algorithms/</link>
+    <description>Recent content in Algorithms on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 27 Jun 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/algorithms/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Comparing different ways to add ints I</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</link>
+      <pubDate>Tue, 27 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</guid>
+      <description>Puzzle Given 2 ints represented as array of digits in order (eg.</description>
+    </item>
+    
+    <item>
+      <title>Unexpected breadth-first search</title>
+      <link>http://petr-tik.github.io/posts/candies_puzzle/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/candies_puzzle/</guid>
+      <description>This puzzle is in the dynamic programming section of HackerRank.</description>
+    </item>
+    
+  </channel>
+</rss>

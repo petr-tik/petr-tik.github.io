@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Software and puns</title>
+    <link>http://petr-tik.github.io/</link>
+    <description>Recent content on Software and puns</description>
+    <generator>Hugo - gohugo.io</generator>
+    <language>en</language>
+    <contact></contact>
+    <copyright></copyright>
+    
+        <atom:link href="http://petr-tik.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rust - from 0 to productive in 2 weeks</title>
+      <link>http://petr-tik.github.io/posts/matching_engine_in_rust/</link>
+      <pubDate>Sat, 19 Jan 2019 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/matching_engine_in_rust/</guid>
+      <description>Implementing an order book in Rust</description>
+      
+    </item>
+    
+    <item>
+      <title>How to update your changelog automatically</title>
+      <link>http://petr-tik.github.io/posts/xargs_magic/</link>
+      <pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/xargs_magic/</guid>
+      <description>The magic of xargs and git log</description>
+      
+    </item>
+    
+    <item>
+      <title>Compiling a Rust library to wasm</title>
+      <link>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</link>
+      <pubDate>Sun, 30 Sep 2018 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</guid>
+      <description>Going down rabbit holes of conditional compilation</description>
+      
+    </item>
+    
+    <item>
+      <title>Talebian software development</title>
+      <link>http://petr-tik.github.io/posts/sitg/</link>
+      <pubDate>Sat, 10 Mar 2018 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/sitg/</guid>
+      <description>Philosophical ideas behind development practices</description>
+      
+    </item>
+    
+    <item>
+      <title>Search text fast or die trie-ing</title>
+      <link>http://petr-tik.github.io/posts/bivittatus/</link>
+      <pubDate>Mon, 12 Feb 2018 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/bivittatus/</guid>
+      <description>Writing a Python extension in C</description>
+      
+    </item>
+    
+    <item>
+      <title>Diving into CPython GC module</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python_part_two/</link>
+      <pubDate>Sat, 05 Aug 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/gc_in_python_part_two/</guid>
+      <description>Reading source code for gcmodule.c</description>
+      
+    </item>
+    
+    <item>
+      <title>Comparing different ways to add ints II</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</link>
+      <pubDate>Sun, 16 Jul 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</guid>
+      <description>Profiling Python</description>
+      
+    </item>
+    
+    <item>
+      <title>Comparing different ways to add ints I</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</link>
+      <pubDate>Tue, 27 Jun 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</guid>
+      <description>Exploring the tradeoffs between recursive and iterative solutions</description>
+      
+    </item>
+    
+    <item>
+      <title>Debugging hanging elpy on emacs</title>
+      <link>http://petr-tik.github.io/posts/emacs_error/</link>
+      <pubDate>Thu, 06 Apr 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/emacs_error/</guid>
+      <description>Investigating a hanging emacs process</description>
+      
+    </item>
+    
+    <item>
+      <title>Notes on python&#39;s GC</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python/</link>
+      <pubDate>Tue, 07 Mar 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/gc_in_python/</guid>
+      <description>Notes from different videos/texts</description>
+      
+    </item>
+    
+    <item>
+      <title>CI for Solent-eng</title>
+      <link>http://petr-tik.github.io/posts/ci_for_solent/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/ci_for_solent/</guid>
+      <description>Thoughts on setting up own CI</description>
+      
+    </item>
+    
+    <item>
+      <title>Unexpected breadth-first search</title>
+      <link>http://petr-tik.github.io/posts/candies_puzzle/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/candies_puzzle/</guid>
+      <description>Uncovering a graph theory problem</description>
+      
+    </item>
+    
+    <item>
+      <title>Getting clojure with Lisp</title>
+      <link>http://petr-tik.github.io/posts/clojure_start/</link>
+      <pubDate>Sat, 20 Feb 2016 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
+      <description>My story with Clojure</description>
+      
+    </item>
+    
+    <item>
+      <title>Who dis?</title>
+      <link>http://petr-tik.github.io/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/about/</guid>
+      <description></description>
+      
+    </item>
+    
+  </channel>
+</rss>

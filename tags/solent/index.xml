@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Solent on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/solent/</link>
+    <description>Recent content in Solent on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 27 Feb 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/solent/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>CI for Solent-eng</title>
+      <link>http://petr-tik.github.io/posts/ci_for_solent/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/ci_for_solent/</guid>
+      <description>Spent the day working on a plan to build custom CI pipeline for solent.</description>
+    </item>
+    
+  </channel>
+</rss>

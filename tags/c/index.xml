@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>C on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/c/</link>
+    <description>Recent content in C on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/c/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Search text fast or die trie-ing</title>
+      <link>http://petr-tik.github.io/posts/bivittatus/</link>
+      <pubDate>Mon, 12 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/bivittatus/</guid>
+      <description>Benchmarking the Python and C implementation of a trie-as-a-dictionary.</description>
+    </item>
+    
+  </channel>
+</rss>

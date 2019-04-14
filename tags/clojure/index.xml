@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Clojure on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/clojure/</link>
+    <description>Recent content in Clojure on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 20 Feb 2016 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/clojure/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Getting clojure with Lisp</title>
+      <link>http://petr-tik.github.io/posts/clojure_start/</link>
+      <pubDate>Sat, 20 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
+      <description>I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.</description>
+    </item>
+    
+  </channel>
+</rss>

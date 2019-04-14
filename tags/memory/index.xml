@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Memory on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/memory/</link>
+    <description>Recent content in Memory on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 05 Aug 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/memory/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Diving into CPython GC module</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python_part_two/</link>
+      <pubDate>Sat, 05 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/gc_in_python_part_two/</guid>
+      <description>This is a deep dive into the source code for Modules/gcmodule.</description>
+    </item>
+    
+    <item>
+      <title>Notes on python&#39;s GC</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python/</link>
+      <pubDate>Tue, 07 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/gc_in_python/</guid>
+      <description>Notes on Memory Management in Python - YouTube</description>
+    </item>
+    
+  </channel>
+</rss>

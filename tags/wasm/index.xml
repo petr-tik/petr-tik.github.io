@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Wasm on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/wasm/</link>
+    <description>Recent content in Wasm on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 30 Sep 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/wasm/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Compiling a Rust library to wasm</title>
+      <link>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</link>
+      <pubDate>Sun, 30 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</guid>
+      <description>Since finding Paul Masurel&amp;rsquo;s tantivy searching/indexing library, I thought it would be cool to make the library available for the browser.</description>
+    </item>
+    
+  </channel>
+</rss>

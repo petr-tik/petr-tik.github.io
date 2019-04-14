@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rust on Software and puns</title>
+    <link>http://petr-tik.github.io/tags/rust/</link>
+    <description>Recent content in Rust on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 19 Jan 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rust - from 0 to productive in 2 weeks</title>
+      <link>http://petr-tik.github.io/posts/matching_engine_in_rust/</link>
+      <pubDate>Sat, 19 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/matching_engine_in_rust/</guid>
+      <description>This is a story of me going from making sarcastic jokes about rewriting everything in Rust to becoming one of them growing to like the language.</description>
+    </item>
+    
+    <item>
+      <title>Compiling a Rust library to wasm</title>
+      <link>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</link>
+      <pubDate>Sun, 30 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</guid>
+      <description>Since finding Paul Masurel&amp;rsquo;s tantivy searching/indexing library, I thought it would be cool to make the library available for the browser.</description>
+    </item>
+    
+  </channel>
+</rss>

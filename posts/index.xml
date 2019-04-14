@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Software and puns</title>
+    <link>http://petr-tik.github.io/posts/</link>
+    <description>Recent content in Posts on Software and puns</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 19 Jan 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://petr-tik.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rust - from 0 to productive in 2 weeks</title>
+      <link>http://petr-tik.github.io/posts/matching_engine_in_rust/</link>
+      <pubDate>Sat, 19 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/matching_engine_in_rust/</guid>
+      <description>This is a story of me going from making sarcastic jokes about rewriting everything in Rust to becoming one of them growing to like the language.</description>
+    </item>
+    
+    <item>
+      <title>How to update your changelog automatically</title>
+      <link>http://petr-tik.github.io/posts/xargs_magic/</link>
+      <pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/xargs_magic/</guid>
+      <description>If you ever needed a quick way to update your changelog - you should find the post below interesting.</description>
+    </item>
+    
+    <item>
+      <title>Compiling a Rust library to wasm</title>
+      <link>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</link>
+      <pubDate>Sun, 30 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</guid>
+      <description>Since finding Paul Masurel&amp;rsquo;s tantivy searching/indexing library, I thought it would be cool to make the library available for the browser.</description>
+    </item>
+    
+    <item>
+      <title>Talebian software development</title>
+      <link>http://petr-tik.github.io/posts/sitg/</link>
+      <pubDate>Sat, 10 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sitg/</guid>
+      <description>Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices.</description>
+    </item>
+    
+    <item>
+      <title>Search text fast or die trie-ing</title>
+      <link>http://petr-tik.github.io/posts/bivittatus/</link>
+      <pubDate>Mon, 12 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/bivittatus/</guid>
+      <description>Benchmarking the Python and C implementation of a trie-as-a-dictionary.</description>
+    </item>
+    
+    <item>
+      <title>Diving into CPython GC module</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python_part_two/</link>
+      <pubDate>Sat, 05 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/gc_in_python_part_two/</guid>
+      <description>This is a deep dive into the source code for Modules/gcmodule.</description>
+    </item>
+    
+    <item>
+      <title>Comparing different ways to add ints II</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</link>
+      <pubDate>Sun, 16 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</guid>
+      <description>Background As outlined in part 1, we are comparing recursive and iterative implementations of long arithmetic of 2 arrays.</description>
+    </item>
+    
+    <item>
+      <title>Comparing different ways to add ints I</title>
+      <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</link>
+      <pubDate>Tue, 27 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</guid>
+      <description>Puzzle Given 2 ints represented as array of digits in order (eg.</description>
+    </item>
+    
+    <item>
+      <title>Debugging hanging elpy on emacs</title>
+      <link>http://petr-tik.github.io/posts/emacs_error/</link>
+      <pubDate>Thu, 06 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/emacs_error/</guid>
+      <description>I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input.</description>
+    </item>
+    
+    <item>
+      <title>Notes on python&#39;s GC</title>
+      <link>http://petr-tik.github.io/posts/gc_in_python/</link>
+      <pubDate>Tue, 07 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/gc_in_python/</guid>
+      <description>Notes on Memory Management in Python - YouTube</description>
+    </item>
+    
+    <item>
+      <title>CI for Solent-eng</title>
+      <link>http://petr-tik.github.io/posts/ci_for_solent/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/ci_for_solent/</guid>
+      <description>Spent the day working on a plan to build custom CI pipeline for solent.</description>
+    </item>
+    
+    <item>
+      <title>Unexpected breadth-first search</title>
+      <link>http://petr-tik.github.io/posts/candies_puzzle/</link>
+      <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/candies_puzzle/</guid>
+      <description>This puzzle is in the dynamic programming section of HackerRank.</description>
+    </item>
+    
+    <item>
+      <title>Getting clojure with Lisp</title>
+      <link>http://petr-tik.github.io/posts/clojure_start/</link>
+      <pubDate>Sat, 20 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
+      <description>I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.</description>
+    </item>
+    
+  </channel>
+</rss>
