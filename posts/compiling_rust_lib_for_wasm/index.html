@@ -121,17 +121,14 @@
 <h2 id="directory-layout">Directory layout</h2>
 
 <p>Using tantivy library after version 0.7.0, I created a <code>wasm</code> sub-directory in the root directory of <code>tantivy</code>.</p>
-
-<pre><code class="language-bash">tantivy$$$ tree -L 1 wasm/
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tantivy<span style="color:#b8860b">$$</span>$ tree -L <span style="color:#666">1</span> wasm/
 wasm/
 ├── Cargo.lock
 ├── Cargo.toml
 ├── rust-toolchain
 ├── src/
 ├── target/
-└── wasm-pack.log
-</code></pre>
-
+└── wasm-pack.log</code></pre></div>
 <p>I took Paul&rsquo;s earlier effort to build a wasm-ready tantivy searcher in an older wasm branch. He based his branch off tantivy v0.5.0. so I expect that the library will need new code to compile again.</p>
 
 <h3 id="why-not-make-a-new-directory-crate-and-import-tantivy-in-cargo">Why not make a new directory/crate and import tantivy in Cargo?</h3>
@@ -143,59 +140,56 @@ wasm/
 <p>Paul&rsquo;s previous attempt to compile tantivy for wasm included an abstraction called <code>StaticDirectory</code>. By the time we got to v0.7.0, StaticDirectory disappeared and was replaced by several other directories inside the <code>directory</code> module. Using StaticDirectory inside the <code>wasm/lib/src.rs</code> didn&rsquo;t compile, because tantivy didn&rsquo;t have StaticDirectory anymore. Having wasm as a subdirectory inside tantivy allowed me to add a StaticDirectory to the <code>tantivy</code> library.</p>
 
 <p>After getting the <code>tantivy</code> library to compile for normal target with StaticDirectory, I went to the <code>wasm/</code> directory to compile the release version for wasm32 using nightly version of the compiler.</p>
-
-<pre><code class="language-bash">cd wasm/
-wasm$$$ /home/petr_tik/.cargo/bin/cargo +nightly build --release --target wasm32-unknown-unknown
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#a2f">cd</span> wasm/
+wasm<span style="color:#b8860b">$$</span>$ /home/petr_tik/.cargo/bin/cargo +nightly build --release --target wasm32-unknown-unknown
    Compiling memmap v0.6.2
    Compiling utf8-ranges v1.0.1
    Compiling safemem v0.3.0
    Compiling bit-vec v0.5.0
-error[E0433]: failed to resolve. Use of undeclared type or module `MmapInner`
+error<span style="color:#666">[</span>E0433<span style="color:#666">]</span>: failed to resolve. Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:188:9
     |
-188 |         MmapInner::map(self.get_len(file)?, file, self.offset).map(|inner| Mmap { inner: inner })
-    |         ^^^^^^^^^ Use of undeclared type or module `MmapInner`
+<span style="color:#666">188</span> |         MmapInner::map<span style="color:#666">(</span>self.get_len<span style="color:#666">(</span>file<span style="color:#666">)</span>?, file, self.offset<span style="color:#666">)</span>.map<span style="color:#666">(</span>|inner| Mmap <span style="color:#666">{</span> inner: inner <span style="color:#666">})</span>
+    |         ^^^^^^^^^ Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
 
-error[E0433]: failed to resolve. Use of undeclared type or module `MmapInner`
+error<span style="color:#666">[</span>E0433<span style="color:#666">]</span>: failed to resolve. Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:198:9
     |
-198 |         MmapInner::map_exec(self.get_len(file)?, file, self.offset)
-    |         ^^^^^^^^^ Use of undeclared type or module `MmapInner`
+<span style="color:#666">198</span> |         MmapInner::map_exec<span style="color:#666">(</span>self.get_len<span style="color:#666">(</span>file<span style="color:#666">)</span>?, file, self.offset<span style="color:#666">)</span>
+    |         ^^^^^^^^^ Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
 
-error[E0433]: failed to resolve. Use of undeclared type or module `MmapInner`
+error<span style="color:#666">[</span>E0433<span style="color:#666">]</span>: failed to resolve. Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:237:9
     |
-237 |         MmapInner::map_mut(self.get_len(file)?, file, self.offset)
-    |         ^^^^^^^^^ Use of undeclared type or module `MmapInner`
+<span style="color:#666">237</span> |         MmapInner::map_mut<span style="color:#666">(</span>self.get_len<span style="color:#666">(</span>file<span style="color:#666">)</span>?, file, self.offset<span style="color:#666">)</span>
+    |         ^^^^^^^^^ Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
 
-error[E0433]: failed to resolve. Use of undeclared type or module `MmapInner`
+error<span style="color:#666">[</span>E0433<span style="color:#666">]</span>: failed to resolve. Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:267:9
     |
-267 |         MmapInner::map_copy(self.get_len(file)?, file, self.offset)
-    |         ^^^^^^^^^ Use of undeclared type or module `MmapInner`
+<span style="color:#666">267</span> |         MmapInner::map_copy<span style="color:#666">(</span>self.get_len<span style="color:#666">(</span>file<span style="color:#666">)</span>?, file, self.offset<span style="color:#666">)</span>
+    |         ^^^^^^^^^ Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
 
-error[E0433]: failed to resolve. Use of undeclared type or module `MmapInner`
+error<span style="color:#666">[</span>E0433<span style="color:#666">]</span>: failed to resolve. Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:280:9
     |
-280 |         MmapInner::map_anon(self.len.unwrap_or(0), self.stack).map(|inner| MmapMut { inner: inner })
-    |         ^^^^^^^^^ Use of undeclared type or module `MmapInner`
+<span style="color:#666">280</span> |         MmapInner::map_anon<span style="color:#666">(</span>self.len.unwrap_or<span style="color:#666">(</span><span style="color:#666">0</span><span style="color:#666">)</span>, self.stack<span style="color:#666">)</span>.map<span style="color:#666">(</span>|inner| MmapMut <span style="color:#666">{</span> inner: inner <span style="color:#666">})</span>
+    |         ^^^^^^^^^ Use of undeclared <span style="color:#a2f">type</span> or module <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span>
 
-error[E0412]: cannot find type `MmapInner` in this scope
+error<span style="color:#666">[</span>E0412<span style="color:#666">]</span>: cannot find <span style="color:#a2f">type</span> <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span> in this scope
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:310:12
     |
-310 |     inner: MmapInner,
+<span style="color:#666">310</span> |     inner: MmapInner,
     |            ^^^^^^^^^ not found in this scope
 
-error[E0412]: cannot find type `MmapInner` in this scope
+error<span style="color:#666">[</span>E0412<span style="color:#666">]</span>: cannot find <span style="color:#a2f">type</span> <span style="color:#b44">`</span>MmapInner<span style="color:#b44">`</span> in this scope
    --&gt; /home/petr_tik/.cargo/registry/src/github.com-1ecc6299db9ec823/memmap-0.6.2/src/lib.rs:425:12
     |
-425 |     inner: MmapInner,
+<span style="color:#666">425</span> |     inner: MmapInner,
     |            ^^^^^^^^^ not found in this scope
 
-error: aborting due to 7 previous errors
-error: Could not compile `memmap`.
-</code></pre>
-
+error: aborting due to <span style="color:#666">7</span> previous errors
+error: Could not compile <span style="color:#b44">`</span>memmap<span style="color:#b44">`</span>.</code></pre></div>
 <p>The <code>memmap</code> dependency of tantivy wasn&rsquo;t compiling, which broke the build of wasm. I first needed to compile <code>tantivy</code> for the wasm target.</p>
 
 <h3 id="where-did-memmap-come-from">Where did memmap come from?</h3>
@@ -211,8 +205,7 @@ error: Could not compile `memmap`.
 <p><img src="/images/dicaprio.jpeg" alt="Photo" /></p>
 
 <p>I looked for files using mmap features and what crates those files import. Grep for all files that use <code>mmap</code>, removing files that never use it and sorting by the number of matching lines suggests <code>directory</code> module is the biggest culprit.</p>
-
-<pre><code class="language-bash">$$$$$ grep -rc &quot;mmap&quot; src/* | grep -v &quot;:0&quot; | sort -rn -k2 -t ':'
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span>$ grep -rc <span style="color:#b44">&#34;mmap&#34;</span> src/* | grep -v <span style="color:#b44">&#34;:0&#34;</span> | sort -rn -k2 -t <span style="color:#b44">&#39;:&#39;</span>
 src/directory/mmap_directory.rs:45
 src/directory/managed_directory.rs:15
 src/core/index.rs:10
@@ -222,24 +215,17 @@ src/termdict/termdict.rs:3
 src/lib.rs:2
 src/store/mod.rs:1
 src/functional_test.rs:1
-src/core/segment_reader.rs:1
-</code></pre>
-
+src/core/segment_reader.rs:1</code></pre></div>
 <p>one of the imports in <code>src/directory/mmap_directory.rs</code> is <code>use fst::raw::MmapReadOnly;</code>, whose name correctly suggests it uses memmap features. Looking inside <code>memmap-0.6.2/lib.rs</code> shows it&rsquo;s configured to build for unix or windows. Building for the wasm target misses all calls to macros below</p>
-
-<pre><code class="language-rust">[cfg(windows)]
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">[cfg(windows)]<span style="color:#bbb">
+</span></code></pre></div>
 <p>and the crate fails to compile.</p>
 
 <h2 id="how-did-paul-compile-tantivy-to-wasm-back-in-the-days-of-v0-5-0">How did Paul compile tantivy to wasm back in the days of v0.5.0?</h2>
 
 <p>I decided to go back to Paul&rsquo;s wasm branch based off v0.5.0 release and see if it would compile to wasm target without problems with memmap. There was a problem with the bitpacking crate, whose dependency was a path &ldquo;../bitpacking&rdquo;. Paul must have developed it locally at the time. Changing bitpacking as below, before building core tantivy for wasm.</p>
-
-<pre><code class="language-bash">-bitpacking = {path = &quot;../bitpacking&quot;}
-+bitpacking = &quot;*&quot;
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">-bitpacking <span style="color:#666">=</span> <span style="color:#666">{</span><span style="color:#b8860b">path</span> <span style="color:#666">=</span> <span style="color:#b44">&#34;../bitpacking&#34;</span><span style="color:#666">}</span>
++bitpacking <span style="color:#666">=</span> <span style="color:#b44">&#34;*&#34;</span></code></pre></div>
 <p>Building with nightly failed because of a difference in standard library between the nightlies Paul used at the time and the one I am using now.</p>
 
 <pre><code>$$$$ cargo +nightly build --verbose --release --no-default-features --target wasm32-unknown-unknown

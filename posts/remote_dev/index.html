@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title> | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+    </div>
+    
+    <h1 class="title"></h1>
+    
+    <div class="content">
+      
+
+<h2 id="remote--rust--development-environment"><span class="org-todo done DONE">DONE</span> Remote (rust) development environment</h2>
+
+<h3 id="picture-this-at-home">Picture this at home</h3>
+
+<p>Imaging you are working on a large Rust project. You have added a new feature,
+wrote some tests and kick off the compile and test process. While you wait, you
+switch to browsing Reddit. You like using a thin laptop - you can take it
+anywhere and fit it into even the smallest bags. Your laptop starts churning
+along, it&rsquo;s getting hotter under your hands and you see that Reddit is less
+responsive. After several such compilation cycles, you notice that your battery
+indicator has one bar left. You only unplugged it an hour ago and now you have
+to go charge it again.</p>
+
+<p>I found myself in that situation, when I started working on <a href="https://github.com/tantivy-search/tantivy/">tantivy</a>. During
+winter months, using my laptop as an additional heater felt like a useful life
+hack. Now that spring has sprung, I prefer to keep it cool. I decided to offload
+CPU and RAM-intensive compilation and testing cycle to a remote machine.</p>
+
+<p>This post outlines my system for saving battery and longevity of my laptop by
+making someone else&rsquo;s computer suffer.</p>
+
+<p>It&rsquo;s largely inspired by <a href="https://github.com/pzmarzly/cloudy">pzmarzly&rsquo;s cloudy</a> project.</p>
+
+<h3 id="mvp">MVP</h3>
+
+<p>Whenever possible, CPU-heavy compilation will take place on the VPS. All source
+code changes will be updated, so at every point both local and VPS version of
+the code match. If compilation and testing succeed, the executables are rsync&rsquo;ed
+from the VPS to my laptop.</p>
+
+<h3 id="do-you-always-compile-remotely">Do you always compile remotely?</h3>
+
+<p>Obviously, if there is no internet connection and I cannot reach my droplet, it doesn&rsquo;t matter how big the repo is - I can only compile locally.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">is_connected <span style="color:#666">()</span> <span style="color:#666">{</span>
+  <span style="color:#a2f">echo</span> <span style="color:#a2f;font-weight:bold">$(</span>nc -z <span style="color:#b8860b">$VPS_IP</span> <span style="color:#666">22</span><span style="color:#a2f;font-weight:bold">)</span>
+<span style="color:#666">}</span></code></pre></div>
+<p>Depending on the compile times of a given project network latency between the
+compile droplet and my laptop might cancel out the time wins. I want to build a
+general solution, so I need to decide when to compile locally or offload it
+externally.</p>
+
+<p>Using advanced ML algorithms and groundbreaking mathematical methods like linear
+regression, I can classify if the compilation time is long enough to justify
+offloading it to a VPS.</p>
+
+<p>I use line count as a predictor for compile times that are long enough to be offloaded. Counts the total number of lines in .rs source files.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">is_project_big <span style="color:#666">()</span> <span style="color:#666">{</span>
+      <span style="color:#080;font-style:italic"># get a list of directories with interesting rust code - either src or tests</span>
+        <span style="color:#b8860b">DIRECTORIES</span><span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">$(</span>find . -maxdepth <span style="color:#666">1</span> -type d | grep <span style="color:#b44">&#34;src\|test&#34;</span> | cut -c <span style="color:#666">3</span>-<span style="color:#a2f;font-weight:bold">)</span>;
+        <span style="color:#080;font-style:italic"># get the total LoC in any .rs files in these directories</span>
+        <span style="color:#b8860b">LOC_IN_RUST_FILES</span><span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">$(</span>find <span style="color:#b8860b">$DIRECTORIES</span> -type f -name <span style="color:#b44">&#34;*.rs&#34;</span> | xargs wc -l | tail -1 | cut -d<span style="color:#b44">&#34; &#34;</span> -f3<span style="color:#a2f;font-weight:bold">)</span>;
+        <span style="color:#b8860b">THRESHOLD_TO_COMPILE_REMOTELY</span><span style="color:#666">=</span><span style="color:#666">25000</span>;
+        <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#666">[</span> <span style="color:#b8860b">$LOC_IN_RUST_FILES</span> -ge <span style="color:#b8860b">$THRESHOLD_TO_COMPILE_REMOTELY</span> <span style="color:#666">]</span>; <span style="color:#a2f;font-weight:bold">then</span>
+            <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;true&#34;</span>
+        <span style="color:#a2f;font-weight:bold">else</span>
+            <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;false&#34;</span>
+        <span style="color:#a2f;font-weight:bold">fi</span>
+    <span style="color:#666">}</span></code></pre></div>
+<p>At the time of writing tantivy has <code>35856</code> lines of Rust code.</p>
+
+<h3 id="what-do-you-need-to-compile-remotely">What do you need to compile remotely?</h3>
+
+<h4 id="local-config">Local config</h4>
+
+<p>Put this in a config_remote_dev</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># insert your VPS IP</span>
+<span style="color:#b8860b">VPS_IP</span><span style="color:#666">=</span>XXX.XXX.XXX.XXX
+<span style="color:#b8860b">FILE_CHANNEL_REUSE</span><span style="color:#666">=</span><span style="color:#666">1</span>
+<span style="color:#080;font-style:italic"># Send Cloudy config.</span>
+<span style="color:#b8860b">SEND_CLOUDY</span><span style="color:#666">=</span><span style="color:#666">0</span>
+<span style="color:#080;font-style:italic"># Send gitignore-d files.</span>
+<span style="color:#b8860b">SEND_GITIGNORE</span><span style="color:#666">=</span><span style="color:#666">0</span>
+<span style="color:#080;font-style:italic"># Send .git directory.</span>
+<span style="color:#b8860b">SEND_GIT</span><span style="color:#666">=</span><span style="color:#666">0</span></code></pre></div>
+<h4 id="configure-cargo-and-necessary-build-tools-on-vps">Configure cargo and necessary build tools on VPS</h4>
+
+<p>I created a dedicated DigitalOcean droplet that will only be used for compiling large projects.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">server_setup<span style="color:#666">()</span> <span style="color:#666">{</span>
+    <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;Setting up server...&#34;</span>
+
+    <span style="color:#b8860b">UTILS_CMD</span><span style="color:#666">=</span><span style="color:#b44">&#34;
+</span><span style="color:#b44">            echo apt-get install build-essential -y
+</span><span style="color:#b44">            echo curl https://sh.rustup.rs -sSf \\| sh
+</span><span style="color:#b44">            echo /root/.cargo/bin/rustup toolchain add stable
+</span><span style="color:#b44">            echo /root/.cargo/bin/rustup default stable
+</span><span style="color:#b44">        &#34;</span>
+    <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;</span><span style="color:#b8860b">$UTILS_CMD</span><span style="color:#b44">&#34;</span> | m_ssh <span style="color:#b44">&#34;</span><span style="color:#b8860b">$ID</span><span style="color:#b44">&#34;</span> <span style="color:#b44">&#34;</span><span style="color:#b8860b">$IP</span><span style="color:#b44">&#34;</span> <span style="color:#b44">&#34; bash -ls&#34;</span>
+
+    <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;</span><span style="color:#b8860b">$ID</span><span style="color:#b44"> </span><span style="color:#b8860b">$IP</span><span style="color:#b44">&#34;</span> &gt; <span style="color:#b44">&#34;</span><span style="color:#b8860b">$LOCAL_LOCKFILE</span><span style="color:#b44">&#34;</span>
+<span style="color:#666">}</span></code></pre></div>
+<h4 id="sync-all-relevant-files-to-a-directory-on-the-vps"><span class="org-todo todo TODO">TODO</span> sync all relevant files to a directory on the VPS</h4>
+
+<p>First I need to sync files between my laptop and the VPS to make sure I am compiling the most current version.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">m_rsync <span style="color:#666">()</span> <span style="color:#666">{</span>
+    <span style="color:#a2f">declare</span> -a FLAGS
+    <span style="color:#b8860b">FLAGS</span><span style="color:#666">+=(</span><span style="color:#b44">&#34;-r&#34;</span> <span style="color:#b44">&#34;-t&#34;</span> <span style="color:#b44">&#34;-p&#34;</span> <span style="color:#b44">&#34;-R&#34;</span> <span style="color:#b44">&#34;-a&#34;</span> <span style="color:#b44">&#34;-i&#34;</span> <span style="color:#b44">&#34;-z&#34;</span><span style="color:#666">)</span> <span style="color:#080;font-style:italic"># t - timestamps, p - permissions</span>
+    <span style="color:#080;font-style:italic">## You have to include first before excluding everything else. Order matters!</span>
+    <span style="color:#080;font-style:italic"># Copy all the files needed to build</span>
+    <span style="color:#080;font-style:italic"># Cargo.toml</span>
+    <span style="color:#080;font-style:italic"># rust_toolchain</span>
+    <span style="color:#080;font-style:italic"># src/*</span>
+    <span style="color:#080;font-style:italic"># tests/*</span>
+    <span style="color:#080;font-style:italic"># FLAGS+=(&#34;--exclude=.git*&#34;)</span>
+
+    <span style="color:#b8860b">FLAGS</span><span style="color:#666">+=(</span><span style="color:#b44">&#34;--include=Cargo.toml&#34;</span><span style="color:#666">)</span>
+    <span style="color:#b8860b">FLAGS</span><span style="color:#666">+=(</span><span style="color:#b44">&#34;--include=rust_toolchain&#34;</span><span style="color:#666">)</span>
+    <span style="color:#b8860b">FLAGS</span><span style="color:#666">+=(</span><span style="color:#b44">&#34;--include=src/***&#34;</span><span style="color:#666">)</span>
+
+    <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#666">[</span> -d tests <span style="color:#666">]</span>; <span style="color:#a2f;font-weight:bold">then</span>
+        <span style="color:#b8860b">FLAGS</span><span style="color:#666">+=(</span><span style="color:#b44">&#34;--include=tests/***&#34;</span><span style="color:#666">)</span>
+    <span style="color:#a2f;font-weight:bold">fi</span>
+
+    <span style="color:#080;font-style:italic"># Exclude EVERYTHING else</span>
+    <span style="color:#b8860b">FLAGS</span><span style="color:#666">+=(</span><span style="color:#b44">&#34;--exclude=*&#34;</span><span style="color:#666">)</span>
+    rsync <span style="color:#b44">&#34;</span><span style="color:#b68;font-weight:bold">${</span><span style="color:#b8860b">FLAGS</span>[@]<span style="color:#b68;font-weight:bold">}</span><span style="color:#b44">&#34;</span> --list-only . | tail -20
+
+    <span style="color:#080;font-style:italic"># if [ &#34;$FILE_CHANNEL_REUSE&#34; != &#34;0&#34; ]; then</span>
+    <span style="color:#080;font-style:italic">#     FLAGS+=(&#34;-e&#34;</span>
+    <span style="color:#080;font-style:italic">#             &#34;ssh -o ControlMaster=auto -o ControlPersist=600 -o ControlPath=~/.ssh/master-$1 -i $KEY_PATH&#34;)</span>
+    <span style="color:#080;font-style:italic"># fi</span>
+    <span style="color:#080;font-style:italic"># rsync &#34;${FLAGS[@]}&#34;</span>
+    <span style="color:#080;font-style:italic"># FLAGS+=(&#34;.&#34; &#34;root@$2:~/cloudy/&#34;)</span>
+<span style="color:#666">}</span>
+
+sync_files_over<span style="color:#666">()</span> <span style="color:#666">{</span>
+    m_rsync <span style="color:#b8860b">$ID</span> <span style="color:#b8860b">$IP</span> &amp;
+    run_init
+<span style="color:#666">}</span></code></pre></div>
+<h4 id="pass-my-local-compile-commands-over-to-the-vps">Pass my local compile commands over to the VPS</h4>
+
+<p>After that, I remotely pass my cargo command (usually <code>test</code>, but sometimes <code>build</code>) over ssh to cargo running on the VPS.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cmd_cmd<span style="color:#666">()</span> <span style="color:#666">{</span>
+    assert_lockfile_present
+    <span style="color:#b8860b">DIRNAME</span><span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">$(</span>basename <span style="color:#b44">&#34;</span><span style="color:#b8860b">$PWD</span><span style="color:#b44">&#34;</span><span style="color:#a2f;font-weight:bold">)</span>
+    <span style="color:#080;font-style:italic"># sync files over</span>
+    m_rsync <span style="color:#b8860b">$ID</span> <span style="color:#b8860b">$IP</span> <span style="color:#b8860b">$DIRNAME</span>
+    <span style="color:#b8860b">CMD</span><span style="color:#666">=</span><span style="color:#b44">&#34; cd </span><span style="color:#b8860b">$DIRNAME</span><span style="color:#b44">; </span><span style="color:#b8860b">$@</span><span style="color:#b44">&#34;</span>
+    m_ssh <span style="color:#b8860b">$ID</span> <span style="color:#b8860b">$IP</span> <span style="color:#b44">&#34; bash -ls -c \&#34;</span><span style="color:#b8860b">$CMD</span><span style="color:#b44">\&#34;&#34;</span>
+<span style="color:#666">}</span></code></pre></div>
+<h3 id="what-do-you-do-with-results"><span class="org-todo todo TODO">TODO</span> What do you do with results?</h3>
+
+<h4 id="stream-them-back-to-terminal-and-watch-results"><span class="org-todo todo TODO">TODO</span> Stream them back to terminal and watch results</h4>
+
+<ul>
+<li><p><span class="org-todo todo TODO">TODO</span>  run the cargo command over ssh on remote and stream results</p></li>
+
+<li><p><span class="org-todo todo TODO">TODO</span>  check result - if 1, abort rest of script, deal with errors locally</p></li>
+</ul>
+
+<h4 id="copy-executables-back-to-local-target-directory"><span class="org-todo todo TODO">TODO</span> Copy executables back to local target directory</h4>
+
+<p>I also want to rsync the target directory back, so I can pull back executables to run locally.</p>
+
+<ul>
+<li><p><span class="org-todo todo TODO">TODO</span>  Check minimum number of executables to rsync from dev to laptop</p>
+
+<p>Check that that cargo run can work without any other libraries/binaries apart from `target/release/executable`.</p></li>
+
+<li><p><span class="org-todo todo TODO">TODO</span>  clean local target and rsync them back</p></li>
+
+<li><p><span class="org-todo todo TODO">TODO</span>  make sure it runs locally</p></li>
+</ul>
+
+<h3 id="how-does-it-fit-into-your-normal-workflow"><span class="org-todo todo TODO">TODO</span> How does it fit into your normal workflow? <code>[0/2]</code></h3>
+
+<h4 id="alias-cargo-to-pt-cargo"><span class="org-todo todo TODO">TODO</span> Alias cargo to pt_cargo</h4>
+
+<h4 id="write-emacs-integration-to-wrap-it"><span class="org-todo todo TODO">TODO</span> Write emacs integration to wrap it</h4>
+
+<h3 id="how-good-is-it">How good is it?</h3>
+
+<h4 id="benefits">Benefits</h4>
+
+<ul>
+<li>Fast builds! Keep the same laptop and get faster builds by getting a faster VPS.</li>
+<li>Save disk space locally.</li>
+</ul>
+
+<h4 id="disadvantages-and-additional-requirements">Disadvantages and additional requirements</h4>
+
+<ul>
+<li>Need to keep the environment (Linux, environment vars, rust toolchain) in sync across machines.</li>
+<li>If connection fails during a dev/debugging session, I won&rsquo;t have debug symbols or any dependencies locally, so will need to rebuild from scratch.</li>
+<li>More network traffic - minor risk of hitting the bandwidth quota for my VPS. Minimise the risk by only mirroring to source code and release/debug binaries.</li>
+<li>Not running into disk problems locally will make me forget how much I am using up in the VPS.</li>
+</ul>
+
+<h4 id="results">Results</h4>
+
+<p>After implementing this my compile-and-test cycle went from</p>
+
+<p>Local build</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cargo clean
+<span style="color:#a2f">time</span> cargo <span style="color:#a2f">test</span> -q</code></pre></div>
+<p>Offload build</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cargo clean
+<span style="color:#a2f">time</span> cargo <span style="color:#a2f">test</span> -q</code></pre></div>
+<p>Aside from the times, I now don&rsquo;t need to worry about a hot laptop.</p>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+

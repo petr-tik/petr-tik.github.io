@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://petr-tik.github.io/posts/improving_takehome_tests/</loc>
+    <lastmod>2019-05-15T23:05:54+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/matching_engine_in_rust/</loc>
     <lastmod>2019-01-19T00:00:00+00:00</lastmod>
   </url>
@@ -68,6 +73,10 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/posts/remote_dev/</loc>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/tags/algorithms/</loc>
     <lastmod>2017-06-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -127,6 +136,18 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/categories/hacking/</loc>
+    <lastmod>2019-05-15T23:05:54+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/interviewing/</loc>
+    <lastmod>2019-05-15T23:05:54+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/tags/memory/</loc>
     <lastmod>2017-08-05T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -134,7 +155,7 @@
   
   <url>
     <loc>http://petr-tik.github.io/posts/</loc>
-    <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+    <lastmod>2019-05-15T23:05:54+01:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -152,7 +173,7 @@
   
   <url>
     <loc>http://petr-tik.github.io/</loc>
-    <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+    <lastmod>2019-05-15T23:05:54+01:00</lastmod>
     <priority>0</priority>
   </url>
   

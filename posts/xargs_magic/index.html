@@ -100,10 +100,7 @@
 <p>So I wrote a bash script to dump a summary of all commits between last version in the changelog and current git HEAD.</p>
 
 <p>Here it is in all its splendour.</p>
-
-<pre><code class="language-bash">grep -oP -m1 &quot;(?## )[0-9].+&quot; pages/changelog.md | xargs -I LAST_VERSION git log --format=&quot;%H&quot; --grep=&quot;LAST_VERSION&quot; | xargs -I COMMIT_HASH git log --format=%s%n%b COMMIT_HASH..HEAD
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">grep -oP -m1 <span style="color:#b44">&#34;(?## )[0-9].+&#34;</span> pages/changelog.md | xargs -I LAST_VERSION git log --format<span style="color:#666">=</span><span style="color:#b44">&#34;%H&#34;</span> --grep<span style="color:#666">=</span><span style="color:#b44">&#34;LAST_VERSION&#34;</span> | xargs -I COMMIT_HASH git log --format<span style="color:#666">=</span>%s%n%b COMMIT_HASH..HEAD</code></pre></div>
 <p>Let&rsquo;s break it down into constituent parts.</p>
 
 <h2 id="step-one-find-the-latest-version-in-the-changelog">Step one - find the latest version in the changelog</h2>

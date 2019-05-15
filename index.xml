@@ -13,6 +13,16 @@
     
     
     <item>
+      <title>Improving the take home assignment</title>
+      <link>http://petr-tik.github.io/posts/improving_takehome_tests/</link>
+      <pubDate>Wed, 15 May 2019 22:51:00 +0100</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/improving_takehome_tests/</guid>
+      <description>Efficiently assessing programmers on realistic problems</description>
+      
+    </item>
+    
+    <item>
       <title>Rust - from 0 to productive in 2 weeks</title>
       <link>http://petr-tik.github.io/posts/matching_engine_in_rust/</link>
       <pubDate>Sat, 19 Jan 2019 00:00:00 +0000</pubDate>
@@ -139,6 +149,16 @@
       <author>Petr Tikilyaynen</author>
       <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
       <description>My story with Clojure</description>
+      
+    </item>
+    
+    <item>
+      <title></title>
+      <link>http://petr-tik.github.io/posts/remote_dev/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/remote_dev/</guid>
+      <description></description>
       
     </item>
     

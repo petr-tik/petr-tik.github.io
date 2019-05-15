@@ -114,17 +114,11 @@
 <h3 id="debugging">Debugging</h3>
 
 <p>After installing debug symbols</p>
-
-<pre><code class="language-bash">sudo apt-get install python3.5-dbg
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo apt-get install python3.5-dbg</code></pre></div>
 <p>Compile the extension with <code>-g -O0</code> flags to make sure debug sybmols are available and compiler optimisations (gcc is clever nowadays) don&rsquo;t remove too much of your code.</p>
 
 <p>Run the line below (inside emacs or terminal).</p>
-
-<pre><code class="language-bash">gdb -ex r --args python3 test.py
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gdb -ex r --args python3 test.py</code></pre></div>
 <p>You can step through the programme, look at the backtrace and examine registers.</p>
 
 <h2 id="building">Building</h2>
@@ -138,38 +132,29 @@
 <p>After a build is succesful, cTrie is available to any python programme that is run inside the root directory. I wrote tests to make sure both PyTrie and cTrie implementations pass the same test suite.</p>
 
 <p>Using pytest and its mark.parametrize decorator, I define a list of parameters (different trie constructors) and make sure each test function is run with every trie constructor.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">pytest</span>
 
-<pre><code class="language-python">import pytest
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">ctrie</span> <span style="color:#a2f;font-weight:bold">import</span> cTrie
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">py_trie</span> <span style="color:#a2f;font-weight:bold">import</span> PyTrie
 
-from ctrie import cTrie
-from py_trie import PyTrie
+constructors <span style="color:#666">=</span> [cTrie, PyTrie]
 
-constructors = [cTrie, PyTrie]
-
-@pytest.mark.parametrize(&quot;constructor&quot;, constructors)
-def test_find_added(constructor):
-    tr = constructor()
-    tr.add(&quot;bob&quot;)
-    assert tr.find(&quot;bob&quot;) == 1
-</code></pre>
-
+<span style="color:#a2f">@pytest.mark.parametrize</span>(<span style="color:#b44">&#34;constructor&#34;</span>, constructors)
+<span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">test_find_added</span>(constructor):
+    tr <span style="color:#666">=</span> constructor()
+    tr<span style="color:#666">.</span>add(<span style="color:#b44">&#34;bob&#34;</span>)
+    <span style="color:#a2f;font-weight:bold">assert</span> tr<span style="color:#666">.</span>find(<span style="color:#b44">&#34;bob&#34;</span>) <span style="color:#666">==</span> <span style="color:#666">1</span></code></pre></div>
 <h2 id="what-s-inside-the-shared-library">What&rsquo;s inside the shared library</h2>
 
 <p>Using objdump, we can examine the functions of the shared library.</p>
-
-<pre><code class="language-bash">objdump -d ctrie.cpython-35m-x86_64-linux-gnu.so 
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">objdump -d ctrie.cpython-35m-x86_64-linux-gnu.so </code></pre></div>
 <p>eg. the shared library has a <code>char_to_ascii</code> function used to calculate the index of the character in the english alphabet i.e. a gives 0, z - 26. This index is used to retrieve the relevant child node to continue building or querying the trie.</p>
-
-<pre><code class="language-asm">0000000000000b40 &lt;char_to_ascii&gt;:
- b40:	40 0f be c7          	movsbl %dil,%eax
- b44:	83 e8 61             	sub    $0x61,%eax
- b47:	c3                   	retq   
- b48:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
- b4f:	00 
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="">0000000000000</span><span style="color:#00a000">b40</span> <span style="">&lt;</span><span style="color:#800">char_to_ascii</span><span style="">&gt;</span>:
+ <span style="color:#a0a000">b40:</span>	<span style="">40</span> <span style="">0</span><span style="color:#00a000">f</span> <span style="color:#800">be</span> <span style="color:#800">c7</span>          	<span style="color:#800">movsbl</span> <span style="color:#b8860b">%dil</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b44:</span>	<span style="">83</span> <span style="color:#00a000">e8</span> <span style="color:#666">61</span>             	<span style="color:#800">sub</span>    <span style="color:#800">$0x61</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b47:</span>	<span style="color:#00a000">c3</span>                   	<span style="color:#800">retq</span>   
+ <span style="color:#800">b48</span>:	<span style="color:#666">0</span><span style="color:#800">f</span> <span style="color:#666">1</span><span style="color:#800">f</span> <span style="color:#666">84</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">nopl</span>   <span style="color:#666">0x0</span>(<span style="color:#b8860b">%rax</span>,<span style="color:#b8860b">%rax</span>,<span style="color:#666">1</span>)
+ <span style="color:#a0a000">b4f:</span>	<span style="">00</span> </code></pre></div>
 <p>%dil is the lowest 8 bits of the DI register, one of the core registers. Core registers are available in 32-bit and 16-bit modes. We are working with 1 char - 1 byte = 8 bits, so the CPython compiler order to use 8 bits of one of the core registers.</p>
 
 <p>movsbl - reads the value and moves into into the %eax register after sign-extending it to 32 bits.</p>
@@ -183,33 +168,30 @@ def test_find_added(constructor):
 <h2 id="what-performs-better-compiled-c-or-python">What performs better - compiled C or Python?</h2>
 
 <p>The benchmark compiled a fresh version of the library, cleared all caches and run the <code>benchmark.py</code> script.</p>
-
-<pre><code class="language-python">building 'ctrie' extension
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">building <span style="color:#b44">&#39;ctrie&#39;</span> extension
 creating build
-creating build/temp.linux-x86_64-3.5
-x86_64-linux-gnu-gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -g -fstack-protector-strong -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -fPIC -I/usr/include/python3.5m -c trie.c -o build/temp.linux-x86_64-3.5/trie.o -O3
-x86_64-linux-gnu-gcc -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-Bsymbolic-functions -Wl,-z,relro -g -fstack-protector-strong -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 build/temp.linux-x86_64-3.5/trie.o -o /home/petr_tik/Coding/bivittatus/ctrie.cpython-35m-x86_64-linux-gnu.so
-free &amp;&amp; sync &amp;&amp; sudo sh -c &quot;echo 3 &gt; /proc/sys/vm/drop_caches&quot; &amp;&amp; free
+creating build<span style="color:#666">/</span>temp<span style="color:#666">.</span>linux<span style="color:#666">-</span>x86_64<span style="color:#666">-</span><span style="color:#666">3.5</span>
+x86_64<span style="color:#666">-</span>linux<span style="color:#666">-</span>gnu<span style="color:#666">-</span>gcc <span style="color:#666">-</span>pthread <span style="color:#666">-</span>DNDEBUG <span style="color:#666">-</span>g <span style="color:#666">-</span>fwrapv <span style="color:#666">-</span>O2 <span style="color:#666">-</span>Wall <span style="color:#666">-</span>Wstrict<span style="color:#666">-</span>prototypes <span style="color:#666">-</span>g <span style="color:#666">-</span>fstack<span style="color:#666">-</span>protector<span style="color:#666">-</span>strong <span style="color:#666">-</span>Wformat <span style="color:#666">-</span>Werror<span style="color:#666">=</span>format<span style="color:#666">-</span>security <span style="color:#666">-</span>D_FORTIFY_SOURCE<span style="color:#666">=</span><span style="color:#666">2</span> <span style="color:#666">-</span>fPIC <span style="color:#666">-</span>I<span style="color:#666">/</span>usr<span style="color:#666">/</span>include<span style="color:#666">/</span>python3<span style="color:#666">.</span><span style="color:#666">5</span>m <span style="color:#666">-</span>c trie<span style="color:#666">.</span>c <span style="color:#666">-</span>o build<span style="color:#666">/</span>temp<span style="color:#666">.</span>linux<span style="color:#666">-</span>x86_64<span style="color:#666">-</span><span style="color:#666">3.5</span><span style="color:#666">/</span>trie<span style="color:#666">.</span>o <span style="color:#666">-</span>O3
+x86_64<span style="color:#666">-</span>linux<span style="color:#666">-</span>gnu<span style="color:#666">-</span>gcc <span style="color:#666">-</span>pthread <span style="color:#666">-</span>shared <span style="color:#666">-</span>Wl,<span style="color:#666">-</span>O1 <span style="color:#666">-</span>Wl,<span style="color:#666">-</span>Bsymbolic<span style="color:#666">-</span>functions <span style="color:#666">-</span>Wl,<span style="color:#666">-</span>Bsymbolic<span style="color:#666">-</span>functions <span style="color:#666">-</span>Wl,<span style="color:#666">-</span>z,relro <span style="color:#666">-</span>Wl,<span style="color:#666">-</span>Bsymbolic<span style="color:#666">-</span>functions <span style="color:#666">-</span>Wl,<span style="color:#666">-</span>z,relro <span style="color:#666">-</span>g <span style="color:#666">-</span>fstack<span style="color:#666">-</span>protector<span style="color:#666">-</span>strong <span style="color:#666">-</span>Wformat <span style="color:#666">-</span>Werror<span style="color:#666">=</span>format<span style="color:#666">-</span>security <span style="color:#666">-</span>D_FORTIFY_SOURCE<span style="color:#666">=</span><span style="color:#666">2</span> build<span style="color:#666">/</span>temp<span style="color:#666">.</span>linux<span style="color:#666">-</span>x86_64<span style="color:#666">-</span><span style="color:#666">3.5</span><span style="color:#666">/</span>trie<span style="color:#666">.</span>o <span style="color:#666">-</span>o <span style="color:#666">/</span>home<span style="color:#666">/</span>petr_tik<span style="color:#666">/</span>Coding<span style="color:#666">/</span>bivittatus<span style="color:#666">/</span>ctrie<span style="color:#666">.</span>cpython<span style="color:#666">-</span><span style="color:#666">35</span>m<span style="color:#666">-</span>x86_64<span style="color:#666">-</span>linux<span style="color:#666">-</span>gnu<span style="color:#666">.</span>so
+free <span style="color:#666">&amp;&amp;</span> sync <span style="color:#666">&amp;&amp;</span> sudo sh <span style="color:#666">-</span>c <span style="color:#b44">&#34;echo 3 &gt; /proc/sys/vm/drop_caches&#34;</span> <span style="color:#666">&amp;&amp;</span> free
 
-...
+<span style="color:#666">...</span>
 
-python3 benchmark.py
+python3 benchmark<span style="color:#666">.</span>py
 PyTrie
-Takes 0.000009s to instantiate before adding sorted words
-Takes 0.231256s to add 18000 words
-Takes 0.000593s to instantiate before adding random words
-Takes 0.239599s to add 18000 random words
-Takes 0.005769s to find 100 random words
-Takes 0.001648s to look for, but fail to find, 800 missing words
+Takes <span style="color:#666">0.000009</span>s to instantiate before adding <span style="color:#a2f">sorted</span> words
+Takes <span style="color:#666">0.231256</span>s to add <span style="color:#666">18000</span> words
+Takes <span style="color:#666">0.000593</span>s to instantiate before adding random words
+Takes <span style="color:#666">0.239599</span>s to add <span style="color:#666">18000</span> random words
+Takes <span style="color:#666">0.005769</span>s to find <span style="color:#666">100</span> random words
+Takes <span style="color:#666">0.001648</span>s to look <span style="color:#a2f;font-weight:bold">for</span>, but fail to find, <span style="color:#666">800</span> missing words
 cTrie
-Takes 0.000529s to instantiate before adding sorted words
-Takes 0.012475s to add 18000 words
-Takes 0.000002s to instantiate before adding random words
-Takes 0.011485s to add 18000 random words
-Takes 0.000142s to find 100 random words
-Takes 0.000375s to look for, but fail to find, 800 missing words
-</code></pre>
-
+Takes <span style="color:#666">0.000529</span>s to instantiate before adding <span style="color:#a2f">sorted</span> words
+Takes <span style="color:#666">0.012475</span>s to add <span style="color:#666">18000</span> words
+Takes <span style="color:#666">0.000002</span>s to instantiate before adding random words
+Takes <span style="color:#666">0.011485</span>s to add <span style="color:#666">18000</span> random words
+Takes <span style="color:#666">0.000142</span>s to find <span style="color:#666">100</span> random words
+Takes <span style="color:#666">0.000375</span>s to look <span style="color:#a2f;font-weight:bold">for</span>, but fail to find, <span style="color:#666">800</span> missing words</code></pre></div>
 <p>The C trie is faster in all cases apart from instantiating a new trie. As far as I understand, this is related to the fact that the bytecode for PyTrie is preloaded by the CPython interpreter, while the C library needs to load when it&rsquo;s first called. After that the speed improvement is at least a factor of 2. Searching for words inside the trie is an order of magnitude faster.</p>
 
 <h2 id="where-is-the-source">Where is the source?</h2>

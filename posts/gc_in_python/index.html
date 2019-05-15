@@ -112,22 +112,18 @@
 <h3 id="global-value-reuse">Global value reuse</h3>
 
 <p>When a new variable (reference) is created, the python runtime checks if an object with such a value already exists. If it does, the new variable doesn&rsquo;t create a reference, instead it increases the refcount of int_object with value 10 to 2 as below. This works either when the object a new object is created or a primitive object&rsquo;s value is changed to match the value of an already existing object.</p>
-
-<pre><code class="language-python">
-&gt;&gt;&gt; x = 10
-&gt;&gt;&gt; y = 10
-&gt;&gt;&gt; x is y
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#666">&gt;&gt;&gt;</span> x <span style="color:#666">=</span> <span style="color:#666">10</span>
+<span style="color:#666">&gt;&gt;&gt;</span> y <span style="color:#666">=</span> <span style="color:#666">10</span>
+<span style="color:#666">&gt;&gt;&gt;</span> x <span style="color:#a2f;font-weight:bold">is</span> y
 True
-&gt;&gt;&gt; id(x) == id(y)
+<span style="color:#666">&gt;&gt;&gt;</span> <span style="color:#a2f">id</span>(x) <span style="color:#666">==</span> <span style="color:#a2f">id</span>(y)
 True
-&gt;&gt;&gt; z = 9
-&gt;&gt;&gt; id(z) == id(y)
+<span style="color:#666">&gt;&gt;&gt;</span> z <span style="color:#666">=</span> <span style="color:#666">9</span>
+<span style="color:#666">&gt;&gt;&gt;</span> <span style="color:#a2f">id</span>(z) <span style="color:#666">==</span> <span style="color:#a2f">id</span>(y)
 False
-&gt;&gt;&gt; z += 1
-&gt;&gt;&gt; id(z) == id(y)
-True
-</code></pre>
-
+<span style="color:#666">&gt;&gt;&gt;</span> z <span style="color:#666">+=</span> <span style="color:#666">1</span>
+<span style="color:#666">&gt;&gt;&gt;</span> <span style="color:#a2f">id</span>(z) <span style="color:#666">==</span> <span style="color:#a2f">id</span>(y)
+True</code></pre></div>
 <p>Python creates an int object on the heap. If a new variable is created on the stack and assigned to a value, python sets up a reference between the new variable and the already existing object.</p>
 
       

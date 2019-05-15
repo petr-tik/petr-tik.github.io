@@ -98,31 +98,28 @@
 <p>Implement and profile recursive and iterative solutions to the puzzle above.</p>
 
 <h3 id="recursive-solution">Recursive solution</h3>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">recur_sum_helper</span>(arr1, arr2, idx<span style="color:#666">=</span><span style="color:#666">0</span>, res<span style="color:#666">=</span>[], carry<span style="color:#666">=</span><span style="color:#666">0</span>):
+    <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f;font-weight:bold">not</span> res:
+        res <span style="color:#666">=</span> <span style="color:#a2f">list</span>() <span style="color:#080;font-style:italic"># guarantee it doesn&#39;t change array outside func scope</span>
+    <span style="color:#a2f;font-weight:bold">if</span> idx <span style="color:#666">&gt;=</span> <span style="color:#a2f">len</span>(arr1) <span style="color:#a2f;font-weight:bold">and</span> idx <span style="color:#666">&gt;=</span> <span style="color:#a2f">len</span>(arr2):
+        <span style="color:#a2f;font-weight:bold">if</span> carry <span style="color:#666">==</span> <span style="color:#666">1</span>:
+            res<span style="color:#666">.</span>append(<span style="color:#666">1</span>)
+        <span style="color:#a2f;font-weight:bold">return</span> res
+    <span style="color:#a2f;font-weight:bold">if</span> idx <span style="color:#666">&gt;=</span> <span style="color:#a2f">len</span>(arr1):
+        carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr2[idx], <span style="color:#666">10</span>)
+        res<span style="color:#666">.</span>append(item_to_add)
+        idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
+        <span style="color:#a2f;font-weight:bold">return</span> recur_sum_helper(arr1, arr2, idx, res, carry)
+    <span style="color:#a2f;font-weight:bold">if</span> idx <span style="color:#666">&gt;=</span> <span style="color:#a2f">len</span>(arr2):
+        carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr1[idx], <span style="color:#666">10</span>)
+        res<span style="color:#666">.</span>append(item_to_add)
+        idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
+        <span style="color:#a2f;font-weight:bold">return</span> recur_sum_helper(arr1, arr2, idx, res, carry)
 
-<pre><code class="language-python">def recur_sum_helper(arr1, arr2, idx=0, res=[], carry=0):
-    if not res:
-        res = list() # guarantee it doesn't change array outside func scope
-    if idx &gt;= len(arr1) and idx &gt;= len(arr2):
-        if carry == 1:
-            res.append(1)
-        return res
-    if idx &gt;= len(arr1):
-        carry, item_to_add = divmod(carry + arr2[idx], 10)
-        res.append(item_to_add)
-        idx += 1
-        return recur_sum_helper(arr1, arr2, idx, res, carry)
-    if idx &gt;= len(arr2):
-        carry, item_to_add = divmod(carry + arr1[idx], 10)
-        res.append(item_to_add)
-        idx += 1
-        return recur_sum_helper(arr1, arr2, idx, res, carry)
-
-    carry, item_to_add = divmod(carry + arr1[idx] + arr2[idx], 10)
-    res.append(item_to_add)
-    idx += 1
-    return recur_sum_helper(arr1, arr2, idx, res, carry)
-</code></pre>
-
+    carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr1[idx] <span style="color:#666">+</span> arr2[idx], <span style="color:#666">10</span>)
+    res<span style="color:#666">.</span>append(item_to_add)
+    idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
+    <span style="color:#a2f;font-weight:bold">return</span> recur_sum_helper(arr1, arr2, idx, res, carry)</code></pre></div>
 <p>Having done some Clojure, functional tools like map and reduce made it feel that a recursive solution was going to be concise. Handling the same edge cases across different array lengths made the implementation more heavily branched and less pretty than expected.</p>
 
 <p>The final return statement will activate once idx exhausts both arrays (i.e. incremented beyond both lengths). If the carry bit has been carried over from the previous stack frame, which called this last stack frame, add 1 to the end of the array and return the result.</p>
@@ -132,48 +129,39 @@
 <h3 id="iterative-solution">Iterative solution</h3>
 
 <p>Unrolls the recursive loop. Instead of creating a stack frame for each digit, add as many digits as possible before one of the arrays runs out, then handle the leftover digits from the longer array. In the case of arrays/numbers of the same length, there won&rsquo;t be any branch misprediction and we will fall through down to the return statement.</p>
-
-<pre><code class="language-python">def iter_sum_helper(arr1, arr2):
-    idx = 0
-    carry = 0
-    res = []
-    while idx &lt; min(len(arr1), len(arr2)):
-        carry, item_to_add = divmod(carry + arr1[idx] + arr2[idx], 10)
-        res.append(item_to_add)
-        idx += 1
-    if len(arr1) &gt; len(arr2):
-        while idx &lt; len(arr1):
-            carry, item_to_add = divmod(carry + arr1[idx], 10)
-            res.append(item_to_add)
-            idx += 1
-    else:
-        while idx &lt; len(arr2):
-            carry, item_to_add = divmod(carry + arr2[idx], 10)
-            res.append(item_to_add)
-            idx += 1
-    if carry == 1:
-        res.append(1)
-    return res
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">iter_sum_helper</span>(arr1, arr2):
+    idx <span style="color:#666">=</span> <span style="color:#666">0</span>
+    carry <span style="color:#666">=</span> <span style="color:#666">0</span>
+    res <span style="color:#666">=</span> []
+    <span style="color:#a2f;font-weight:bold">while</span> idx <span style="color:#666">&lt;</span> <span style="color:#a2f">min</span>(<span style="color:#a2f">len</span>(arr1), <span style="color:#a2f">len</span>(arr2)):
+        carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr1[idx] <span style="color:#666">+</span> arr2[idx], <span style="color:#666">10</span>)
+        res<span style="color:#666">.</span>append(item_to_add)
+        idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
+    <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f">len</span>(arr1) <span style="color:#666">&gt;</span> <span style="color:#a2f">len</span>(arr2):
+        <span style="color:#a2f;font-weight:bold">while</span> idx <span style="color:#666">&lt;</span> <span style="color:#a2f">len</span>(arr1):
+            carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr1[idx], <span style="color:#666">10</span>)
+            res<span style="color:#666">.</span>append(item_to_add)
+            idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
+    <span style="color:#a2f;font-weight:bold">else</span>:
+        <span style="color:#a2f;font-weight:bold">while</span> idx <span style="color:#666">&lt;</span> <span style="color:#a2f">len</span>(arr2):
+            carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr2[idx], <span style="color:#666">10</span>)
+            res<span style="color:#666">.</span>append(item_to_add)
+            idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
+    <span style="color:#a2f;font-weight:bold">if</span> carry <span style="color:#666">==</span> <span style="color:#666">1</span>:
+        res<span style="color:#666">.</span>append(<span style="color:#666">1</span>)
+    <span style="color:#a2f;font-weight:bold">return</span> res</code></pre></div>
 <h3 id="wrapper-to-time-each-function-call">Wrapper to time each function call</h3>
-
-<pre><code class="language-python">def timeit(func):
-    def newfunc(*args, **kwargs):
-        startTime = time.time()
-        res = func(*args, **kwargs)
-        elapsedTime = time.time() - startTime
-        time_as_string = '{:.6f}'.format(elapsedTime * 1000)
-        return (res, time_as_string)
-    return newfunc
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">timeit</span>(func):
+    <span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">newfunc</span>(<span style="color:#666">*</span>args, <span style="color:#666">**</span>kwargs):
+        startTime <span style="color:#666">=</span> time<span style="color:#666">.</span>time()
+        res <span style="color:#666">=</span> func(<span style="color:#666">*</span>args, <span style="color:#666">**</span>kwargs)
+        elapsedTime <span style="color:#666">=</span> time<span style="color:#666">.</span>time() <span style="color:#666">-</span> startTime
+        time_as_string <span style="color:#666">=</span> <span style="color:#b44">&#39;{:.6f}&#39;</span><span style="color:#666">.</span>format(elapsedTime <span style="color:#666">*</span> <span style="color:#666">1000</span>)
+        <span style="color:#a2f;font-weight:bold">return</span> (res, time_as_string)
+    <span style="color:#a2f;font-weight:bold">return</span> newfunc</code></pre></div>
 <p>This takes the wrapped function, passes the original args, times how long it took to execute and returns a tuple of function return value and time_as_string.</p>
-
-<pre><code class="language-python">@timeit
-def iter_sum(arr1, arr2):
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f">@timeit</span>
+<span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">iter_sum</span>(arr1, arr2):</code></pre></div>
 <p>For a fair comparison, both should have the same design and stack allocation strategy. Hence both iter_sum and recur_sum methods reverse the incoming arrays and return the result of the helper. The iterative method calculates everything in 1 stack frame. The recursive recur_sum_helper (by definition) creates a stack frame for each call.</p>
 
 <p>As both _sum methods prepare and pass reversed arrays into helper methods, the helper methods return the result array in the opposite order. Both _sum methods reverse the return arrays before returning.</p>
@@ -185,86 +173,77 @@ def iter_sum(arr1, arr2):
 <p>The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Python variables are references, so after the res variable was created inside the scope of the wrapper, following <code>res.append</code> calls grew the same res array as before.</p>
 
 <p>Adding</p>
-
-<pre><code class="language-python">def recur_sum_helper(arr1, arr2, idx=0, res=[], carry=0):
-    if not res:
-        res = list()
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">recur_sum_helper</span>(arr1, arr2, idx<span style="color:#666">=</span><span style="color:#666">0</span>, res<span style="color:#666">=</span>[], carry<span style="color:#666">=</span><span style="color:#666">0</span>):
+    <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f;font-weight:bold">not</span> res:
+        res <span style="color:#666">=</span> <span style="color:#a2f">list</span>()</code></pre></div>
 <p>solved the problem by creating a new array.</p>
 
 <h2 id="performance-comparison">Performance comparison</h2>
 
 <p>Using the script below, the wrapper described above, recursive and iterative solutions were benchmarked. The plots below show show time on the y-axis against the size of 2 input arrays on the x-axis. Green points - recursive times, red - iterative, blue star is the stack length of the array at which stack overflows. Catching stack overflow at runtime has to be done with a try/except loop, which breaks on RuntimeError.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">try_different_lengths_before_breaks</span>(r_limit, l_limit, py_stack_limit<span style="color:#666">=</span>None):
+    <span style="color:#a2f;font-weight:bold">if</span> py_stack_limit:
+        sys<span style="color:#666">.</span>setrecursionlimit(py_stack_limit)
+    iter_arr_lengths <span style="color:#666">=</span> []
+    recur_arr_lengths <span style="color:#666">=</span> []
+    iter_times <span style="color:#666">=</span> []
+    recur_times <span style="color:#666">=</span> []
 
-<pre><code class="language-python">def try_different_lengths_before_breaks(r_limit, l_limit, py_stack_limit=None):
-    if py_stack_limit:
-        sys.setrecursionlimit(py_stack_limit)
-    iter_arr_lengths = []
-    recur_arr_lengths = []
-    iter_times = []
-    recur_times = []
-
-    for arr_length in range(r_limit, l_limit, 1):
-        arr1 = [9 for _ in range(arr_length)]
-        arr2 = [1 for _ in range(arr_length)]
-        # good test case, because there will be a carry bit over every step
-        res_iter, time_iter = iter_sum(arr1, arr2)
-        iter_arr_lengths.append(arr_length)
-        iter_times.append(time_iter)
-        try:
-            res_recur, time_recur = recur_sum(arr1, arr2)
-            recur_arr_lengths.append(arr_length)
-            recur_times.append(time_recur)
-            if res_recur != res_iter:
-                print(&quot;ERROR - {} != {}&quot;.format(res_recur, res_iter))
-                break
-        except RuntimeError:
-            # stack limit exceeded
-            break
-    return iter_arr_lengths, iter_times, recur_arr_lengths, recur_times
+    <span style="color:#a2f;font-weight:bold">for</span> arr_length <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#a2f">range</span>(r_limit, l_limit, <span style="color:#666">1</span>):
+        arr1 <span style="color:#666">=</span> [<span style="color:#666">9</span> <span style="color:#a2f;font-weight:bold">for</span> _ <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#a2f">range</span>(arr_length)]
+        arr2 <span style="color:#666">=</span> [<span style="color:#666">1</span> <span style="color:#a2f;font-weight:bold">for</span> _ <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#a2f">range</span>(arr_length)]
+        <span style="color:#080;font-style:italic"># good test case, because there will be a carry bit over every step</span>
+        res_iter, time_iter <span style="color:#666">=</span> iter_sum(arr1, arr2)
+        iter_arr_lengths<span style="color:#666">.</span>append(arr_length)
+        iter_times<span style="color:#666">.</span>append(time_iter)
+        <span style="color:#a2f;font-weight:bold">try</span>:
+            res_recur, time_recur <span style="color:#666">=</span> recur_sum(arr1, arr2)
+            recur_arr_lengths<span style="color:#666">.</span>append(arr_length)
+            recur_times<span style="color:#666">.</span>append(time_recur)
+            <span style="color:#a2f;font-weight:bold">if</span> res_recur <span style="color:#666">!=</span> res_iter:
+                <span style="color:#a2f;font-weight:bold">print</span>(<span style="color:#b44">&#34;ERROR - {} != {}&#34;</span><span style="color:#666">.</span>format(res_recur, res_iter))
+                <span style="color:#a2f;font-weight:bold">break</span>
+        <span style="color:#a2f;font-weight:bold">except</span> <span style="color:#d2413a;font-weight:bold">RuntimeError</span>:
+            <span style="color:#080;font-style:italic"># stack limit exceeded</span>
+            <span style="color:#a2f;font-weight:bold">break</span>
+    <span style="color:#a2f;font-weight:bold">return</span> iter_arr_lengths, iter_times, recur_arr_lengths, recur_times
 
 
-def plot_results(xs, ys):
-    plt.axis([0, 1005, 0, 1.2])
-    plt.xlabel('Size of input arrays')
-    plt.ylabel('Time to calculate sum (ms)')
-    plt.title('Comparing iterative vs recursive sum methods')
+<span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">plot_results</span>(xs, ys):
+    plt<span style="color:#666">.</span>axis([<span style="color:#666">0</span>, <span style="color:#666">1005</span>, <span style="color:#666">0</span>, <span style="color:#666">1.2</span>])
+    plt<span style="color:#666">.</span>xlabel(<span style="color:#b44">&#39;Size of input arrays&#39;</span>)
+    plt<span style="color:#666">.</span>ylabel(<span style="color:#b44">&#39;Time to calculate sum (ms)&#39;</span>)
+    plt<span style="color:#666">.</span>title(<span style="color:#b44">&#39;Comparing iterative vs recursive sum methods&#39;</span>)
 
-    iter_arr_lengths, recur_arr_lengths = xs
-    iters, recurs = ys
-    point_normal = 5
-    point_stack_over = 300
+    iter_arr_lengths, recur_arr_lengths <span style="color:#666">=</span> xs
+    iters, recurs <span style="color:#666">=</span> ys
+    point_normal <span style="color:#666">=</span> <span style="color:#666">5</span>
+    point_stack_over <span style="color:#666">=</span> <span style="color:#666">300</span>
 
-    # plot iterative times
-    plt.scatter(np.array(iter_arr_lengths), np.array(iters),
-                s=point_normal, color=&quot;red&quot;, marker=&quot;.&quot;)
+    <span style="color:#080;font-style:italic"># plot iterative times</span>
+    plt<span style="color:#666">.</span>scatter(np<span style="color:#666">.</span>array(iter_arr_lengths), np<span style="color:#666">.</span>array(iters),
+                s<span style="color:#666">=</span>point_normal, color<span style="color:#666">=</span><span style="color:#b44">&#34;red&#34;</span>, marker<span style="color:#666">=</span><span style="color:#b44">&#34;.&#34;</span>)
 
-    # plot recursive times
-    plt.scatter(np.array(recur_arr_lengths)[:-1], np.array(recurs)[:-1],
-                s=point_normal, color=&quot;green&quot;, marker=&quot;.&quot;)
-    # last point in recursive times is before stack overflow
-    plt.scatter(np.array(recur_arr_lengths)[-1], np.array(recurs)[-1],
-                s=point_stack_over, color=&quot;blue&quot;, marker=&quot;*&quot;)
+    <span style="color:#080;font-style:italic"># plot recursive times</span>
+    plt<span style="color:#666">.</span>scatter(np<span style="color:#666">.</span>array(recur_arr_lengths)[:<span style="color:#666">-</span><span style="color:#666">1</span>], np<span style="color:#666">.</span>array(recurs)[:<span style="color:#666">-</span><span style="color:#666">1</span>],
+                s<span style="color:#666">=</span>point_normal, color<span style="color:#666">=</span><span style="color:#b44">&#34;green&#34;</span>, marker<span style="color:#666">=</span><span style="color:#b44">&#34;.&#34;</span>)
+    <span style="color:#080;font-style:italic"># last point in recursive times is before stack overflow</span>
+    plt<span style="color:#666">.</span>scatter(np<span style="color:#666">.</span>array(recur_arr_lengths)[<span style="color:#666">-</span><span style="color:#666">1</span>], np<span style="color:#666">.</span>array(recurs)[<span style="color:#666">-</span><span style="color:#666">1</span>],
+                s<span style="color:#666">=</span>point_stack_over, color<span style="color:#666">=</span><span style="color:#b44">&#34;blue&#34;</span>, marker<span style="color:#666">=</span><span style="color:#b44">&#34;*&#34;</span>)
 
-    fname = &quot;sum_ints_plot.png&quot;
-    plt.savefig(fname, dpi=1200)
-    print(&quot;Saved plot as {}&quot;.format(fname))
-</code></pre>
-
+    fname <span style="color:#666">=</span> <span style="color:#b44">&#34;sum_ints_plot.png&#34;</span>
+    plt<span style="color:#666">.</span>savefig(fname, dpi<span style="color:#666">=</span><span style="color:#666">1200</span>)
+    <span style="color:#a2f;font-weight:bold">print</span>(<span style="color:#b44">&#34;Saved plot as {}&#34;</span><span style="color:#666">.</span>format(fname))</code></pre></div>
 <h3 id="stack-depth-limits">Stack depth limits</h3>
 
 <p>The first discovery was the limit to stack depth (it grows downards, contrary to common sense of adding things to the top of the stack). The default value is 1000 in Python 3.4 (use <code>sys.getrecursionlimit()</code> to look it up). Considering that recur_sum_helper is called inside recur_sum, which is wrapped and called inside __main__, we only have 996 stack frames for the recursive sum.</p>
-
-<pre><code class="language-python">$$$ python3
-Python 3.4.3+ (default, Oct 14 2015, 16:03:50) 
-[GCC 5.2.1 20151010] on linux
-Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
-&gt;&gt;&gt; import sys
-&gt;&gt;&gt; sys.getrecursionlimit()
-1000
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="">$$$</span> python3
+Python <span style="color:#666">3.4</span><span style="color:#666">.</span><span style="color:#666">3</span><span style="color:#666">+</span> (default, Oct <span style="color:#666">14</span> <span style="color:#666">2015</span>, <span style="color:#666">16</span>:<span style="color:#666">03</span>:<span style="color:#666">50</span>) 
+[GCC <span style="color:#666">5.2</span><span style="color:#666">.</span><span style="color:#666">1</span> <span style="color:#666">20151010</span>] on linux
+Type <span style="color:#b44">&#34;help&#34;</span>, <span style="color:#b44">&#34;copyright&#34;</span>, <span style="color:#b44">&#34;credits&#34;</span> <span style="color:#a2f;font-weight:bold">or</span> <span style="color:#b44">&#34;license&#34;</span> <span style="color:#a2f;font-weight:bold">for</span> more information<span style="color:#666">.</span>
+<span style="color:#666">&gt;&gt;&gt;</span> <span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">sys</span>
+<span style="color:#666">&gt;&gt;&gt;</span> sys<span style="color:#666">.</span>getrecursionlimit()
+<span style="color:#666">1000</span></code></pre></div>
 <h3 id="plots">Plots</h3>
 
 <p><img src="{attach}images/plot_sum_ints_stack_standard.png" alt="Photo" /></p>

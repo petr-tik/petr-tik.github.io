@@ -94,26 +94,23 @@
 <h1 id="what-kind-of-gc-does-python-use">What kind of GC does Python use?</h1>
 
 <p>Python uses a generation-based ref-counting GC. The number of generations is defined in a macro as 3, where 0th generation keeps track of most recently allocated objects, 2nd generation of long lived objects. Every <code>gc_generation</code> has a threshold (number of objects after which a collection is performed) as defined below (taken from gcmodule.c).</p>
-
-<pre><code class="language-c">struct gc_generation {
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">struct</span> gc_generation {
     PyGC_Head head;
-    int threshold; /* collection threshold */
-    int count; /* count of allocations or collections of younger
-                  generations */
+    <span style="color:#0b0;font-weight:bold">int</span> threshold; <span style="color:#080;font-style:italic">/* collection threshold */</span>
+    <span style="color:#0b0;font-weight:bold">int</span> count; <span style="color:#080;font-style:italic">/* count of allocations or collections of younger
+</span><span style="color:#080;font-style:italic">                  generations */</span>
 };
 
-#define NUM_GENERATIONS 3
-#define GEN_HEAD(n) (&amp;generations[n].head)
-
-/* linked lists of container objects */
-static struct gc_generation generations[NUM_GENERATIONS] = {
-    /* PyGC_Head,                               threshold,      count */
-    {{{GEN_HEAD(0), GEN_HEAD(0), 0}},           700,            0},
-    {{{GEN_HEAD(1), GEN_HEAD(1), 0}},           10,             0},
-    {{{GEN_HEAD(2), GEN_HEAD(2), 0}},           10,             0},
-};
-</code></pre>
-
+<span style="color:#080">#define NUM_GENERATIONS 3
+</span><span style="color:#080">#define GEN_HEAD(n) (&amp;generations[n].head)
+</span><span style="color:#080"></span>
+<span style="color:#080;font-style:italic">/* linked lists of container objects */</span>
+<span style="color:#a2f;font-weight:bold">static</span> <span style="color:#a2f;font-weight:bold">struct</span> gc_generation generations[NUM_GENERATIONS] <span style="color:#666">=</span> {
+    <span style="color:#080;font-style:italic">/* PyGC_Head,                               threshold,      count */</span>
+    {{{GEN_HEAD(<span style="color:#666">0</span>), GEN_HEAD(<span style="color:#666">0</span>), <span style="color:#666">0</span>}},           <span style="color:#666">700</span>,            <span style="color:#666">0</span>},
+    {{{GEN_HEAD(<span style="color:#666">1</span>), GEN_HEAD(<span style="color:#666">1</span>), <span style="color:#666">0</span>}},           <span style="color:#666">10</span>,             <span style="color:#666">0</span>},
+    {{{GEN_HEAD(<span style="color:#666">2</span>), GEN_HEAD(<span style="color:#666">2</span>), <span style="color:#666">0</span>}},           <span style="color:#666">10</span>,             <span style="color:#666">0</span>},
+};</code></pre></div>
 <h2 id="what-are-the-thresholds">What are the thresholds?</h2>
 
 <p>The thresholds are initiated at 700, 10 and 10 respectively. This means GC will be kicked off for 0th generation, when we allocate 700th object or promote 10 objects to either 1st or 2nd generation. The first generation can only have 10 objects (objects that survive collection move to a higher generation). The second generation is the oldest, so objects that survive collection move nowhere and stay in the second generation. The difference between 700 and 10 relies on the heuristic that few objects will survive after 1 generation. This optimises the effect of GC on runtime performance working with newly allocated objects. To improve the performance wrt to long-living objects another heuristic is used to avoid collecting the oldest generation, which can have an unlimited number of objects.</p>
@@ -123,33 +120,30 @@ static struct gc_generation generations[NUM_GENERATIONS] = {
 <h2 id="by-the-interpreter">By the interpreter</h2>
 
 <p>Most of the time, the call to start a GC cycle is done as a result of allocating a new object. After a new object has been allocated, <code>_PyObject_GC_Alloc</code> checks if it exceeds the threshold for 0th generation and calls <code>collect_generations</code>.</p>
-
-<pre><code class="language-c">static PyObject *
-_PyObject_GC_Alloc(int use_calloc, size_t basicsize)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">static</span> PyObject <span style="color:#666">*</span>
+<span style="color:#00a000">_PyObject_GC_Alloc</span>(<span style="color:#0b0;font-weight:bold">int</span> use_calloc, size_t basicsize)
 {
-    PyObject *op;
-    PyGC_Head *g;
+    PyObject <span style="color:#666">*</span>op;
+    PyGC_Head <span style="color:#666">*</span>g;
     [...]
-    size_t size = sizeof(PyGC_Head) + basicsize;
-    if (use_calloc)
-        g = (PyGC_Head *)PyObject_Calloc(1, size);
+    size_t size <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">sizeof</span>(PyGC_Head) <span style="color:#666">+</span> basicsize;
+    <span style="color:#a2f;font-weight:bold">if</span> (use_calloc)
+        g <span style="color:#666">=</span> (PyGC_Head <span style="color:#666">*</span>)PyObject_Calloc(<span style="color:#666">1</span>, size);
     [...]
     _PyGCHead_SET_REFS(g, GC_UNTRACKED);
-    generations[0].count++; /* number of allocated GC objects */
-    if (generations[0].count &gt; generations[0].threshold &amp;&amp;
-        enabled &amp;&amp;
-        generations[0].threshold &amp;&amp;
-        !collecting &amp;&amp;
-        !PyErr_Occurred()) {
-        collecting = 1;
+    generations[<span style="color:#666">0</span>].count<span style="color:#666">++</span>; <span style="color:#080;font-style:italic">/* number of allocated GC objects */</span>
+    <span style="color:#a2f;font-weight:bold">if</span> (generations[<span style="color:#666">0</span>].count <span style="color:#666">&gt;</span> generations[<span style="color:#666">0</span>].threshold <span style="color:#666">&amp;&amp;</span>
+        enabled <span style="color:#666">&amp;&amp;</span>
+        generations[<span style="color:#666">0</span>].threshold <span style="color:#666">&amp;&amp;</span>
+        <span style="color:#666">!</span>collecting <span style="color:#666">&amp;&amp;</span>
+        <span style="color:#666">!</span>PyErr_Occurred()) {
+        collecting <span style="color:#666">=</span> <span style="color:#666">1</span>;
         collect_generations();
-        collecting = 0;
+        collecting <span style="color:#666">=</span> <span style="color:#666">0</span>;
     }
-    op = FROM_GC(g);
-    return op;
-}
-</code></pre>
-
+    op <span style="color:#666">=</span> FROM_GC(g);
+    <span style="color:#a2f;font-weight:bold">return</span> op;
+}</code></pre></div>
 <p>The <code>collect_generations</code> method finds the oldest generation with more objects than the threshold allows and collects everything up to that generation. <code>collect_generations</code> calls <code>collect_with_callbacks</code>, which calls <code>collect</code> for the given generation.</p>
 
 <p>This method is used by <code>_PyObject_GC_Calloc</code> and <code>_PyObject_GC_Malloc</code>, which are called by <code>PyObject_GC_New</code> - the standard way to allocate new list, dictionary, class, iterator, set, slice and many other built-in Python types.</p>
@@ -252,20 +246,17 @@ gc_list_merge(PyGC_Head *from, PyGC_Head *to)
 <h2 id="full-collection-runs-less-frequently-using-a-heuristic">Full collection runs less frequently using a heuristic</h2>
 
 <p>The first 2 generations are bounded by thresholds, whereas generation 2 can grow without a limit. Collecting all generations (called full collection) including the 2nd every time, would lead to quadratic running time. We can either skip objects or perform fewer collections to help our runtime. A heuristic is used to run fewer collections by calculating a ratio of objects that survived a full collection over those that that are yet to go through a full collection. When the ratio is greater than 4, we perform a full collection.</p>
-
-<pre><code class="language-c">static Py_ssize_t
-collect_generations(void)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">static</span> Py_ssize_t
+<span style="color:#00a000">collect_generations</span>(<span style="color:#0b0;font-weight:bold">void</span>)
 {
     ...
-    for (i = NUM_GENERATIONS-1; i &gt;= 0; i--) {
-        if (generations[i].count &gt; generations[i].threshold) {
+    <span style="color:#a2f;font-weight:bold">for</span> (i <span style="color:#666">=</span> NUM_GENERATIONS<span style="color:#666">-</span><span style="color:#666">1</span>; i <span style="color:#666">&gt;=</span> <span style="color:#666">0</span>; i<span style="color:#666">--</span>) {
+        <span style="color:#a2f;font-weight:bold">if</span> (generations[i].count <span style="color:#666">&gt;</span> generations[i].threshold) {
     ...
-        if (i == NUM_GENERATIONS - 1
-                &amp;&amp; long_lived_pending &lt; long_lived_total / 4)
-                continue;
-            n = collect_with_callback(i);
-</code></pre>
-
+        <span style="color:#a2f;font-weight:bold">if</span> (i <span style="color:#666">==</span> NUM_GENERATIONS <span style="color:#666">-</span> <span style="color:#666">1</span>
+                <span style="color:#666">&amp;&amp;</span> long_lived_pending <span style="color:#666">&lt;</span> long_lived_total <span style="color:#666">/</span> <span style="color:#666">4</span>)
+                <span style="color:#a2f;font-weight:bold">continue</span>;
+            n <span style="color:#666">=</span> collect_with_callback(i);</code></pre></div>
 <p>We invoke a full collection if more than 25% of the objects have been allocated since the last full collection.</p>
 
 <h2 id="dictionaries-are-untracked">Dictionaries are untracked</h2>
@@ -314,14 +305,11 @@ collect_generations(void)
 <p>Free lists are lists of primitive Python object types allocated during CPython interpreter start. Preallocating basic object types like ints, lists, dictionaries and sets helps users avoid calling <code>malloc</code> for the first X object creations. Similarly, when an object is collected, it&rsquo;s just returned to the freelist of that PyObject type instead of calling <code>free</code>. Both <code>malloc</code> and <code>free</code> are syscalls, hence require a context switch and unnecessarily increase latency. Only if your programme uses more objects than originally allocated, will you call malloc. Example freelist from <code>dictobject.c</code> below</p>
 
 <p>The CPython interpreter allocates a list of 80 dictionary objects.</p>
-
-<pre><code class="language-c">#ifndef PyDict_MAXFREELIST
-#define PyDict_MAXFREELIST 80
-#endif
-static PyDictObject *free_list[PyDict_MAXFREELIST];
-static int numfree = 0;
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#080">#ifndef PyDict_MAXFREELIST
+</span><span style="color:#080">#define PyDict_MAXFREELIST 80
+</span><span style="color:#080">#endif
+</span><span style="color:#080"></span><span style="color:#a2f;font-weight:bold">static</span> PyDictObject <span style="color:#666">*</span>free_list[PyDict_MAXFREELIST];
+<span style="color:#a2f;font-weight:bold">static</span> <span style="color:#0b0;font-weight:bold">int</span> numfree <span style="color:#666">=</span> <span style="color:#666">0</span>;</code></pre></div>
 <h3 id="why-does-cpython-preallocate-80-dictionaries">Why does CPython preallocate 80 dictionaries?</h3>
 
 <p>The commit adding free_lists and their sizes is an old svn commit with more than a dozen of features in one without explanation for any of the values. Some make more sense - powers of 2 like 1024, 4096, but 80 is somewhat confusing. Given that the size of a dictionary is 400 bytes, 80 dictionaries is 32000 bytes, which might be friendlier to memory.</p>
@@ -329,61 +317,49 @@ static int numfree = 0;
 <h3 id="how-is-freelist-used-to-alloc-free-dictionaries">How is freelist used to alloc/free dictionaries?</h3>
 
 <p>In the function that creates a new dictionary from given keys and values, we first check if we can use a pre-allocated dictionary from the freelist. If all dictionaries in the freelist have been used already (numfree &gt;= 80), we have to allocate our own. Otherwise, Using numfree as index into the array of preallocated data types (eg. dictionaries), we assign mp to a dictionary from the list. Interestingly enough, <code>if (numfree)</code> will also execute the branch, if numfree is negative, which is semantically incorrect, but not impossible.</p>
-
-<pre><code class="language-c">static void
-new_dict(PyDictKeysObject *keys, PyObject **values)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">static</span> <span style="color:#0b0;font-weight:bold">void</span>
+<span style="color:#00a000">new_dict</span>(PyDictKeysObject <span style="color:#666">*</span>keys, PyObject <span style="color:#666">**</span>values)
 {
-    PyDictObject *mp;
-    assert(keys != NULL);
-    if (numfree) {
-        mp = free_list[--numfree];
+    PyDictObject <span style="color:#666">*</span>mp;
+    assert(keys <span style="color:#666">!=</span> <span style="color:#a2f">NULL</span>);
+    <span style="color:#a2f;font-weight:bold">if</span> (numfree) {
+        mp <span style="color:#666">=</span> free_list[<span style="color:#666">--</span>numfree];
     ...
-    return (PyObject *)mp;
-}
-</code></pre>
-
+    <span style="color:#a2f;font-weight:bold">return</span> (PyObject <span style="color:#666">*</span>)mp;
+}</code></pre></div>
 <p>To deallocate we return the dictionary to the freelist, if we still haven&rsquo;t used up the whole list. If we haven&rsquo;t allocated all dictionaries from the freelist, it means, we can return the current dictionary to the list.</p>
-
-<pre><code class="language-c">static void
-dict_dealloc(PyDictObject *mp)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">static</span> <span style="color:#0b0;font-weight:bold">void</span>
+<span style="color:#00a000">dict_dealloc</span>(PyDictObject <span style="color:#666">*</span>mp)
 {
     ...
-    if (numfree &lt; PyDict_MAXFREELIST &amp;&amp; Py_TYPE(mp) == &amp;PyDict_Type)
-        free_list[numfree++] = mp;
-</code></pre>
-
+    <span style="color:#a2f;font-weight:bold">if</span> (numfree <span style="color:#666">&lt;</span> PyDict_MAXFREELIST <span style="color:#666">&amp;&amp;</span> Py_TYPE(mp) <span style="color:#666">==</span> <span style="color:#666">&amp;</span>PyDict_Type)
+        free_list[numfree<span style="color:#666">++</span>] <span style="color:#666">=</span> mp;</code></pre></div>
 <h3 id="how-are-freelists-cleared">How are freelists cleared?</h3>
 
 <p>Each of the listed types in their <code>Objects/dictobject.c</code> source files have a method for clearing its freelist. Curiously, the <code>PyDict_ClearList</code> method returns the number of freed objects, but all invocations of the method cast the return type to void, making you wonder, why it returns anything in the first place.</p>
-
-<pre><code class="language-c">int
-PyDict_ClearFreeList(void)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#0b0;font-weight:bold">int</span>
+<span style="color:#00a000">PyDict_ClearFreeList</span>(<span style="color:#0b0;font-weight:bold">void</span>)
 {
-    PyDictObject *op;
-    int ret = numfree + numfreekeys;
-    while (numfree) {
-        op = free_list[--numfree];
+    PyDictObject <span style="color:#666">*</span>op;
+    <span style="color:#0b0;font-weight:bold">int</span> ret <span style="color:#666">=</span> numfree <span style="color:#666">+</span> numfreekeys;
+    <span style="color:#a2f;font-weight:bold">while</span> (numfree) {
+        op <span style="color:#666">=</span> free_list[<span style="color:#666">--</span>numfree];
         assert(PyDict_CheckExact(op));
         PyObject_GC_Del(op);
     }
-    while (numfreekeys) {
-        PyObject_FREE(keys_free_list[--numfreekeys]);
+    <span style="color:#a2f;font-weight:bold">while</span> (numfreekeys) {
+        PyObject_FREE(keys_free_list[<span style="color:#666">--</span>numfreekeys]);
     }
-    return ret;
-}
-</code></pre>
-
+    <span style="color:#a2f;font-weight:bold">return</span> ret;
+}</code></pre></div>
 <p>Iterates over the freelist, GC_deleting each object in the list. In the end, we have numfree set to 0 and a freelist full of objects ready to be used again.</p>
 
 <h2 id="what-does-the-collect-method-return">What does the collect method return?</h2>
 
 <p>Returns a static signed size_t int. Input is generation (between 0 and 2 - higher is older), pointer to a variable tracking the <code>n\_collected</code> objects so far, <code>uncollectable</code> and <code>nofail</code> variable. Looking ahead <code>nofail</code> is only used once to decide if an error message should be printed to terminal. Both Py_ssize_t objects - <code>n\_collected</code> and <code>n\_uncollectable</code> - will be updated in-place (at their addresses) with m and n respectively.</p>
-
-<pre><code class="language-c">    int i;
-    Py_ssize_t m = 0; /* # objects collected */
-    Py_ssize_t n = 0; /* # unreachable objects that couldn't be collected */
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    <span style="color:#0b0;font-weight:bold">int</span> i;
+    Py_ssize_t m <span style="color:#666">=</span> <span style="color:#666">0</span>; <span style="color:#080;font-style:italic">/* # objects collected */</span>
+    Py_ssize_t n <span style="color:#666">=</span> <span style="color:#666">0</span>; <span style="color:#080;font-style:italic">/* # unreachable objects that couldn&#39;t be collected */</span></code></pre></div>
 <h2 id="why-are-variables-like-m-and-n-used">Why are variables like m and n used?</h2>
 
 <p>I guess programmers in the 90s/early 00s were paid inversely proportionally to the number of chars they typed. That would explain <code>mkdir</code>, <code>creat</code>, <code>m</code>, <code>n</code>. Apart from that the gcmodule is a joy to read through - well commented, with descriptive commit messages and a separate .rst doc file.</p>
@@ -393,19 +369,16 @@ PyDict_ClearFreeList(void)
 <h3 id="pygc-head">PyGC_Head</h3>
 
 <p>Most variables are of type PyGC_Head, whose definition is in <a href="https://github.com/python/cpython/tree/3.6/Include/objimpl.h#L251-L259">objimpl.h</a></p>
-
-<pre><code class="language-c">/* GC information is stored BEFORE the object structure. */
-#ifndef Py_LIMITED_API
-typedef union _gc_head {
-    struct {
-        union _gc_head *gc_next;
-        union _gc_head *gc_prev;
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#080;font-style:italic">/* GC information is stored BEFORE the object structure. */</span>
+<span style="color:#080">#ifndef Py_LIMITED_API
+</span><span style="color:#080"></span><span style="color:#a2f;font-weight:bold">typedef</span> <span style="color:#a2f;font-weight:bold">union</span> _gc_head {
+    <span style="color:#a2f;font-weight:bold">struct</span> {
+        <span style="color:#a2f;font-weight:bold">union</span> _gc_head <span style="color:#666">*</span>gc_next;
+        <span style="color:#a2f;font-weight:bold">union</span> _gc_head <span style="color:#666">*</span>gc_prev;
         Py_ssize_t gc_refs;
     } gc;
-    double dummy;  /* force worst-case alignment */
-} PyGC_Head;
-</code></pre>
-
+    <span style="color:#0b0;font-weight:bold">double</span> dummy;  <span style="color:#080;font-style:italic">/* force worst-case alignment */</span>
+} PyGC_Head;</code></pre></div>
 <p>The meaty part of the type is pointers of the same type to next and previous <code>_gc_head</code> types and the <code>gc_refs</code> that keeps track of the number of references.</p>
 
 <h3 id="why-double-dummy">Why double dummy?</h3>
@@ -415,51 +388,39 @@ typedef union _gc_head {
 <h3 id="why-recursively-defined-gc-struct">Why recursively defined gc struct?</h3>
 
 <p>This uses a sentinel doubly linked list. An empty linked list contains one node, whose <code>.gc_prev</code> and <code>.gc_next</code> link to the node itself. Appending nodes to the end of a list means linking the <code>.gc_next</code> and <code>.gc_prev</code> of the new_node to the head of the list and last element of the list respectively. The first element is a dummy - sentinel - node.  That&rsquo;s why all list traversal operations begin initiate <code>gc = list-&gt;gc.gc_next</code> as below</p>
-
-<pre><code class="language-c">static Py_ssize_t
-gc_list_size(PyGC_Head *list)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">static</span> Py_ssize_t
+<span style="color:#00a000">gc_list_size</span>(PyGC_Head <span style="color:#666">*</span>list)
 {
-    PyGC_Head *gc;
-    for (gc = list-&gt;gc.gc_next; gc != list; gc = gc-&gt;gc.gc_next) {
-        n++;
-</code></pre>
-
+    PyGC_Head <span style="color:#666">*</span>gc;
+    <span style="color:#a2f;font-weight:bold">for</span> (gc <span style="color:#666">=</span> list<span style="color:#666">-&gt;</span>gc.gc_next; gc <span style="color:#666">!=</span> list; gc <span style="color:#666">=</span> gc<span style="color:#666">-&gt;</span>gc.gc_next) {
+        n<span style="color:#666">++</span>;</code></pre></div>
 <p>and to check emptiness you need to compare pointers between the head and the first next element after the sentinel.</p>
-
-<pre><code class="language-c">static int
-gc_list_is_empty(PyGC_Head *list)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#a2f;font-weight:bold">static</span> <span style="color:#0b0;font-weight:bold">int</span>
+<span style="color:#00a000">gc_list_is_empty</span>(PyGC_Head <span style="color:#666">*</span>list)
 {
-    return (list-&gt;gc.gc_next == list);
-}
-</code></pre>
-
+    <span style="color:#a2f;font-weight:bold">return</span> (list<span style="color:#666">-&gt;</span>gc.gc_next <span style="color:#666">==</span> list);
+}</code></pre></div>
 <h2 id="pyobject">PyObject</h2>
 
 <p>The PyObject struct is defined in <a href="https://github.com/python/cpython/blob/3.6/Include/object.h">Include/object.h</a>. Contains the reference count and type of the object.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#080;font-style:italic">/* Define pointers to support a doubly-linked list of all live heap objects. */</span>
+<span style="color:#080">#define _PyObject_HEAD_EXTRA            \
+</span><span style="color:#080"></span>    <span style="color:#a2f;font-weight:bold">struct</span> _object <span style="color:#666">*</span>_ob_next;           \
+    <span style="color:#a2f;font-weight:bold">struct</span> _object <span style="color:#666">*</span>_ob_prev;
 
-<pre><code class="language-c">/* Define pointers to support a doubly-linked list of all live heap objects. */
-#define _PyObject_HEAD_EXTRA            \
-    struct _object *_ob_next;           \
-    struct _object *_ob_prev;
-
-typedef struct _object {
+<span style="color:#a2f;font-weight:bold">typedef</span> <span style="color:#a2f;font-weight:bold">struct</span> _object {
     _PyObject_HEAD_EXTRA
     Py_ssize_t ob_refcnt;
-    struct _typeobject *ob_type;
-} PyObject;
-</code></pre>
-
+    <span style="color:#a2f;font-weight:bold">struct</span> _typeobject <span style="color:#666">*</span>ob_type;
+} PyObject;</code></pre></div>
 <h2 id="pyobject-to-from-pygc-head">PyObject to/from PyGC_Head</h2>
 
 <p>There are helper method defined as macros to convert between <code>PyObject</code> and <code>PyGC_Head</code>, to read/write reference counts from one to the other.</p>
-
-<pre><code class="language-c">/* Get an object's GC head */
-#define AS_GC(o) ((PyGC_Head *)(o)-1)
-
-/* Get the object given the GC head */
-#define FROM_GC(g) ((PyObject *)(((PyGC_Head *)g)+1))
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#080;font-style:italic">/* Get an object&#39;s GC head */</span>
+<span style="color:#080">#define AS_GC(o) ((PyGC_Head *)(o)-1)
+</span><span style="color:#080"></span>
+<span style="color:#080;font-style:italic">/* Get the object given the GC head */</span>
+<span style="color:#080">#define FROM_GC(g) ((PyObject *)(((PyGC_Head *)g)+1))</span></code></pre></div>
 <h3 id="gc-refs">gc_refs</h3>
 
 <p><code>gc_refs</code> values determine if an object should be collected. When an object is malloc’ed, its <code>gc_refs</code> is set to <code>GC_UNTRACKED</code>, because it’s absent from any generation list.</p>

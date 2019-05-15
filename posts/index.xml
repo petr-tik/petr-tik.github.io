@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Jan 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 15 May 2019 22:51:00 +0100</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Improving the take home assignment</title>
+      <link>http://petr-tik.github.io/posts/improving_takehome_tests/</link>
+      <pubDate>Wed, 15 May 2019 22:51:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/improving_takehome_tests/</guid>
+      <description>Interviewing software developers using algorithmic puzzles on HackerRank/skype is proving difficult.</description>
+    </item>
     
     <item>
       <title>Rust - from 0 to productive in 2 weeks</title>
@@ -126,6 +135,15 @@
       
       <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
       <description>I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>http://petr-tik.github.io/posts/remote_dev/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/remote_dev/</guid>
+      <description>DONE Remote (rust) development environment Picture this at home Imaging you are working on a large Rust project.</description>
     </item>
     
   </channel>
