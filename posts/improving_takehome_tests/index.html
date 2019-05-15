@@ -413,9 +413,7 @@ stand out and help you collect valuable data from a wider pool of applicants.</p
 <!--listend-->
 
 <ul>
-<li><p>Introduce language-independent assessment criteria</p>
-
-<p>Performance is one of them.</p></li>
+<li>Think of language-independent assessment criteria</li>
 </ul>
 
 <h4 id="3-dot-if-assessment-criteria-leak-online-it-might-skew-measurements">3. If assessment criteria leak online, it might skew measurements</h4>
@@ -444,9 +442,9 @@ trade-offs between time spent vs quality of submission.</p></li>
 <li><p>Devise criteria to catch regressions across correlated variables</p>
 
 <p>In the example above, the candidate playing code golf wrt lines of code
-might resort to single letter variable names. Since we measure the length
-of variable and method names, improving the lines metric is likely to
-hurt the length of names metric.</p></li>
+might resort to single letter variable names and extract white space to fit
+into fewer lines. Counting the number of linter errors and measuring the
+length of variable and method names helps us catch regressions.</p></li>
 </ul>
 
 <h2 id="conclusion">Conclusion</h2>
