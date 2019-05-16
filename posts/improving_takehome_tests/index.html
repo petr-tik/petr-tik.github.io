@@ -97,7 +97,7 @@ People feel that companies using algorithms aren&rsquo;t assessing the relevant 
 <p>Firstly, the candidate is asked to write a solution from scratch.
 Secondly, the solution is assessed as a self-contained piece of code that isn&rsquo;t used afterwards.</p>
 
-<p>Professional software development rarely write programmes from scratch (sorry fans of greenfield development) that aren&rsquo;t refactored afterwards.</p>
+<p>Professional software developers rarely write programmes from scratch (sorry fans of greenfield development) that aren&rsquo;t refactored afterwards.</p>
 
 <p>I propose a new method of assigning and grading take home tests that assesses those two qualities in candidates.</p>
 
@@ -105,7 +105,7 @@ Secondly, the solution is assessed as a self-contained piece of code that isn&rs
 
 <p>The technical specification of the assignment is outside the scope of this article.</p>
 
-<p>This article uses a common &ldquo;Implement a REST API server with the following endpoints &hellip;&rdquo; take home format.</p>
+<p>This article uses a common &ldquo;Implement a REST API server with the following endpoints &hellip;&rdquo; format.</p>
 
 <p>Design a programming test that is representative of the problems in your domain and would be interesting to the candidate.</p>
 
@@ -202,18 +202,10 @@ with your tool set.</p>
 <!--listend-->
 
 <ul>
-<li><p>Ratio of changed lines per commits</p>
-
-<p>It&rsquo;s possible to make many small commits that make unrelated changes.</p></li>
-</ul>
-
-<!--listend-->
-
-<ul>
 <li><p>Documentation</p>
 
-<p>Count the number of classes and methods have a docstring. If you care about
-assessing candidates&rsquo; writing ability, you might want to extract the text
+<p>Count the number of classes and methods with docstrings. If you care about
+candidates&rsquo; writing ability, you might want to extract the text
 in the docstrings and calculate its
 <a href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid%5Freadability%5Ftests">readability</a>
 score.</p></li>
@@ -222,9 +214,9 @@ score.</p></li>
 <!--listend-->
 
 <ul>
-<li><p>Ratio of LoC/methods</p>
+<li><p>Length of functions and classes</p>
 
-<p>Using source-code analysis to calculate the average lines of code in all methods/functions in the submission.</p></li>
+<p>Using static code analysis to calculate the lines of code in all methods/functions in the submission.</p></li>
 </ul>
 
 <h4 id="reliability-and-security">Reliability and security</h4>
@@ -236,7 +228,7 @@ score.</p></li>
 
 <p><code>abs(90 - UNIT_TESTS_COVERAGE_PERCENT)</code> - lower is better.</p>
 
-<p>Someone covering the test submission with 100% unit tests suggests inability of making trade-off decisions.</p></li>
+<p>Someone covering a take home test with 100% unit tests suggests inability to make trade-off decisions.</p></li>
 </ul>
 
 <!--listend-->
@@ -256,7 +248,7 @@ score.</p></li>
 
 <p>This is <strong>mean</strong>, but if you care about security, your candidates might enjoy
 this. Run a fuzzer over the API/application and count the number of errors.
-Make sure all candidates get the same fuzzer and fuzzing inputs.</p></li>
+Make sure all submissions get the same fuzzer and fuzzing inputs.</p></li>
 </ul>
 
 <h4 id="performance">Performance</h4>
