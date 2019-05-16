@@ -79,42 +79,42 @@
     <div class="content">
       
 
-<p>Interviewing software developers using algorithmic puzzles on HackerRank/skype is proving difficult. People feel that companies aren&rsquo;t assessing the relevant skills. This drives applicants away from certain companies.</p>
+<p>Interviewing software developers using algorithmic puzzles on HackerRank/skype is proving contentious.
+People feel that companies using algorithms aren&rsquo;t assessing the relevant skills. This drives applicants away from certain companies.</p>
 
-<p>Some companies use a take home assignment instead.</p>
+<p>Some companies use a take home assignment instead. Candidates receive a technical specification of a problem and have to send back a solution.</p>
 
 <p>Take home tests have their disadvantages. They demand more time from candidates to complete and interviewers to mark, which extends the interview process.</p>
 
-<p>However, they also allow candidates to use their own IDE, keyboard, google necessary information and think about the problem without time pressure.</p>
+<p>However, they allow candidates to use their own IDE, keyboard, google necessary information and think about the problem without time pressure.</p>
 
 <p>In this article, I assume that a good take home assignment deserves candidates&rsquo; time and attention and outline how to make the assignment useful to interviewers and enjoyable to interviewees.</p>
 
 <h2 id="if-take-home-tests-aren-t-broken-why-fix-them">If take home tests aren&rsquo;t broken, why fix them?</h2>
 
-<p>Take home tests in their current form still suffer from 2 problems.</p>
+<p>Most take home tests in their current form still suffer from 2 problems.</p>
 
 <p>Firstly, the candidate is asked to write a solution from scratch.
 Secondly, the solution is assessed as a self-contained piece of code that isn&rsquo;t used afterwards.</p>
 
-<p>Professional software development seldom entails writing programmes from scratch that aren&rsquo;t refactored afterwards.</p>
+<p>Professional software development rarely write programmes from scratch (sorry fans of greenfield development) that aren&rsquo;t refactored afterwards.</p>
 
 <p>I propose a new method of assigning and grading take home tests that assesses those two qualities in candidates.</p>
 
 <h2 id="assignment">Assignment</h2>
 
-<p>The technical description of the assignment is outside the scope of this article.</p>
+<p>The technical specification of the assignment is outside the scope of this article.</p>
+
+<p>This article uses a common &ldquo;Implement a REST API server with the following endpoints &hellip;&rdquo; take home format.</p>
 
 <p>Design a programming test that is representative of the problems in your domain and would be interesting to the candidate.</p>
 
-<h3 id="what-kind-of-assignment-to-send">What kind of assignment to send?</h3>
+<h3 id="what-are-we-asking-the-candidates-to-do">What are we asking the candidates to do?</h3>
 
-<p>Send candidates an exercise to refactor an existing codebase to comply with a new spec or API.</p>
+<p>Send candidates an a git repo with an existing code base made in several commits. Include a specification, which outlines new requirements.
+Candidates need to implement new requirements, commit their changes to the repo and send it back.</p>
 
-<p>The submission comes in a git repo.</p>
-
-<p>Candidates need to commit their changes to the repo and send it back.</p>
-
-<p>Include extraneous classes, endpoints and functions in the original.</p>
+<p>The key point here is the existing code base, which the candidates might want to understand and refactor to solve the problem.</p>
 
 <p>We are testing the candidate&rsquo;s ability to read and understand someone else&rsquo;s code; refactor it to comply with new functionality, while reducing overall complexity.</p>
 
@@ -125,56 +125,34 @@ Computer scoring runs in a CI-like automated fashion with an environment consist
 The reviewer marks how easy it is to extend the code base by adding new functionality.
 During the onsite, the candidate pairs up with another interviewer to add new functionality to their submission.</p>
 
-<p>Results include raw counts across several rubrics and the composite score.</p>
-
-<p>You can compare raw scores across the same language/toolset configuration.</p>
-
-<p>You shouldn&rsquo;t compare the number of linter warnings in Java submissions against that in Python submissions.</p>
-
 <p>Overall, expect a good solution to delete more lines of code than it adds, remove now-unnecessary interfaces, implement requested features, while maintaining test coverage and resilience to bad inputs.</p>
 
 <h3 id="computer-scoring-facets">Computer scoring facets</h3>
 
-<p>Below is an outline of assessment facets broken down into individual factors and a suggested value function for each factor. You may change the individual value function and/or formula for the overall grade.</p>
+<p>Below is an outline of assessment facets broken down into individual
+factors. Results include raw counts across several rubrics.</p>
+
+<p>You can compare raw scores across the same language/toolset configuration
+eg. compare the number of linter warnings across Java submissions, rather
+than comparing them against the number of linter warnings found in Python
+submissions.</p>
+
+<p>Where possible, I suggest a formula to evaluate raw data
+collected for that factor.</p>
+
+<p>Think of a composite score that combines raw data counts to give you an evaluation strategy that gives you confidence to pass/fail applicants.</p>
 
 <h4 id="functionality">Functionality</h4>
 
 <ul>
 <li>Number and percentage of unit tests passed</li>
 <li>Number and percentage of integration tests passed. Call the API endpoints, whose implementation was requested.</li>
-<li>Number of old endpoints that shouldn&rsquo;t exist anymore, but respond to inputs.</li>
-</ul>
 
-<h4 id="reliability-and-security">Reliability and security</h4>
-
-<ul>
-<li><p>Test coverage</p>
+<li><p>Number of old endpoints that shouldn&rsquo;t exist anymore, but respond to inputs.</p>
 
 <p><strong>Suggested evaluation</strong></p>
 
-<p><code>abs(90 - UNIT_TESTS_COVERAGE_PERCENT)</code> - lower is better.</p>
-
-<p>Someone covering the test submission with 100% unit tests suggests inability of making trade-off decisions.</p></li>
-</ul>
-
-<!--listend-->
-
-<ul>
-<li><p>Error handling</p>
-
-<p><strong>Suggested evaluation</strong></p>
-
-<p>Number of API endpoints crashed by malformed inputs.</p></li>
-</ul>
-
-<!--listend-->
-
-<ul>
-<li><p>Resilience to bad inputs</p>
-
-<p>This is <strong>mean</strong>, but if you care about security, your candidates might enjoy
-this. Run a fuzzer over the API/application and count the number of errors.
-Make sure all candidates get the same fuzzer and fuzzing inputs.</p></li>
+<p>Bigger is worse, 0 is good.</p></li>
 </ul>
 
 <h4 id="style-coherence-and-verbosity">Style, coherence and verbosity</h4>
@@ -249,6 +227,38 @@ score.</p></li>
 <p>Using source-code analysis to calculate the average lines of code in all methods/functions in the submission.</p></li>
 </ul>
 
+<h4 id="reliability-and-security">Reliability and security</h4>
+
+<ul>
+<li><p>Test coverage</p>
+
+<p><strong>Suggested evaluation</strong></p>
+
+<p><code>abs(90 - UNIT_TESTS_COVERAGE_PERCENT)</code> - lower is better.</p>
+
+<p>Someone covering the test submission with 100% unit tests suggests inability of making trade-off decisions.</p></li>
+</ul>
+
+<!--listend-->
+
+<ul>
+<li><p>Error handling</p>
+
+<p><strong>Suggested evaluation</strong></p>
+
+<p>Number of API endpoints crashed by malformed inputs.</p></li>
+</ul>
+
+<!--listend-->
+
+<ul>
+<li><p>Resilience to bad inputs</p>
+
+<p>This is <strong>mean</strong>, but if you care about security, your candidates might enjoy
+this. Run a fuzzer over the API/application and count the number of errors.
+Make sure all candidates get the same fuzzer and fuzzing inputs.</p></li>
+</ul>
+
 <h4 id="performance">Performance</h4>
 
 <p>Measure the mean and standard deviation of the following runs:</p>
@@ -303,7 +313,7 @@ their submission before the onsite, if their submission was a while ago.</p>
 
 <h3 id="benefits">Benefits</h3>
 
-<p>Collecting standardised, consistent metrics across different dimensions enables the interviewers to avoid bias and get a detailed outline of candidate&rsquo;s skills.</p>
+<p>Collecting standardised, consistent metrics across different dimensions reduces bias in tech assessment and provides a detailed outline of candidate&rsquo;s skills.</p>
 
 <h4 id="1-dot-even-closer-to-real-world-software-development">1. Even closer to real-world software development</h4>
 
@@ -311,17 +321,19 @@ their submission before the onsite, if their submission was a while ago.</p>
 
 <p>By solving an interesting problem, applicants become more interested in the job.</p>
 
-<h4 id="2-dot-systematic-assessment-across-clear-predetermined-criteria">2. Systematic assessment across clear, predetermined criteria</h4>
+<h4 id="2-dot-fast-systematic-assessment-across-clear-predetermined-criteria">2. Fast, systematic assessment across clear, predetermined criteria</h4>
 
 <p>Once you agree and set up grading infrastructure, every submission will run
 against the same battery of tests and populate an excel spreadsheet with
 results.</p>
 
+<p>This enables you to progress/fail applicants in the amount of time it takes one of your developers to kick off the evaluation framework on the submission.</p>
+
 <h4 id="3-dot-ability-to-score-and-re-evaluate-new-submissions-against-those-of-previous-candidates">3. Ability to score and re-evaluate new submissions against those of previous candidates</h4>
 
-<p>Keeping a history of all previous submissions allows us to add new metrics. After adding the new metric to the assessment framework, rerun it on all submissions to add new score.</p>
-
-<p>including people that you extended offers to.</p>
+<p>Storing all submissions in perpetuity enables us to add new metrics retrospectively.
+After adding the new metric to the assessment framework, rerun it on all
+submissions to add new score.</p>
 
 <h4 id="4-dot-assess-different-aspects-with-the-same-test">4. Assess different aspects with the same test</h4>
 
@@ -329,13 +341,22 @@ results.</p>
 
 <p>For example, candidates applying for a role in the performance-focussed team are expected to submit solutions with above-average performance.</p>
 
+<h4 id="5-dot-offer-candidates-more-freedom-of-choice-than-a-typical-greenfield-take-home-test">5. Offer candidates more freedom of choice than a typical greenfield take home test</h4>
+
+<p>In a &ldquo;greenfield&rdquo; take home test candidates have no choice but to implement a
+solution from scratch. Sending applicants an existing repo gives them the option,
+but not the obligation, to refactor the code or <strong>nuke</strong> the current code and start from scratch.</p>
+
+<p>If they can delete all of the previous code and then complete the task in a
+given number of hours, while keeping it simple to read and test - we want
+to see that too.</p>
+
 <h3 id="disadvantages">Disadvantages</h3>
 
 <h4 id="1-dot-too-close-to-real-world-software-development">1. Too close to real-world software development</h4>
 
 <p>Candidates are people too, they want to relax in their
-free time, not read and write more code. This might scare off
-passive candidates.</p>
+free time, not read and write more code.</p>
 
 <p><strong>Mitigation strategies</strong></p>
 
@@ -350,24 +371,31 @@ passive candidates.</p>
 that took your team half a day, people end up feeling
 disappointed with themselves and angry at you.</p>
 
-<p>&ldquo;Scaring&rdquo; them with a purposefully pessimistic time estimate sets their
-expectations higher. Completing it faster than expected gives them a
+<p><em>Scaring</em> them with a pessimistic time estimate sets their expectations
+higher than necessary. Completing the test faster than expected gives them a
 dopamine kick.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3">fear_factor <span style="color:#666">=</span> <span style="color:#666">1.5</span>
+min_time <span style="color:#666">=</span> actual_min_time <span style="color:#666">*</span> fear_factor
+max_time <span style="color:#666">=</span> actual_max_time <span style="color:#666">*</span> fear_factor
+coworkers_who_did_it <span style="color:#666">=</span> get_number_of_teammates_who_did_the_test()
 
-<blockquote>
-<p>&ldquo;X of your prospective team mates took between
-{Y} and {Z} hours doing the test&rdquo;.format(X=coworkers_who_did_the_test, Y=min_time*1.5, Z=max_time*1.5)</p>
-</blockquote></li>
+<span style="color:#a2f;font-weight:bold">return</span> <span style="color:#b44">&#34;</span><span style="color:#b68;font-weight:bold">{X}</span><span style="color:#b44"> of your prospective team mates took between</span><span style="">
+</span><span style=""></span><span style="color:#b44">       </span><span style="color:#b68;font-weight:bold">{Y}</span><span style="color:#b44"> and </span><span style="color:#b68;font-weight:bold">{Z}</span><span style="color:#b44"> hours doing the test&#34;</span><span style="color:#666">.</span><span style="color:#a2f">format</span>(
+       X<span style="color:#666">=</span>coworkers_who_did_it,
+       Y<span style="color:#666">=</span>min_time,
+       Z<span style="color:#666">=</span>max_time)</code></pre></div></li>
+</ul>
 
+<!--listend-->
+
+<ul>
 <li><p>Sell the company and role to the candidate before the test</p>
 
 <p>Organise a phone call to pitch the company and the role enough for candidates to want to do the take home test.</p>
 
-<p>Cynically enough, you expect a large number of applicants to fail the test, so it might feel pointless to spend time selling the company.</p>
-
-<p>However, pitching really well at the start of the process brings a secondary effect of making a great impression on all applicants.</p>
-
-<p>Even the candidates, who fail come away and tell their friends about your company and interview process.</p>
+<p>Cynically enough, you expect a large number of applicants to fail the test, so it might feel pointless to spend time selling the company.
+However, pitching really well at the start of the process brings a secondary effect of making a great impression on all applicants.
+Even the candidates, who fail come away and tell their friends about your company and interview process.</p>
 
 <p>This makes it easier for you to hire their friends.</p></li>
 </ul>
@@ -377,7 +405,9 @@ dopamine kick.</p>
 <ul>
 <li><p>Make the assignment representative/interesting of your work</p>
 
-<p>Find a problem specific to your company/domain and distil it down to the size of a take-home assignment.</p></li>
+<p>Find a problem specific to your company/domain and distil it down to the
+size of a take home assignment. Present it to candidates as a way to learn
+more about your problem domain.</p></li>
 </ul>
 
 <!--listend-->
@@ -394,13 +424,13 @@ stand out and help you collect valuable data from a wider pool of applicants.</p
 
 <h4 id="2-dot-language-specific-assessment">2. Language-specific assessment</h4>
 
-<p>Being more proficient with the language and its tools gives an unfair advantage to some candidates.</p>
+<p>Sending a repo with existing code restricts the candidate to 1 language.</p>
 
-<p>Candidates proficient in those languages are more likely to know about tools, code style and idiomatic way of writing code in that language.</p>
+<p>Candidates proficient in that language are more likely to know about tools, code style and idioms of the language.</p>
 
-<p>You might care about proficiency with a specific language and even introduce language-specific criteria.</p>
-
-<p>This filters out candidates that don&rsquo;t feel proficient enough in the language(s) offered.</p>
+<p>If you care about proficiency with a specific language, ignore the
+mitigation strategies below and consider introducing language-specific
+criteria into the scoring framework.</p>
 
 <p><strong>Mitigation strategies</strong></p>
 
@@ -408,12 +438,6 @@ stand out and help you collect valuable data from a wider pool of applicants.</p
 <li><p>Invest upfront into grading framework for 2 or 3 main languages that your company uses</p>
 
 <p>If you use more languages than you can assess submissions in, maybe you should ask yourself why are you using that many languages in the first place.</p></li>
-</ul>
-
-<!--listend-->
-
-<ul>
-<li>Think of language-independent assessment criteria</li>
 </ul>
 
 <h4 id="3-dot-if-assessment-criteria-leak-online-it-might-skew-measurements">3. If assessment criteria leak online, it might skew measurements</h4>
@@ -444,17 +468,16 @@ trade-offs between time spent vs quality of submission.</p></li>
 <p>In the example above, the candidate playing code golf wrt lines of code
 might resort to single letter variable names and extract white space to fit
 into fewer lines. Counting the number of linter errors and measuring the
-length of variable and method names helps us catch regressions.</p></li>
+length of variable and method names helps us catch such regressions.</p></li>
 </ul>
 
 <h2 id="conclusion">Conclusion</h2>
 
-<p>Reading and modifying already existing code, while making sure it can be
+<p>Reading and modifying existing code, while making sure it can be
 extended by someone else are some of the key skills for a programmer.</p>
 
-<p>I suggest upgrading the take home test to incorporate and explicitly assess
-those abilities in job applicants, while improving your reputation with job
-seekers.</p>
+<p>I suggest approaching the take home test as a systematic way of assessing
+those skills in job applicants, while improving your reputation with them.</p>
 
       
     </div>
