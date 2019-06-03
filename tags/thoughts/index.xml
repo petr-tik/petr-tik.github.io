@@ -20,5 +20,14 @@
       <description>Recently busy with many aspects of life: playing dinosaur with my nephew, suddenly having to look for a new flat, annoying admin things that involve people that ask for a lot of money for the right to chat to them.</description>
     </item>
     
+    <item>
+      <title>Talebian software development</title>
+      <link>http://petr-tik.github.io/posts/sitg/</link>
+      <pubDate>Sat, 10 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/sitg/</guid>
+      <description>Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices.</description>
+    </item>
+    
   </channel>
 </rss>
