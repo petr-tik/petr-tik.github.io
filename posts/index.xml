@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 15 May 2019 22:51:00 +0100</lastBuildDate>
+    <lastBuildDate>Tue, 04 Jun 2019 00:01:00 +0100</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Life recently</title>
+      <link>http://petr-tik.github.io/posts/recently_june_2019/</link>
+      <pubDate>Tue, 04 Jun 2019 00:01:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/recently_june_2019/</guid>
+      <description>Recently busy with many aspects of life: playing dinosaur with my nephew, suddenly having to look for a new flat, annoying admin things that involve people that ask for a lot of money for the right to chat to them.</description>
+    </item>
     
     <item>
       <title>Improving the take home assignment</title>
