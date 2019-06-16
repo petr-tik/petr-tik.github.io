@@ -98,8 +98,9 @@
 <p>Most tantivy examples use transient TempDir or RAMDirectory abstractions that disappear without creating a tantivy index directory.</p>
 
 <p>We need to write a programme that will persist a tantivy index to a directory.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">#</span><span style="color:#666">+</span>NAME: <span style="color:#00f">examples</span><span style="color:#666">/</span>write_index.rs<span style="color:#bbb">
-</span><span style="color:#bbb"></span><span style="color:#080">#[macro_use]</span><span style="color:#bbb">
+
+<p><a id="code-snippet--examples-write-index.rs"></a></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#080">#[macro_use]</span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>tantivy;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::fs::create_dir;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::path::Path;<span style="color:#bbb">
@@ -214,7 +215,7 @@ need a small application to check <code>Index::open_in_dir</code>.</p>
 Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.19s</code></pre></div>
 <h3 id="set-read-only-permissions-to-all-index-files">Set read-only permissions to all index files</h3>
 
-<p>Do that by removing any <code>w~rite or e~x~ecute permissions from all files in the ~small_index</code> directory.</p>
+<p>Do that by removing any <code>w</code>rite or e<code>x</code>ecute  permissions from all files in the <code>small_index</code> directory.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> sudo chmod a-wx small_index/* small_index/.managed.json small_index/.tantivy-*
 <span style="color:#b8860b">$$$$</span> ls -als small_index/
 total <span style="color:#666">100</span>
@@ -269,23 +270,29 @@ Failed to open index at small_index/ with error: An IO error occurred: <span sty
 </figure>
 
 
-<h3 id="so-i-found-it-right">So I found it, right?</h3>
+<h3 id="what-have-we-found">What have we found?</h3>
 
-<p>The ticket quotes a different error code.</p>
+<p>My repro has shown that for <code>Index::open_in_dir</code> to work all index files can have read-only file permissions, as long as the index directory retains write and execute permissions.</p>
+
+<p>As soon as you remove those permissions from the index directory, you get an error with OS code 13 on Linux.</p>
+
+<h3 id="so-i-can-reproduce-the-bug-right">So I can reproduce the bug, right?</h3>
+
+<p>No.</p>
+
+<p>The issue quotes a different error code.</p>
 
 <blockquote>
 <p>&ldquo;Read-only file system&rdquo;</p>
 </blockquote>
 
-<p>My repro so far shows that all index files can have read-only file permissions and <code>Index::open_in_dir</code> will work, as long as the index directory retains write and execute permissions.</p>
-
-<p>As soon as you remove those permissions from the index directory, you get an error.</p>
-
 <h2 id="go-deeper">Go deeper</h2>
 
-<p>Setting file or directory permissions with <code>chmod</code> doesn&rsquo;t give us a repro of the environment, because my file system remains read and write.</p>
+<p>Setting file or directory permissions with <code>chmod</code> doesn&rsquo;t give us a repro of the environment, because my file system remains read and write. I made the mistake of conflating <code>chmod</code> settings with file systems settings.</p>
 
-<p>We need to simulate a read-only file system to reproduce the error. In the next episode, I will outline my attempt to simulate a read-only filesystem with Docker.</p>
+<p>We need to simulate a read-only file system to reproduce this error.</p>
+
+<p>In the next episode, I will outline my attempt to simulate a read-only filesystem with Docker.</p>
 
       
     </div>
