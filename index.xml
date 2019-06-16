@@ -13,6 +13,16 @@
     
     
     <item>
+      <title>Don&#39;t mistake file permissions for read-only fs mounts</title>
+      <link>http://petr-tik.github.io/posts/permissions_arent_mounts/</link>
+      <pubDate>Sun, 16 Jun 2019 22:57:00 +0100</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/permissions_arent_mounts/</guid>
+      <description>Hunting a bug down in tantivy</description>
+      
+    </item>
+    
+    <item>
       <title>Life recently</title>
       <link>http://petr-tik.github.io/posts/recently_june_2019/</link>
       <pubDate>Tue, 04 Jun 2019 00:01:00 +0100</pubDate>

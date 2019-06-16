@@ -6,10 +6,19 @@
     <description>Recent content in Rust on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Jan 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 16 Jun 2019 22:57:00 +0100</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/tags/rust/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Don&#39;t mistake file permissions for read-only fs mounts</title>
+      <link>http://petr-tik.github.io/posts/permissions_arent_mounts/</link>
+      <pubDate>Sun, 16 Jun 2019 22:57:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/permissions_arent_mounts/</guid>
+      <description>As a contributor to tantivy (if you are building indexers or applications that need text search - check it out!</description>
+    </item>
     
     <item>
       <title>Rust - from 0 to productive in 2 weeks</title>

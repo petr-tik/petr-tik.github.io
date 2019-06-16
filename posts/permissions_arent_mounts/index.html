@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Don&#39;t mistake file permissions for read-only fs mounts | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/rust">#rust</a>
+
+
+
+  
+  | <a class="subtitle is-6" href="/tags/tantivy">#tantivy</a>
+  
+
+      
+    </div>
+    <h2 class="subtitle is-6">June 16, 2019</h2>
+    <h1 class="title">Don&#39;t mistake file permissions for read-only fs mounts</h1>
+    
+    <div class="content">
+      
+
+<p>As a contributor to <a href="https://github.com/tantivy-search/tantivy/">tantivy</a> (if you are building indexers or applications that need text search - check it out!) I enjoy adding features, submitting code fixes and, most importantly, collecting feature requests from a growing number of users.</p>
+
+<p>Recently one of our early adopters ran into a problem, while deploying a tantivy application to a read-only filesystem.</p>
+
+<p>I picked up the <a href="https://github.com/tantivy-search/tantivy/issues/557">issue</a> and decided to build a repro. Below is my journey, which I hope to finish by adding read-only mode, which will enable people to deploy tantivy-based applications to serve static indexes.</p>
+
+<h2 id="reproducing-the-bug-locally">Reproducing the bug locally</h2>
+
+<h3 id="create-an-index-in-a-new-directory">Create an index in a new directory</h3>
+
+<p>Most tantivy examples/ use transient TempDir or RAMDirectory, so we need to write a programme that will persist a tantivy index to a directory.</p>
+
+<p><a id="code-snippet--examples-write-index.rs"></a></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#080">#[macro_use]</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>tantivy;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::fs::create_dir;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::path::Path;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>tantivy::schema::<span style="color:#666">*</span>;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>tantivy::Index;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">fn</span> <span style="color:#00a000">main</span>()<span style="color:#bbb"> </span>-&gt; <span style="color:#00f">tantivy</span>::<span style="color:#a2f">Result</span><span style="color:#666">&lt;</span>()<span style="color:#666">&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">mut</span><span style="color:#bbb"> </span>schema_builder<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>Schema::builder();<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>schema_builder.add_text_field(<span style="color:#b44">&#34;title&#34;</span>,<span style="color:#bbb"> </span>TEXT<span style="color:#bbb"> </span><span style="color:#666">|</span><span style="color:#bbb"> </span>STORED);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>schema_builder.add_text_field(<span style="color:#b44">&#34;body&#34;</span>,<span style="color:#bbb"> </span>TEXT);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>schema<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>schema_builder.build();<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>index_path<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>Path::new(<span style="color:#b44">&#34;small_index/&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>create_dir(index_path)<span style="color:#666">?</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>index<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>Index::create_in_dir(<span style="color:#666">&amp;</span>index_path,<span style="color:#bbb"> </span>schema.clone())<span style="color:#666">?</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">mut</span><span style="color:#bbb"> </span>index_writer<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>index.writer(<span style="color:#666">50_000_000</span>)<span style="color:#666">?</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>title<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>schema.get_field(<span style="color:#b44">&#34;title&#34;</span>).unwrap();<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>body<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>schema.get_field(<span style="color:#b44">&#34;body&#34;</span>).unwrap();<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">mut</span><span style="color:#bbb"> </span>old_man_doc<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>Document::default();<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>old_man_doc.add_text(title,<span style="color:#bbb"> </span><span style="color:#b44">&#34;The Old Man and the Sea&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>old_man_doc.add_text(<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>body,<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#b44">&#34;He was an old man who fished alone in a skiff in the Gulf Stream and \
+</span><span style="color:#b44">         he had gone eighty-four days now without taking a fish.&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>);<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// ... and add it to the `IndexWriter`.
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span>index_writer.add_document(old_man_doc);<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// For convenience, tantivy also comes with a macro to
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// reduce the boilerplate above.
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span>index_writer.add_document(doc<span style="color:#666">!</span>(<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>title<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;Of Mice and Men&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>body<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;A few miles south of Soledad, the Salinas River drops in close to the hillside \
+</span><span style="color:#b44">            bank and runs deep and green. The water is warm too, for it has slipped twinkling \
+</span><span style="color:#b44">            over the yellow sands in the sunlight before reaching the narrow pool. On one \
+</span><span style="color:#b44">            side of the river the golden foothill slopes curve up to the strong and rocky \
+</span><span style="color:#b44">            Gabilan Mountains, but on the valley side the water is lined with trees—willows \
+</span><span style="color:#b44">            fresh and green with every spring, carrying in their lower leaf junctures the \
+</span><span style="color:#b44">            debris of the winter’s flooding; and sycamores with mottled, white, recumbent \
+</span><span style="color:#b44">            limbs and branches that arch over the pool&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>));<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// Multivalued field just need to be repeated.
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span>index_writer.add_document(doc<span style="color:#666">!</span>(<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>title<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;Frankenstein&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>body<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;You will rejoice to hear that no disaster has accompanied the commencement of an \
+</span><span style="color:#b44">             enterprise which you have regarded with such evil forebodings.  I arrived here \
+</span><span style="color:#b44">             yesterday, and my first task is to assure my dear sister of my welfare and \
+</span><span style="color:#b44">             increasing confidence in the success of my undertaking.&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>));<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">match</span><span style="color:#bbb"> </span>index_writer.commit()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#a2f">Ok</span>(_op)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;Successfully commit index at {:?}&#34;</span>,<span style="color:#bbb"> </span>index_path);<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#a2f">Err</span>(e)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;Failed to commit with err: {}&#34;</span>,<span style="color:#bbb"> </span>e);<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>};<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
+<p>Compile the example, run it and check that index files have been persisted.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> <span style="color:#b8860b">$$$$</span> cargo build --example write_index
+   Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">5</span>.09s
+<span style="color:#b8860b">$$$$</span> ./target/debug/examples/write_index
+ Successfully commit index at <span style="color:#b44">&#34;small_index/&#34;</span>
+ <span style="color:#b8860b">$$$$</span> ls -a small_index
+ .                                           a9831bbd86194aeb8d131a8f420cd5a9.store
+ ..                                          a9831bbd86194aeb8d131a8f420cd5a9.term
+ 8ce15f10c1394562b36b4f99d81252cb.fast       c01908e4fbb4431e9e3b75a0a0be8f61.fast
+ 8ce15f10c1394562b36b4f99d81252cb.fieldnorm  c01908e4fbb4431e9e3b75a0a0be8f61.fieldnorm
+ 8ce15f10c1394562b36b4f99d81252cb.idx        c01908e4fbb4431e9e3b75a0a0be8f61.idx
+ 8ce15f10c1394562b36b4f99d81252cb.pos        c01908e4fbb4431e9e3b75a0a0be8f61.pos
+ 8ce15f10c1394562b36b4f99d81252cb.posidx     c01908e4fbb4431e9e3b75a0a0be8f61.posidx
+ 8ce15f10c1394562b36b4f99d81252cb.store      c01908e4fbb4431e9e3b75a0a0be8f61.store
+ 8ce15f10c1394562b36b4f99d81252cb.term       c01908e4fbb4431e9e3b75a0a0be8f61.term
+ a9831bbd86194aeb8d131a8f420cd5a9.fast       .managed.json
+ a9831bbd86194aeb8d131a8f420cd5a9.fieldnorm  meta.json
+ a9831bbd86194aeb8d131a8f420cd5a9.idx        .tantivy-meta.lock
+ a9831bbd86194aeb8d131a8f420cd5a9.pos        .tantivy-writer.lock
+ a9831bbd86194aeb8d131a8f420cd5a9.posidx</code></pre></div>
+<h3 id="create-a-reader-application">Create a reader application</h3>
+
+<p>As the ticket states, opening in a given directory throws the error, so we only
+need a small application to check `Index::open_in_dir`.</p>
+
+<p><a id="code-snippet--examples-open-in-dir.rs"></a></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>tantivy;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>tantivy::Index;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">fn</span> <span style="color:#00a000">main</span>()<span style="color:#bbb"> </span>-&gt; <span style="color:#00f">tantivy</span>::<span style="color:#a2f">Result</span><span style="color:#666">&lt;</span>()<span style="color:#666">&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>idx_path<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;small_index/&#34;</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>_index<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">match</span><span style="color:#bbb"> </span>Index::open_in_dir(idx_path)<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#a2f">Ok</span>(_idx)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;Successfully opened the index&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#a2f">Err</span>(err)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;Failed to open index at {} with error: {}&#34;</span>,<span style="color:#bbb"> </span>idx_path,<span style="color:#bbb"> </span>err);<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>};<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
+<p>Compiling an example gives us a debug build binary in `target/debug/examples`</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo build --example open_in_dir
+Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.19s</code></pre></div>
+<h3 id="set-read-only-permissions-to-all-index-files">Set read-only permissions to all index files</h3>
+
+<p>Do that by removing any `w`rite or e`x`ecute permissions from all files in the `small_index` directory.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> sudo chmod a-wx small_index/* small_index/.managed.json small_index/.tantivy-*
+<span style="color:#b8860b">$$$$</span> ls -als small_index/
+total <span style="color:#666">100</span>
+<span style="color:#666">4</span> drwxrwxr-x  <span style="color:#666">2</span> petr_tik petr_tik <span style="color:#666">4096</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .
+<span style="color:#666">4</span> drwxrwxrwx <span style="color:#666">11</span> petr_tik petr_tik <span style="color:#666">4096</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 ..
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik    <span style="color:#666">5</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.fast
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">19</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.fieldnorm
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">91</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.idx
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">145</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.pos
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">27</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.posidx
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">76</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.store
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">446</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 8ce15f10c1394562b36b4f99d81252cb.term
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik    <span style="color:#666">5</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.fast
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">19</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.fieldnorm
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">115</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.idx
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">113</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.pos
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">27</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.posidx
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">65</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.store
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">649</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 a9831bbd86194aeb8d131a8f420cd5a9.term
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik    <span style="color:#666">5</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.fast
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">19</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.fieldnorm
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">189</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.idx
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">161</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.pos
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">27</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.posidx
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik   <span style="color:#666">68</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.store
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik <span style="color:#666">1022</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 c01908e4fbb4431e9e3b75a0a0be8f61.term
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">872</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .managed.json
+<span style="color:#666">4</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik  <span style="color:#666">814</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 meta.json
+<span style="color:#666">0</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik    <span style="color:#666">0</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .tantivy-meta.lock
+<span style="color:#666">0</span> -r--r--r--  <span style="color:#666">1</span> petr_tik petr_tik    <span style="color:#666">0</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .tantivy-writer.lock</code></pre></div>
+<p>Run the open_in_dir application and expect an error!</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> ./target/debug/examples/open_in_dir
+Successfully opened the index</code></pre></div>
+<h3 id="directory-permissions-file-permissions">Directory permissions != file permissions</h3>
+
+<p>Reviewing the output of last ls command again we notice that the `small_index` directory retains write and execute permissions.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> ls -als small_index/
+total <span style="color:#666">100</span>
+<span style="color:#666">4</span> drwxrwxr-x  <span style="color:#666">2</span> petr_tik petr_tik <span style="color:#666">4096</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .</code></pre></div>
+<p>This suggests that removing write and execute permissions from all the <span class="underline">files</span> in the directory doesn&rsquo;t prevent us from opening the index.</p>
+
+<p>Let&rsquo;s try removing write and execute permissions from the directory and see what happens.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> sudo chmod a-wx small_index/
+<span style="color:#b8860b">$$$$</span> sudo ls -als small_index/
+total <span style="color:#666">100</span>
+<span style="color:#666">4</span> dr--r--r--  <span style="color:#666">2</span> petr_tik petr_tik <span style="color:#666">4096</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .
+...
+<span style="color:#b8860b">$$$$</span> ./target/debug/examples/open_in_dir
+Failed to open index at small_index/ with error: An IO error occurred: <span style="color:#b44">&#39;io error occurred on path &#39;</span><span style="color:#b44">&#34;.managed.json&#34;</span><span style="color:#b44">&#39;: &#39;</span>Permission denied <span style="color:#666">(</span>os error <span style="color:#666">13</span><span style="color:#666">)</span><span style="color:#b44">&#39;&#39;</span></code></pre></div>
+<figure>
+    <img src="/images/images/bingo2.gif"/> 
+</figure>
+
+
+<h3 id="so-i-found-it-right">So I found it, right?</h3>
+
+<p>The ticket quotes a different error code.</p>
+
+<blockquote>
+<p>&ldquo;Read-only file system&rdquo;</p>
+</blockquote>
+
+<p>My repro so far shows that all index files can have read-only file permissions and `Index::open_in_dir` will work, as long as the index directory retains write and execute permissions.</p>
+
+<p>As soon as you remove those permissions from the index directory, you get an error.</p>
+
+<h2 id="go-deeper">Go deeper</h2>
+
+<p>Setting file or directory permissions with `chmod` doesn&rsquo;t give us a repro of the environment, because my file system remains read and write.</p>
+
+<p>We need to simulate a read-only file system to reproduce the error. In the next episode, I will outline my attempt to simulate a read-only filesystem with Docker.</p>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
