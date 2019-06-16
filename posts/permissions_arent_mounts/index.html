@@ -83,20 +83,23 @@
     <div class="content">
       
 
-<p>As a contributor to <a href="https://github.com/tantivy-search/tantivy/">tantivy</a> (if you are building indexers or applications that need text search - check it out!) I enjoy adding features, submitting code fixes and, most importantly, collecting feature requests from a growing number of users.</p>
+<p>As a contributor to <a href="https://github.com/tantivy-search/tantivy/">tantivy</a> (if you are building indexers or applications that need text search - check it out!), which I enjoy.</p>
+
+<p>In my opinion, one of my most important tasks is collecting feature requests and bug reports from a growing number of users to a) show that we care b) build a product that people want.</p>
 
 <p>Recently one of our early adopters ran into a problem, while deploying a tantivy application to a read-only filesystem.</p>
 
-<p>I picked up the <a href="https://github.com/tantivy-search/tantivy/issues/557">issue</a> and decided to build a repro. Below is my journey, which I hope to finish by adding read-only mode, which will enable people to deploy tantivy-based applications to serve static indexes.</p>
+<p>I picked up the <a href="https://github.com/tantivy-search/tantivy/issues/557">issue</a> and decided to build a repro. Below is my journey, which I intend to finish by adding read-only mode, which will enable people to deploy tantivy-based applications to serve static indexes.</p>
 
 <h2 id="reproducing-the-bug-locally">Reproducing the bug locally</h2>
 
 <h3 id="create-an-index-in-a-new-directory">Create an index in a new directory</h3>
 
-<p>Most tantivy examples/ use transient TempDir or RAMDirectory, so we need to write a programme that will persist a tantivy index to a directory.</p>
+<p>Most tantivy examples use transient TempDir or RAMDirectory abstractions that disappear without creating a tantivy index directory.</p>
 
-<p><a id="code-snippet--examples-write-index.rs"></a></p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#080">#[macro_use]</span><span style="color:#bbb">
+<p>We need to write a programme that will persist a tantivy index to a directory.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">#</span><span style="color:#666">+</span>NAME: <span style="color:#00f">examples</span><span style="color:#666">/</span>write_index.rs<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#080">#[macro_use]</span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>tantivy;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::fs::create_dir;<span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::path::Path;<span style="color:#bbb">
