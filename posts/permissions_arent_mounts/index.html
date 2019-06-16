@@ -187,7 +187,7 @@
 <h3 id="create-a-reader-application">Create a reader application</h3>
 
 <p>As the ticket states, opening in a given directory throws the error, so we only
-need a small application to check `Index::open_in_dir`.</p>
+need a small application to check <code>Index::open_in_dir</code>.</p>
 
 <p><a id="code-snippet--examples-open-in-dir.rs"></a></p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>tantivy;<span style="color:#bbb">
@@ -206,12 +206,12 @@ need a small application to check `Index::open_in_dir`.</p>
 </span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}<span style="color:#bbb">
 </span></code></pre></div>
-<p>Compiling an example gives us a debug build binary in `target/debug/examples`</p>
+<p>Compiling an example gives us a debug build binary in <code>target/debug/examples</code></p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo build --example open_in_dir
 Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.19s</code></pre></div>
 <h3 id="set-read-only-permissions-to-all-index-files">Set read-only permissions to all index files</h3>
 
-<p>Do that by removing any `w`rite or e`x`ecute permissions from all files in the `small_index` directory.</p>
+<p>Do that by removing any <code>w~rite or e~x~ecute permissions from all files in the ~small_index</code> directory.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> sudo chmod a-wx small_index/* small_index/.managed.json small_index/.tantivy-*
 <span style="color:#b8860b">$$$$</span> ls -als small_index/
 total <span style="color:#666">100</span>
@@ -247,7 +247,7 @@ total <span style="color:#666">100</span>
 Successfully opened the index</code></pre></div>
 <h3 id="directory-permissions-file-permissions">Directory permissions != file permissions</h3>
 
-<p>Reviewing the output of last ls command again we notice that the `small_index` directory retains write and execute permissions.</p>
+<p>Reviewing the output of last ls command again we notice that the <code>small_index</code> directory retains write and execute permissions.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> ls -als small_index/
 total <span style="color:#666">100</span>
 <span style="color:#666">4</span> drwxrwxr-x  <span style="color:#666">2</span> petr_tik petr_tik <span style="color:#666">4096</span> Jun <span style="color:#666">16</span> <span style="color:#666">19</span>:38 .</code></pre></div>
@@ -274,13 +274,13 @@ Failed to open index at small_index/ with error: An IO error occurred: <span sty
 <p>&ldquo;Read-only file system&rdquo;</p>
 </blockquote>
 
-<p>My repro so far shows that all index files can have read-only file permissions and `Index::open_in_dir` will work, as long as the index directory retains write and execute permissions.</p>
+<p>My repro so far shows that all index files can have read-only file permissions and <code>Index::open_in_dir</code> will work, as long as the index directory retains write and execute permissions.</p>
 
 <p>As soon as you remove those permissions from the index directory, you get an error.</p>
 
 <h2 id="go-deeper">Go deeper</h2>
 
-<p>Setting file or directory permissions with `chmod` doesn&rsquo;t give us a repro of the environment, because my file system remains read and write.</p>
+<p>Setting file or directory permissions with <code>chmod</code> doesn&rsquo;t give us a repro of the environment, because my file system remains read and write.</p>
 
 <p>We need to simulate a read-only file system to reproduce the error. In the next episode, I will outline my attempt to simulate a read-only filesystem with Docker.</p>
 
