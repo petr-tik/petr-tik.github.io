@@ -13,6 +13,16 @@
     
     
     <item>
+      <title>Using Docker to reproduce a read-only file system</title>
+      <link>http://petr-tik.github.io/posts/dockerise_an_ro_filesystem/</link>
+      <pubDate>Tue, 18 Jun 2019 22:23:00 +0100</pubDate>
+      <author>Petr Tikilyaynen</author>
+      <guid>http://petr-tik.github.io/posts/dockerise_an_ro_filesystem/</guid>
+      <description>The educational benefits of reproducing bugs</description>
+      
+    </item>
+    
+    <item>
       <title>Don&#39;t mistake file permissions for read-only fs mounts</title>
       <link>http://petr-tik.github.io/posts/permissions_arent_mounts/</link>
       <pubDate>Sun, 16 Jun 2019 22:57:00 +0100</pubDate>
