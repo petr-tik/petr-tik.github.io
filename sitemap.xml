@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://petr-tik.github.io/posts/tantivy_demo_conclusions/</loc>
+    <lastmod>2019-10-02T00:08:41+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/notes/lifehacking/</loc>
     <lastmod>2019-06-24T22:05:22+01:00</lastmod>
   </url>
@@ -168,7 +173,7 @@
   
   <url>
     <loc>http://petr-tik.github.io/categories/hacking/</loc>
-    <lastmod>2019-06-18T23:45:58+01:00</lastmod>
+    <lastmod>2019-10-02T00:08:41+01:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -204,7 +209,7 @@
   
   <url>
     <loc>http://petr-tik.github.io/posts/</loc>
-    <lastmod>2019-06-18T23:45:58+01:00</lastmod>
+    <lastmod>2019-10-02T00:08:41+01:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -222,7 +227,7 @@
   
   <url>
     <loc>http://petr-tik.github.io/</loc>
-    <lastmod>2019-06-24T22:05:22+01:00</lastmod>
+    <lastmod>2019-10-02T00:08:41+01:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -246,7 +251,7 @@
   
   <url>
     <loc>http://petr-tik.github.io/tags/tantivy/</loc>
-    <lastmod>2019-06-18T23:45:58+01:00</lastmod>
+    <lastmod>2019-10-02T00:08:41+01:00</lastmod>
     <priority>0</priority>
   </url>
   
