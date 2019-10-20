@@ -169,8 +169,7 @@ Below is my journey, which I intend to finish by adding read-only mode, which wi
 </span><span style="color:#bbb">    </span>};<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
+</span><span style="color:#bbb"></span>}</code></pre></div>
 <p>Compile the example, run it and check that index files have been persisted.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> <span style="color:#b8860b">$$$$</span> cargo build --example write_index
    Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">5</span>.09s
@@ -211,8 +210,7 @@ need a small application to check <code>Index::open_in_dir</code>.</p>
 </span><span style="color:#bbb">        </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>};<span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
+</span><span style="color:#bbb"></span>}</code></pre></div>
 <p>Compiling an example gives us a debug build binary in <code>target/debug/examples</code></p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo build --example open_in_dir
 Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.19s</code></pre></div>
@@ -268,8 +266,12 @@ total <span style="color:#666">100</span>
 ...
 <span style="color:#b8860b">$$$$</span> ./target/debug/examples/open_in_dir
 Failed to open index at small_index/ with error: An IO error occurred: <span style="color:#b44">&#39;io error occurred on path &#39;</span><span style="color:#b44">&#34;.managed.json&#34;</span><span style="color:#b44">&#39;: &#39;</span>Permission denied <span style="color:#666">(</span>os error <span style="color:#666">13</span><span style="color:#666">)</span><span style="color:#b44">&#39;&#39;</span></code></pre></div>
+
 <figure>
-    <img src="/images/bingo2.gif"/> 
+    
+        <img src="/images/bingo2.gif" />
+    
+    
 </figure>
 
 

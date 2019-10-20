@@ -217,8 +217,7 @@ src/store/mod.rs:1
 src/functional_test.rs:1
 src/core/segment_reader.rs:1</code></pre></div>
 <p>one of the imports in <code>src/directory/mmap_directory.rs</code> is <code>use fst::raw::MmapReadOnly;</code>, whose name correctly suggests it uses memmap features. Looking inside <code>memmap-0.6.2/lib.rs</code> shows it&rsquo;s configured to build for unix or windows. Building for the wasm target misses all calls to macros below</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">[cfg(windows)]<span style="color:#bbb">
-</span></code></pre></div>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">[cfg(windows)]</code></pre></div>
 <p>and the crate fails to compile.</p>
 
 <h2 id="how-did-paul-compile-tantivy-to-wasm-back-in-the-days-of-v0-5-0">How did Paul compile tantivy to wasm back in the days of v0.5.0?</h2>
