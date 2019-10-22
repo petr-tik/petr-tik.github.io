@@ -6,10 +6,28 @@
     <description>Recent content in Hacking on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Oct 2019 22:51:00 +0100</lastBuildDate>
+    <lastBuildDate>Tue, 22 Oct 2019 00:00:00 +0100</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/categories/hacking/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Scratching NASDAQ&#39;s ITCH</title>
+      <link>http://petr-tik.github.io/posts/debugging_itch_parser/</link>
+      <pubDate>Tue, 22 Oct 2019 00:00:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/debugging_itch_parser/</guid>
+      <description>CLOSED: [2019-10-22 Tue 23:47]</description>
+    </item>
+    
+    <item>
+      <title>Scratching NASDAQ&#39;s ITCH</title>
+      <link>http://petr-tik.github.io/posts/itch_parser_debugging/</link>
+      <pubDate>Tue, 22 Oct 2019 00:00:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/itch_parser_debugging/</guid>
+      <description>CLOSED: [2019-10-22 Tue 23:47]</description>
+    </item>
     
     <item>
       <title>Takeaways from my tantivy talk</title>

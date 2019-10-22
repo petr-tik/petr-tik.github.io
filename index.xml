@@ -4,232 +4,227 @@
     <title>Software and puns</title>
     <link>http://petr-tik.github.io/</link>
     <description>Recent content on Software and puns</description>
-    <generator>Hugo - gohugo.io</generator>
-    <language>en</language>
-    <contact></contact>
-    <copyright></copyright>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 22 Oct 2019 00:00:00 +0100</lastBuildDate>
     
-        <atom:link href="http://petr-tik.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://petr-tik.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Scratching NASDAQ&#39;s ITCH</title>
+      <link>http://petr-tik.github.io/posts/debugging_itch_parser/</link>
+      <pubDate>Tue, 22 Oct 2019 00:00:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/debugging_itch_parser/</guid>
+      <description>CLOSED: [2019-10-22 Tue 23:47]</description>
+    </item>
+    
+    <item>
+      <title>Scratching NASDAQ&#39;s ITCH</title>
+      <link>http://petr-tik.github.io/posts/itch_parser_debugging/</link>
+      <pubDate>Tue, 22 Oct 2019 00:00:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/itch_parser_debugging/</guid>
+      <description>CLOSED: [2019-10-22 Tue 23:47]</description>
+    </item>
     
     <item>
       <title>Takeaways from my tantivy talk</title>
       <link>http://petr-tik.github.io/posts/tantivy_demo_conclusions/</link>
       <pubDate>Tue, 01 Oct 2019 22:51:00 +0100</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/tantivy_demo_conclusions/</guid>
-      <description>What I learnt after talking about tantivy</description>
       
+      <guid>http://petr-tik.github.io/posts/tantivy_demo_conclusions/</guid>
+      <description>I spoke about tantivy at the Rust London meetup last week (video).</description>
     </item>
     
     <item>
       <title>Life hacks</title>
       <link>http://petr-tik.github.io/notes/lifehacking/</link>
       <pubDate>Mon, 24 Jun 2019 21:57:00 +0100</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/notes/lifehacking/</guid>
-      <description>Reverse engineering social situations</description>
       
+      <guid>http://petr-tik.github.io/notes/lifehacking/</guid>
+      <description>Below is a collection of life hacks that I have been using over the years.</description>
     </item>
     
     <item>
       <title>Using Docker to reproduce a read-only file system</title>
       <link>http://petr-tik.github.io/posts/dockerise_an_ro_filesystem/</link>
       <pubDate>Tue, 18 Jun 2019 22:23:00 +0100</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/dockerise_an_ro_filesystem/</guid>
-      <description>The educational benefits of reproducing bugs</description>
       
+      <guid>http://petr-tik.github.io/posts/dockerise_an_ro_filesystem/</guid>
+      <description>This is part 2 of my journey adding read-only mode to tantivy.</description>
     </item>
     
     <item>
       <title>Don&#39;t mistake file permissions for read-only fs mounts</title>
       <link>http://petr-tik.github.io/posts/permissions_arent_mounts/</link>
       <pubDate>Sun, 16 Jun 2019 22:57:00 +0100</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/permissions_arent_mounts/</guid>
-      <description>Hunting a bug down in tantivy</description>
       
+      <guid>http://petr-tik.github.io/posts/permissions_arent_mounts/</guid>
+      <description>I enjoy contributing to tantivy, a Lucene-like library in Rust.</description>
     </item>
     
     <item>
       <title>Life recently</title>
       <link>http://petr-tik.github.io/posts/recently_june_2019/</link>
       <pubDate>Tue, 04 Jun 2019 00:01:00 +0100</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/recently_june_2019/</guid>
-      <description>What have I been up to recently?</description>
       
+      <guid>http://petr-tik.github.io/posts/recently_june_2019/</guid>
+      <description>Recently busy with many aspects of life: playing dinosaur with my nephew, suddenly having to look for a new flat, annoying admin things that involve people that ask for a lot of money for the right to chat to them.</description>
     </item>
     
     <item>
       <title>Improving the take home assignment</title>
       <link>http://petr-tik.github.io/posts/improving_takehome_tests/</link>
       <pubDate>Wed, 15 May 2019 22:51:00 +0100</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/improving_takehome_tests/</guid>
-      <description>Efficiently assessing programmers on realistic problems</description>
       
+      <guid>http://petr-tik.github.io/posts/improving_takehome_tests/</guid>
+      <description>Interviewing software developers using algorithmic puzzles on HackerRank/skype is proving contentious.</description>
     </item>
     
     <item>
       <title>Reviewing The Soul of a New Machine</title>
       <link>http://petr-tik.github.io/notes/soul_of_new_machine/</link>
       <pubDate>Tue, 19 Feb 2019 23:22:33 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/notes/soul_of_new_machine/</guid>
-      <description>Differences in engineering cultures</description>
       
+      <guid>http://petr-tik.github.io/notes/soul_of_new_machine/</guid>
+      <description>Bryan Cantrill recently recommended &#34;</description>
     </item>
     
     <item>
       <title>Rust - from 0 to productive in 2 weeks</title>
       <link>http://petr-tik.github.io/posts/matching_engine_in_rust/</link>
       <pubDate>Sat, 19 Jan 2019 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/matching_engine_in_rust/</guid>
-      <description>Implementing an order book in Rust</description>
       
+      <guid>http://petr-tik.github.io/posts/matching_engine_in_rust/</guid>
+      <description>This is a story of me going from making sarcastic jokes about rewriting everything in Rust to becoming one of them growing to like the language.</description>
     </item>
     
     <item>
       <title>How to update your changelog automatically</title>
       <link>http://petr-tik.github.io/posts/xargs_magic/</link>
       <pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/xargs_magic/</guid>
-      <description>The magic of xargs and git log</description>
       
+      <guid>http://petr-tik.github.io/posts/xargs_magic/</guid>
+      <description>If you ever needed a quick way to update your changelog - you should find the post below interesting.</description>
     </item>
     
     <item>
       <title>Compiling a Rust library to wasm</title>
       <link>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</link>
       <pubDate>Sun, 30 Sep 2018 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</guid>
-      <description>Going down rabbit holes of conditional compilation</description>
       
+      <guid>http://petr-tik.github.io/posts/compiling_rust_lib_for_wasm/</guid>
+      <description>Since finding Paul Masurel&amp;rsquo;s tantivy searching/indexing library, I thought it would be cool to make the library available for the browser.</description>
     </item>
     
     <item>
       <title>Talebian software development</title>
       <link>http://petr-tik.github.io/posts/sitg/</link>
       <pubDate>Sat, 10 Mar 2018 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/sitg/</guid>
-      <description>Philosophical ideas behind development practices</description>
       
+      <guid>http://petr-tik.github.io/posts/sitg/</guid>
+      <description>Having read Nicholas Nassim Taleb, I noticed 2 ideas of his overlaping with software development practices.</description>
     </item>
     
     <item>
       <title>Search text fast or die trie-ing</title>
       <link>http://petr-tik.github.io/posts/bivittatus/</link>
       <pubDate>Mon, 12 Feb 2018 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/bivittatus/</guid>
-      <description>Writing a Python extension in C</description>
       
+      <guid>http://petr-tik.github.io/posts/bivittatus/</guid>
+      <description>Benchmarking the Python and C implementation of a trie-as-a-dictionary.</description>
     </item>
     
     <item>
       <title>Diving into CPython GC module</title>
       <link>http://petr-tik.github.io/posts/gc_in_python_part_two/</link>
       <pubDate>Sat, 05 Aug 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/gc_in_python_part_two/</guid>
-      <description>Reading source code for gcmodule.c</description>
       
+      <guid>http://petr-tik.github.io/posts/gc_in_python_part_two/</guid>
+      <description>This is a deep dive into the source code for Modules/gcmodule.</description>
     </item>
     
     <item>
       <title>Comparing different ways to add ints II</title>
       <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</link>
       <pubDate>Sun, 16 Jul 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</guid>
-      <description>Profiling Python</description>
       
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</guid>
+      <description>Background As outlined in part 1, we are comparing recursive and iterative implementations of long arithmetic of 2 arrays.</description>
     </item>
     
     <item>
       <title>Comparing different ways to add ints I</title>
       <link>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</link>
       <pubDate>Tue, 27 Jun 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</guid>
-      <description>Exploring the tradeoffs between recursive and iterative solutions</description>
       
+      <guid>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</guid>
+      <description>Puzzle Given 2 ints represented as array of digits in order (eg.</description>
     </item>
     
     <item>
       <title>Debugging hanging elpy on emacs</title>
       <link>http://petr-tik.github.io/posts/emacs_error/</link>
       <pubDate>Thu, 06 Apr 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/emacs_error/</guid>
-      <description>Investigating a hanging emacs process</description>
       
+      <guid>http://petr-tik.github.io/posts/emacs_error/</guid>
+      <description>I was hacking on a small python script, minding my own business when emacs stopped reacting to my keyboard input.</description>
     </item>
     
     <item>
       <title>Notes on python&#39;s GC</title>
       <link>http://petr-tik.github.io/posts/gc_in_python/</link>
       <pubDate>Tue, 07 Mar 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/gc_in_python/</guid>
-      <description>Notes from different videos/texts</description>
       
+      <guid>http://petr-tik.github.io/posts/gc_in_python/</guid>
+      <description>Notes on Memory Management in Python - YouTube</description>
     </item>
     
     <item>
       <title>CI for Solent-eng</title>
       <link>http://petr-tik.github.io/posts/ci_for_solent/</link>
       <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/ci_for_solent/</guid>
-      <description>Thoughts on setting up own CI</description>
       
+      <guid>http://petr-tik.github.io/posts/ci_for_solent/</guid>
+      <description>Spent the day working on a plan to build custom CI pipeline for solent.</description>
     </item>
     
     <item>
       <title>Unexpected breadth-first search</title>
       <link>http://petr-tik.github.io/posts/candies_puzzle/</link>
       <pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/candies_puzzle/</guid>
-      <description>Uncovering a graph theory problem</description>
       
+      <guid>http://petr-tik.github.io/posts/candies_puzzle/</guid>
+      <description>This puzzle is in the dynamic programming section of HackerRank.</description>
     </item>
     
     <item>
       <title>Getting clojure with Lisp</title>
       <link>http://petr-tik.github.io/posts/clojure_start/</link>
       <pubDate>Sat, 20 Feb 2016 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
-      <description>My story with Clojure</description>
       
+      <guid>http://petr-tik.github.io/posts/clojure_start/</guid>
+      <description>I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.</description>
     </item>
     
     <item>
       <title></title>
       <link>http://petr-tik.github.io/posts/remote_dev/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/remote_dev/</guid>
-      <description></description>
       
+      <guid>http://petr-tik.github.io/posts/remote_dev/</guid>
+      <description>DONE Remote (rust) development environment Picture this at home Imaging you are working on a large Rust project.</description>
     </item>
     
     <item>
       <title>Who dis?</title>
       <link>http://petr-tik.github.io/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/about/</guid>
-      <description></description>
       
+      <guid>http://petr-tik.github.io/about/</guid>
+      <description>This is my page, where I will write about software projects, books and other ideas that interest me.</description>
     </item>
     
   </channel>
