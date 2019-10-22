@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Scratching NASDAQ&#39;s ITCH | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/rust">#rust</a>
+
+
+
+  
+  | <a class="subtitle is-6" href="/tags/trading">#trading</a>
+  
+
+      
+    </div>
+    <h2 class="subtitle is-6">October 22, 2019</h2>
+    <h1 class="title">Scratching NASDAQ&#39;s ITCH</h1>
+    
+    <div class="content">
+      
+
+<p>CLOSED: <span class="timestamp-wrapper"><span class="timestamp">[2019-10-22 Tue 23:47]</span></span></p>
+
+<p>I am building an L1/L2 order book replay/visualisation tool in Rust, which
+requires me to parse L3 (full) market data feed from NASDAQ.</p>
+
+<p>In the words of one experienced trading systems developer - <code>writing a feed
+handler is boooooring, but does not build an order book</code>, so I searched if
+someone else has implemented it already.</p>
+
+<p>Thankfully, <a href="https://github.com/adwhit/itchy-rust">adwhit built a library to parse ITCH feeds from files</a>, which is one
+line away from importing to my <code>Cargo.toml</code>.</p>
+
+<h2 id="getting-and-parsing-market-data">Getting and parsing market data</h2>
+
+<p>Before starting work on my orderbook replay tool, I decided to have a look at the market data.</p>
+
+<p>Anyone can download a sample itch feed file from <a href="ftp://emi.nasdaq.com/ITCH/">NASDAQ&rsquo;s own ftp server</a> to play around with (NB. they seem to limit the download speed).</p>
+
+<p>I downloaded &ldquo;07302019.NASDAQ_ITCH50.gz&rdquo;, which was available at the time. Those files are periodically updated, so if you are reading this later, don&rsquo;t expect to find the same file on the ftp server.</p>
+
+<h3 id="parse-market-data-or-panic-trying">Parse market data or panic trying</h3>
+
+<p>The itchy library has a user-friendly Readme that allows you to copy-paste a code snippet that creates a stream of messages from a given file!</p>
+
+<p>(According to GitHub, the author lives in London, so I would be happy to meet in person and buy them a beverage of choice <strong>waves</strong>.)</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>extern crate itchy;</p>
+
+<p>fn main() {
+let stream = itchy::MessageStream::from_gzip(&ldquo;07302019.NASDAQ_ITCH50.gz&rdquo;).unwrap();
+for msg in stream {
+println!(&ldquo;{:?}&ldquo;, msg.unwrap());
+}
+}</p>
+
+<p></div></p>
+
+<p>The results were not promising.</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>$ RUSTC_WRAPPER= cargo run &ndash;release
+    Compiling ob_visualiser v0.1.0 (/home/petr_tik/Coding/rust/ob_visualiser)
+.
+.
+.
+thread &lsquo;main&rsquo; panicked at &lsquo;called `Result::unwrap()` on an `Err` value: Error(Msg(&ldquo;Parse failed: Switch&rdquo;), State { next_error: None, backtrace: None })&lsquo;, src/libcore/result.rs:1084:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.</p>
+
+<p></div></p>
+
+<h3 id="itchy-failed-to-parse-a-message-without-providing-any-detail-about-it">Itchy failed to parse a message without providing any detail about it</h3>
+
+<p>Also, the previous 2 messages before the error were `StockDirectory` messages,
+which suggests that StockDirectory parsing shouldn&rsquo;t fail.</p>
+
+<h3 id="hypotheses">Hypotheses</h3>
+
+<p>I needed to find out the reason for failing.</p>
+
+<h4 id="corrupt-market-data-file">Corrupt market data file</h4>
+
+<p>The market data file may have been corrupt. The ftp server provides checksums for every archive and they checksums matched.</p>
+
+<p>Maybe, NASDAQ created and checksumed a file without checking its validity?</p>
+
+<h4 id="check-that-it-wasn-t-a-corrupt-md-file">Check that it wasn&rsquo;t a corrupt MD file</h4>
+
+<p>I decided to download and run the same application on another file - &ldquo;12282018.NASDAQ_ITCH50.gz&rdquo;.</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>$ RUSTC_WRAPPER= cargo run &ndash;release
+    Compiling ob_visualiser v0.1.0 (/home/petr_tik/Coding/rust/ob_visualiser)
+.
+.
+.
+thread &lsquo;main&rsquo; panicked at &lsquo;called `Result::unwrap()` on an `Err` value: Error(Msg(&ldquo;Parse failed: Switch&rdquo;), State { next_error: None, backtrace: None })&lsquo;, src/libcore/result.rs:1084:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.</p>
+
+<p></div></p>
+
+<p>There is also a panic on the file.</p>
+
+<p>They might have different reasons for failing though.</p>
+
+<h4 id="find-the-context-for-each-failure">Find the context for each failure</h4>
+
+<p>To establish the context, I decided to:</p>
+
+<ol>
+<li>save and print the last successfully parsed message</li>
+<li>Give the state of the buffer on which parsing fails</li>
+</ol>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>extern crate itchy;</p>
+
+<p>use std::env::args;
+use std::path::Path;</p>
+
+<p>fn main() {
+    let args: Vec<String> = args().collect();
+    let path_to_market_data = Path::new(&amp;args[1]);
+    // allows us to pass the filename as an argument</p>
+
+<pre><code>let stream = itchy::MessageStream::from\_gzip(path\_to\_market\_data).unwrap();
+let mut last\_msg: Option&lt;itchy::Message&gt; = None;
+for msg in stream {
+    match msg {
+        Ok(m) =&gt; {
+            last\_msg = Some(m);
+        }
+        Err(\_e) =&gt; {
+            dbg!(&amp;last\_msg);
+        }
+    }
+}
+</code></pre>
+
+<p>}</p>
+
+<p></div></p>
+
+<p>The pedantic reader might notice the code snippet above doesn&rsquo;t satisfy (2) and
+doesn&rsquo;t print the state of the buffer.</p>
+
+<p>Luckily, cargo makes it easy to monkey-patch our dependencies</p>
+
+<p>First, git clone the itchy library locally and point cargo to the local copy instead of the one available on crates.io.</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>[dependencies]
+itchy = { path = &ldquo;../itchy-rust/&rdquo; }</p>
+
+<p></div></p>
+
+<p>Then, monkey patch your local copy of itchy-rust to print 50 bytes of the buffer
+that failed to parse, before returning the error.</p>
+
+<p>50 bytes is big enough to capture any NASDAQ ITCH 5.0 message, so we can examine it.</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>Error(e) =&gt; {
+    <em>/ We need to inform user of error, but don&rsquo;t want to get
+    /</em> stuck in an infinite loop if error is ignored
+    <em>/ (but obviously shouldn&rsquo;t fail silently on error either)
+    /</em> therefore track if we already in an &lsquo;error state&rsquo; and bail if so
+    if self.in_error_state {
+        return None;
+    } else {
+        self.in_error_state = true;</p>
+
+<ul>
+<li>#[cfg(debug_assertions)]</li>
+<li>{</li>
+<li>let offset_bigger_than_most_messages = 50;</li>
+<li>println!(&ldquo;{} bytes of the buffer&rdquo;, offset_bigger_than_most_messages);</li>
+<li>// print the buffer byte by byte split by newlines</li>
+<li>for c in &amp;buf[..offset_bigger_than_most_messages] {</li>
+<li>println!(&ldquo;{:?}&ldquo;, c);</li>
+<li>}</li>
+<li>}
+    return Some(Err(format!(&ldquo;Parse failed: {}&ldquo;, e).into()));
+}</li>
+</ul>
+
+<p></div></p>
+
+<p>Use a bit of bash magic to run the 2 binaries and produce results easy to review:
+debug_assertions prints to stderr, which we need to redirect to stdout <code>2&gt;&amp;1</code>
+<code>diff -ty</code> prints the result of 2 diffs side-by-side and turns tabs to spaces (cue flamewar) to make it easy to copy-paste.
+<code>diff &lt;x &lt;y</code> is a convention to diff the stdout outputs of shell commands x and y.</p>
+
+<p>Because of the order debug_assertions in the itchy library prints the buffer before our binary prints the last parsed message.</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p>\[\] diff -ty &lt;(2&gt;&amp;1 cargo -q run &ndash; 12282018.NASDAQ_ITCH50.gz) &lt;(2&gt;&amp;1 cargo -q run &ndash; 07302019.NASDAQ_ITCH50.gz)
+50 bytes of the buffer                                             50 bytes of the buffer
+0                                                                  0
+39                                                                 39
+82                                                                 82
+15                                                                 15
+78                                                              |  106
+0                                                                  0
+0                                                                  0
+10                                                                 10
+70                                                              |  57
+215                                                             |  52
+12                                                              |  21
+235                                                             |  128
+83                                                              |  14
+73                                                                 73
+66                                                                 66
+75                                                                 75
+82                                                                 82
+32                                                                 32
+32                                                                 32
+32                                                                 32
+32                                                                 32
+86                                                                 86
+32                                                                 32
+0                                                                  0
+0                                                                  0
+0                                                                  0
+100                                                                100
+78                                                                 78
+67                                                                 67
+90                                                                 90
+32                                                                 32
+80                                                                 80
+78                                                                 78
+32                                                                 32
+49                                                                 49
+78                                                                 78
+0                                                                  0
+0                                                                  0
+0                                                                  0
+0                                                                  0
+78                                                                 78
+0                                                                  0
+39                                                                 39
+82                                                                 82
+15                                                                 15
+79                                                              |  107
+0                                                                  0
+0                                                                  0
+10                                                                 10
+70                                                              |  57
+[src/main.rs:19] &amp;last_msg = Some(                                 [src/main.rs:19] &amp;last_msg = Some(
+    Message {                                                          Message {
+        tag: 82,                                                           tag: 82,
+        stock_locate: 3917,                                     |          stock_locate: 3945,
+        tracking_number: 0,                                                tracking_number: 0,
+        timestamp: 11299371915896,                              |          timestamp: 11240803214263,
+        body: StockDirectory(                                              body: StockDirectory(
+            StockDirectory {                                                   StockDirectory {
+                stock: &ldquo;IBKCP   &ldquo;,                                                 stock: &ldquo;IBKCP   &ldquo;,
+                market_category: NasdaqGlobalSelect,                               market_category: NasdaqGlobalSelect,
+                financial_status: Normal,                                          financial_status: Normal,
+                round_lot_size: 100,                                               round_lot_size: 100,
+                round_lots_only: false,                                            round_lots_only: false,
+                issue_classification: PreferredStock,                              issue_classification: PreferredStock,
+                issue_subtype: NotApplicable,                                      issue_subtype: NotApplicable,
+                authenticity: true,                                                authenticity: true,
+                short_sale_threshold: Some(                                        short_sale_threshold: Some(
+                    false,                                                             false,
+                ),                                                                 ),
+                ipo_flag: Some(                                                    ipo_flag: Some(
+                    false,                                                             false,
+                ),                                                                 ),
+                luld_ref_price_tier: Tier2,                                        luld_ref_price_tier: Tier2,
+                etp_flag: Some(                                                    etp_flag: Some(
+                    false,                                                             false,
+                ),                                                                 ),
+                etp_leverage_factor: 0,                                            etp_leverage_factor: 0,
+                inverse_indicator: false,                                          inverse_indicator: false,
+            },                                                                 },
+        ),                                                                 ),
+    },                                                                 },
+)                                                                  )</p>
+
+<p></div></p>
+
+<h4 id="examining-the-results-dot">Examining the results.</h4>
+
+<p>The last succesfully parsed message is the a StockDirectory message related to the same company. The only differences are stock_locate (day-specific id of instrument) and timestamp, as expected.</p>
+
+<p>As an aside, my first method of examining the state of buffer for a failed parse
+was to run gdb, wait for a panic and then recover the state of memory. It
+involves more steps and has a worse UI (gdb is 20+ years old and still so
+user-unfriendly). Print debugging is much nicer in this case.</p>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
