@@ -99,7 +99,7 @@
 
 <p>First let&rsquo;s define a docker image in a Dockerfile.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#a2f;font-weight:bold">FROM</span><span style="color:#b44"> ubuntu:18.04</span><span style="">
-</span><span style=""></span>COPY open_in_dir /repro/open_in_dir<span style="">
+</span><span style=""></span><span style="color:#a2f;font-weight:bold">COPY</span> open_in_dir /repro/open_in_dir<span style="">
 </span><span style=""></span><span style="color:#080;font-style:italic"># copies file_on_host path_on_container/file_on_host</span></code></pre></div>
 <p>This builds on top of the ubuntu 18.04 image, which provides compatibility with my host.</p>
 
@@ -154,12 +154,8 @@ root@21541302399e:/repro# cat /proc/mounts | grep <span style="color:#b44">&#34;
 <p>So we run it.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@21541302399e:/repro# ./open_in_dir
 Successfully opened the index</code></pre></div>
-
 <figure>
-    
-        <img src="/images/me_vs_filesystem.gif" />
-    
-    
+    <img src="/images/me_vs_filesystem.gif"/> 
 </figure>
 
 

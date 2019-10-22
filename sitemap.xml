@@ -1,15 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://petr-tik.github.io/posts/debugging_itch_parser/</loc>
-    <lastmod>2019-10-22T23:50:36+01:00</lastmod>
+    <loc>http://petr-tik.github.io/categories/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/categories/hacking/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/posts/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/rust/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
   </url>
   
   <url>
     <loc>http://petr-tik.github.io/posts/itch_parser_debugging/</loc>
-    <lastmod>2019-10-22T23:58:10+01:00</lastmod>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/trading/</loc>
+    <lastmod>2019-10-23T00:44:40+01:00</lastmod>
   </url>
   
   <url>
@@ -18,7 +48,22 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/tantivy/</loc>
+    <lastmod>2019-10-15T22:49:54+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/notes/lifehacking/</loc>
+    <lastmod>2019-06-24T22:05:22+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/notes/</loc>
+    <lastmod>2019-06-24T22:05:22+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/categories/notes/</loc>
     <lastmod>2019-06-24T22:05:22+01:00</lastmod>
   </url>
   
@@ -38,8 +83,28 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/thoughts/</loc>
+    <lastmod>2019-06-04T00:07:26+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/improving_takehome_tests/</loc>
     <lastmod>2019-05-18T00:37:39+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/interviewing/</loc>
+    <lastmod>2019-05-18T00:37:39+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/book/</loc>
+    <lastmod>2019-02-19T23:22:33+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/journalism/</loc>
+    <lastmod>2019-02-19T23:22:33+00:00</lastmod>
   </url>
   
   <url>
@@ -48,8 +113,23 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/tech/</loc>
+    <lastmod>2019-02-19T23:22:33+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/matching_engine_in_rust/</loc>
     <lastmod>2019-01-19T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/bash/</loc>
+    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/git/</loc>
+    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -63,8 +143,23 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/wasm/</loc>
+    <lastmod>2018-09-30T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/sitg/</loc>
     <lastmod>2018-03-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/c/</loc>
+    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/python/</loc>
+    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -78,12 +173,32 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/gc/</loc>
+    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/memory/</loc>
+    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_two/</loc>
     <lastmod>2017-07-16T00:00:00+00:00</lastmod>
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/algorithms/</loc>
+    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/sum_ints_as_arrays_part_one/</loc>
+    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/hackerrank/</loc>
     <lastmod>2017-06-27T00:00:00+00:00</lastmod>
   </url>
   
@@ -93,12 +208,32 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/emacs/</loc>
+    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/strace/</loc>
+    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/gc_in_python/</loc>
     <lastmod>2017-03-07T00:00:00+00:00</lastmod>
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/ci/</loc>
+    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/ci_for_solent/</loc>
+    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://petr-tik.github.io/tags/solent/</loc>
     <lastmod>2017-02-27T00:00:00+00:00</lastmod>
   </url>
   
@@ -108,185 +243,17 @@
   </url>
   
   <url>
+    <loc>http://petr-tik.github.io/tags/clojure/</loc>
+    <lastmod>2016-02-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://petr-tik.github.io/posts/clojure_start/</loc>
     <lastmod>2016-02-20T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>http://petr-tik.github.io/posts/remote_dev/</loc>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/algorithms/</loc>
-    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/bash/</loc>
-    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/book/</loc>
-    <lastmod>2019-02-19T23:22:33+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/c/</loc>
-    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/categories/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/ci/</loc>
-    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/clojure/</loc>
-    <lastmod>2016-02-20T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/emacs/</loc>
-    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/gc/</loc>
-    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/git/</loc>
-    <lastmod>2019-01-01T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/hackerrank/</loc>
-    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/categories/hacking/</loc>
-    <lastmod>2019-10-22T23:50:36+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/interviewing/</loc>
-    <lastmod>2019-05-18T00:37:39+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/journalism/</loc>
-    <lastmod>2019-02-19T23:22:33+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/memory/</loc>
-    <lastmod>2017-08-05T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/notes/</loc>
-    <lastmod>2019-06-24T22:05:22+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/categories/notes/</loc>
-    <lastmod>2019-06-24T22:05:22+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/posts/</loc>
-    <lastmod>2019-10-22T23:50:36+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/python/</loc>
-    <lastmod>2018-02-12T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/rust/</loc>
-    <lastmod>2019-10-22T23:50:36+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/</loc>
-    <lastmod>2019-10-22T23:50:36+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/solent/</loc>
-    <lastmod>2017-02-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/strace/</loc>
-    <lastmod>2017-04-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/</loc>
-    <lastmod>2017-06-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/tantivy/</loc>
-    <lastmod>2019-10-15T22:49:54+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/tech/</loc>
-    <lastmod>2019-02-19T23:22:33+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/thoughts/</loc>
-    <lastmod>2019-06-04T00:07:26+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/trading/</loc>
-    <lastmod>2019-10-22T23:50:36+01:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://petr-tik.github.io/tags/wasm/</loc>
-    <lastmod>2018-09-30T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>

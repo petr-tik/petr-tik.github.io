@@ -371,8 +371,8 @@ min_time <span style="color:#666">=</span> actual_min_time <span style="color:#6
 max_time <span style="color:#666">=</span> actual_max_time <span style="color:#666">*</span> fear_factor
 coworkers_who_did_it <span style="color:#666">=</span> get_number_of_teammates_who_did_the_test()
 
-<span style="color:#a2f;font-weight:bold">return</span> <span style="color:#b44">&#34;</span><span style="color:#b68;font-weight:bold">{X}</span><span style="color:#b44"> of your prospective team mates took between</span><span style="">
-</span><span style=""></span><span style="color:#b44">       </span><span style="color:#b68;font-weight:bold">{Y}</span><span style="color:#b44"> and </span><span style="color:#b68;font-weight:bold">{Z}</span><span style="color:#b44"> hours doing the test&#34;</span><span style="color:#666">.</span><span style="color:#a2f">format</span>(
+<span style="color:#a2f;font-weight:bold">return</span> <span style="color:#b44">&#34;</span><span style="color:#b68;font-weight:bold">{X}</span><span style="color:#b44"> of your prospective team mates took between</span>
+       {Y} <span style="color:#a2f;font-weight:bold">and</span> {Z} hours doing the test<span style="color:#b44">&#34;.format(</span>
        X<span style="color:#666">=</span>coworkers_who_did_it,
        Y<span style="color:#666">=</span>min_time,
        Z<span style="color:#666">=</span>max_time)</code></pre></div></li>

@@ -90,12 +90,12 @@ requires me to parse L3 (full) market data feed from NASDAQ.</p>
 handler is boooooring, but does not build an order book</code>, so I searched if
 someone else has implemented it already.</p>
 
-<p>Thankfully, <a href="https://github.com/adwhit/itchy-rust">adwhit built a library to parse ITCH 5.0 feeds from files</a>, which is one
+<p>Thankfully, <a href="https://github.com/adwhit/itchy-rust">adwhit has implemented a library to parse ITCH 5.0 feeds from files</a>, which is one
 line away from importing to my <code>Cargo.toml</code>.</p>
 
 <h2 id="getting-and-parsing-market-data">Getting and parsing market data</h2>
 
-<p>Before starting work on my orderbook replay tool, I decided to have a look at the market data.</p>
+<p>I decided to have a look at the market data first.</p>
 
 <p>Anyone can download a sample itch feed file from <a href="ftp://emi.nasdaq.com/ITCH/">NASDAQ&rsquo;s own ftp server</a> to play around with (NB. they seem to limit the download speed).</p>
 
@@ -109,37 +109,24 @@ to find the same file on the ftp server.</p>
 code snippet that creates a stream of messages from a given file!</p>
 
 <p>(According to GitHub, the author lives in London, so I would be happy to meet in
-person and buy them a beverage of choice <strong>waves</strong>.)</p>
-
-<div class="SOURCE">
-  <div></div>
-
-<p>extern crate itchy;</p>
-
-<p>fn main() {
-   let stream = itchy::MessageStream::from_gzip(&ldquo;07302019.NASDAQ_ITCH50.gz&rdquo;).unwrap();
-   for msg in stream {
-     println!(&ldquo;{:?}&ldquo;, msg.unwrap());
-   }
-}</p>
-
-<p></div></p>
-
+person and buy them a beverage of choice *<strong><em>waves</em></strong>*.)</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>itchy;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">fn</span> <span style="color:#00a000">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">   </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>stream<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>itchy::MessageStream::from_gzip(<span style="color:#b44">&#34;07302019.NASDAQ_ITCH50.gz&#34;</span>).unwrap();<span style="color:#bbb">
+</span><span style="color:#bbb">   </span><span style="color:#a2f;font-weight:bold">for</span><span style="color:#bbb"> </span>msg<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>stream<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">     </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;{:?}&#34;</span>,<span style="color:#bbb"> </span>msg.unwrap());<span style="color:#bbb">
+</span><span style="color:#bbb">   </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
 <p>The results were not promising.</p>
-
-<div class="SOURCE">
-  <div></div>
-
-<p>$ RUSTC_WRAPPER= cargo run &ndash;release
-    Compiling ob_visualiser v0.1.0 (/home/petr_tik/Coding/rust/ob_visualiser)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> $ <span style="color:#b8860b">RUSTC_WRAPPER</span><span style="color:#666">=</span> cargo run --release
+    Compiling ob_visualiser v0.1.0 <span style="color:#666">(</span>/home/petr_tik/Coding/rust/ob_visualiser<span style="color:#666">)</span>
 .
 .
 .
-thread &lsquo;main&rsquo; panicked at &lsquo;called `Result::unwrap()` on an `Err` value: Error(Msg(&ldquo;Parse failed: Switch&rdquo;), State { next_error: None, backtrace: None })&lsquo;, src/libcore/result.rs:1084:5
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.</p>
-
-<p></div></p>
-
+thread <span style="color:#b44">&#39;main&#39;</span> panicked at <span style="color:#b44">&#39;called `Result::unwrap()` on an `Err` value: Error(Msg(&#34;Parse failed: Switch&#34;), State { next_error: None, backtrace: None })&#39;</span>, src/libcore/result.rs:1084:5
+note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span><span style="color:#666">1</span><span style="color:#b44">`</span> environment variable to display a backtrace.</code></pre></div>
 <h3 id="hypotheses">Hypotheses</h3>
 
 <p>I needed to find out the reason for failing.</p>
@@ -154,20 +141,13 @@ checksums for every archive. I checked it and found that the checksums matched.<
 <h4 id="check-that-it-wasn-t-a-corrupt-md-file">Check that it wasn&rsquo;t a corrupt MD file</h4>
 
 <p>I decided to download and run the same application on another file - &ldquo;12282018.NASDAQ_ITCH50.gz&rdquo;.</p>
-
-<div class="SOURCE">
-  <div></div>
-
-<p>$ RUSTC_WRAPPER= cargo run &ndash;release
-    Compiling ob_visualiser v0.1.0 (/home/petr_tik/Coding/rust/ob_visualiser)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> $ <span style="color:#b8860b">RUSTC_WRAPPER</span><span style="color:#666">=</span> cargo run --release
+    Compiling ob_visualiser v0.1.0 <span style="color:#666">(</span>/home/petr_tik/Coding/rust/ob_visualiser<span style="color:#666">)</span>
 .
 .
 .
-thread &lsquo;main&rsquo; panicked at &lsquo;called `Result::unwrap()` on an `Err` value: Error(Msg(&ldquo;Parse failed: Switch&rdquo;), State { next_error: None, backtrace: None })&lsquo;, src/libcore/result.rs:1084:5
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.</p>
-
-<p></div></p>
-
+thread <span style="color:#b44">&#39;main&#39;</span> panicked at <span style="color:#b44">&#39;called `Result::unwrap()` on an `Err` value: Error(Msg(&#34;Parse failed: Switch&#34;), State { next_error: None, backtrace: None })&#39;</span>, src/libcore/result.rs:1084:5
+note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span><span style="color:#666">1</span><span style="color:#b44">`</span> environment variable to display a backtrace.</code></pre></div>
 <p>There is also a panic on the file.</p>
 
 <p>They might have different reasons for failing though.</p>
@@ -181,37 +161,31 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.</
 <li>Give the state of the buffer on which parsing fails</li>
 </ol>
 
-<div class="SOURCE">
-  <div></div>
-
-<p>extern crate itchy;</p>
-
-<p>use std::env::args;
-use std::path::Path;</p>
-
-<p>fn main() {
-    let args: Vec<String> = args().collect();
-    let path_to_market_data = Path::new(&amp;args[1]);
-    // allows us to pass the filename as an argument</p>
-
-<pre><code>let stream = itchy::MessageStream::from\_gzip(path\_to\_market\_data).unwrap();
-let mut last\_msg: Option&lt;itchy::Message&gt; = None;
-for msg in stream {
-    match msg {
-        Ok(m) =&gt; {
-            last\_msg = Some(m);
-        }
-        Err(\_e) =&gt; {
-            dbg!(&amp;last\_msg);
-        }
-    }
-}
-</code></pre>
-
-<p>}</p>
-
-<p></div></p>
-
+<!--listend-->
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>itchy;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::env::args;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::path::Path;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">fn</span> <span style="color:#00a000">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>args: <span style="color:#a2f">Vec</span><span style="color:#666">&lt;</span><span style="color:#a2f">String</span><span style="color:#666">&gt;</span><span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>args().collect();<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>path_to_market_data<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>Path::new(<span style="color:#666">&amp;</span>args[<span style="color:#666">1</span>]);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// allows us to pass the filename as an argument
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>stream<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span>itchy::MessageStream::from_gzip(path_to_market_data).unwrap();<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">mut</span><span style="color:#bbb"> </span>last_msg: <span style="color:#a2f">Option</span><span style="color:#666">&lt;</span>itchy::Message<span style="color:#666">&gt;</span><span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span><span style="color:#a2f">None</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">for</span><span style="color:#bbb"> </span>msg<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>stream<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#a2f;font-weight:bold">match</span><span style="color:#bbb"> </span>msg<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#a2f">Ok</span>(m)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                </span>last_msg<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span><span style="color:#a2f">Some</span>(m);<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#a2f">Err</span>(_e)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                </span>dbg<span style="color:#666">!</span>(<span style="color:#666">&amp;</span>last_msg);<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
 <p>The pedantic reader might notice the code snippet above doesn&rsquo;t satisfy (2) and
 doesn&rsquo;t print the state of the buffer.</p>
 
@@ -219,68 +193,46 @@ doesn&rsquo;t print the state of the buffer.</p>
 
 <p>First, git clone the itchy library locally and point cargo to the local copy instead of the one available on crates.io.</p>
 
-<div class="SOURCE">
-  <div></div>
-
-<p>[dependencies]
-itchy = { path = &ldquo;../itchy-rust/&rdquo; }</p>
-
-<p></div></p>
-
+<p><code>/ob_visualiser/Cargo.toml</code></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml">[dependencies]
+itchy = <span style="">{</span> path = <span style="color:#b44">&#34;../itchy-rust/&#34;</span> <span style="">}</span></code></pre></div>
 <p>Then, monkey patch your local copy of itchy-rust to print 50 bytes of the buffer
 that failed to parse, before returning the error.</p>
 
 <p>50 bytes is big enough to capture any NASDAQ ITCH 5.0 message, so we can examine it.</p>
 
-<div class="SOURCE">
-  <div></div>
-
-<p>Error(e) =&gt; {
-    <em>/ We need to inform user of error, but don&rsquo;t want to get
-    /</em> stuck in an infinite loop if error is ignored
-    <em>/ (but obviously shouldn&rsquo;t fail silently on error either)
-    /</em> therefore track if we already in an &lsquo;error state&rsquo; and bail if so
-    if self.in_error_state {
-        return None;
-    } else {
-        self.in_error_state = true;</p>
+<p><code>/itchy-rust/src/lib.rs</code></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#bbb">                </span>Error(e)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                    </span><span style="color:#080;font-style:italic">// We need to inform user of error, but don&#39;t want to get
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#080;font-style:italic">// stuck in an infinite loop if error is ignored
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#080;font-style:italic">// (but obviously shouldn&#39;t fail silently on error either)
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#080;font-style:italic">// therefore track if we already in an &#39;error state&#39; and bail if so
+</span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">                    </span><span style="color:#a2f;font-weight:bold">if</span><span style="color:#bbb"> </span>self.in_error_state<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                        </span><span style="color:#a2f;font-weight:bold">return</span><span style="color:#bbb"> </span><span style="color:#a2f">None</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">                    </span>}<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">                        </span>self.in_error_state<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span>;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                       </span><span style="color:#080">#[cfg(debug_assertions)]</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                       </span>{<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                           </span><span style="color:#a2f;font-weight:bold">let</span><span style="color:#bbb"> </span>offset_bigger_than_most_messages<span style="color:#bbb"> </span><span style="color:#666">=</span><span style="color:#bbb"> </span><span style="color:#666">50</span>;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                           </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;{} bytes of the buffer&#34;</span>,<span style="color:#bbb"> </span>offset_bigger_than_most_messages);<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                           </span><span style="color:#080;font-style:italic">// print the buffer byte by byte split by newlines
+</span><span style="color:#080;font-style:italic"></span><span style="color:#666">+</span><span style="color:#bbb">                           </span><span style="color:#a2f;font-weight:bold">for</span><span style="color:#bbb"> </span>c<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span><span style="color:#666">&amp;</span>buf[..offset_bigger_than_most_messages]<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                               </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;{:?}&#34;</span>,<span style="color:#bbb"> </span>c);<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                           </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                       </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">                        </span><span style="color:#a2f;font-weight:bold">return</span><span style="color:#bbb"> </span><span style="color:#a2f">Some</span>(<span style="color:#a2f">Err</span>(format<span style="color:#666">!</span>(<span style="color:#b44">&#34;Parse failed: {}&#34;</span>,<span style="color:#bbb"> </span>e).into()));<span style="color:#bbb">
+</span><span style="color:#bbb">                    </span>}<span style="color:#bbb">
+</span></code></pre></div>
+<p>Use a bit of bash magic to run the 2 binaries and produce results easy to review:</p>
 
 <ul>
-<li>#[cfg(debug_assertions)]</li>
-<li>{</li>
-<li>let offset_bigger_than_most_messages = 50;</li>
-<li>println!(&ldquo;{} bytes of the buffer&rdquo;, offset_bigger_than_most_messages);</li>
-<li>// print the buffer byte by byte split by newlines</li>
-<li>for c in &amp;buf[..offset_bigger_than_most_messages] {</li>
-<li>println!(&ldquo;{:?}&ldquo;, c);</li>
-<li>}</li>
-<li>}
-    return Some(Err(format!(&ldquo;Parse failed: {}&ldquo;, e).into()));
-}</li>
+<li>debug_assertions prints to stderr, which we need to redirect to stdout with <code>2&gt;&amp;1</code></li>
+<li><code>diff -ty</code> prints the result of 2 diffs side-by-side and turns tabs to spaces (cue flamewar) to make it easy to copy-paste.</li>
+<li><code>diff &lt;x &lt;y</code> is a convention to diff the stdout outputs of shell commands x and y.</li>
 </ul>
 
-<p></div></p>
-
-<p>Use a bit of bash magic to run the 2 binaries and produce results easy to review:
-debug_assertions prints to stderr, which we need to redirect to stdout <code>2&gt;&amp;1</code>
-<code>diff -ty</code> prints the result of 2 diffs side-by-side and turns tabs to spaces (cue flamewar) to make it easy to copy-paste.
-<code>diff &lt;x &lt;y</code> is a convention to diff the stdout outputs of shell commands x and y.</p>
-
-<p>Because of the order debug_assertions in the itchy library prints the buffer before our binary prints the last parsed message.</p>
-
-<blockquote>
-<p>As an aside, my first method of examining the state of buffer for a failed parse
-was to run gdb, wait for a panic and then recover the state of the buffer.</p>
-
-<p>It involved more steps and had an ncurses UI and a suboptimal UX.</p>
-
-<p>Print debugging is much nicer in this case.</p>
-</blockquote>
-
-<div class="SOURCE">
-  <div></div>
-
-<p>\[\] diff -ty &lt;(2&gt;&amp;1 cargo -q run &ndash; 12282018.NASDAQ_ITCH50.gz) &lt;(2&gt;&amp;1 cargo -q run &ndash; 07302019.NASDAQ_ITCH50.gz)
+<!--listend-->
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">$$$$ diff -ty &lt;(2&gt;&amp;1 cargo -q run -- 12282018.NASDAQ_ITCH50.gz) &lt;(2&gt;&amp;1 cargo -q run -- 07302019.NASDAQ_ITCH50.gz)
 50 bytes of the buffer                                             50 bytes of the buffer
 0                                                                  0
 39                                                                 39
@@ -340,7 +292,7 @@ was to run gdb, wait for a panic and then recover the state of the buffer.</p>
         timestamp: 11299371915896,                              |          timestamp: 11240803214263,
         body: StockDirectory(                                              body: StockDirectory(
             StockDirectory {                                                   StockDirectory {
-                stock: &ldquo;IBKCP   &ldquo;,                                                 stock: &ldquo;IBKCP   &ldquo;,
+                stock: &#34;IBKCP   &#34;,                                                 stock: &#34;IBKCP   &#34;,
                 market_category: NasdaqGlobalSelect,                               market_category: NasdaqGlobalSelect,
                 financial_status: Normal,                                          financial_status: Normal,
                 round_lot_size: 100,                                               round_lot_size: 100,
@@ -363,11 +315,11 @@ was to run gdb, wait for a panic and then recover the state of the buffer.</p>
             },                                                                 },
         ),                                                                 ),
     },                                                                 },
-)                                                                  )</p>
+)                                                                  )
+</code></pre></div>
+<p>Because of the order, debug_assertions in the itchy library prints the buffer before our binary prints the last parsed message.</p>
 
-<p></div></p>
-
-<h4 id="examining-the-results-dot">Examining the results.</h4>
+<h4 id="examining-the-results">Examining the results</h4>
 
 <p>The last successfully parsed message is the a StockDirectory message related to
 the same company. The only differences are stock_locate (day-specific id of
@@ -379,6 +331,15 @@ followed by mostly matching bytes.</p>
 <p>This is a stronger indicator that the itch parser doesn&rsquo;t support some message types.</p>
 
 <p>Stay tuned for more parser-monkey-patching and binary-file-diffing!</p>
+
+<blockquote>
+<p>As an aside, my first method of examining the state of buffer for a failed parse
+was to run gdb, wait for a panic and then recover the state of the buffer.</p>
+
+<p>It involved more steps and had an ncurses UI and a suboptimal UX.</p>
+
+<p>Print debugging is much nicer in this case.</p>
+</blockquote>
 
       
     </div>

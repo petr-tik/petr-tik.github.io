@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tantivy on Software and puns</title>
+    <title>tantivy on Software and puns</title>
     <link>http://petr-tik.github.io/tags/tantivy/</link>
-    <description>Recent content in Tantivy on Software and puns</description>
+    <description>Recent content in tantivy on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 01 Oct 2019 22:51:00 +0100</lastBuildDate>

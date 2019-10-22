@@ -1,32 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Rust on Software and puns</title>
+    <title>rust on Software and puns</title>
     <link>http://petr-tik.github.io/tags/rust/</link>
-    <description>Recent content in Rust on Software and puns</description>
+    <description>Recent content in rust on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 22 Oct 2019 00:00:00 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 23 Oct 2019 00:02:00 +0100</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/tags/rust/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Scratching NASDAQ&#39;s ITCH</title>
-      <link>http://petr-tik.github.io/posts/debugging_itch_parser/</link>
-      <pubDate>Tue, 22 Oct 2019 00:00:00 +0100</pubDate>
-      
-      <guid>http://petr-tik.github.io/posts/debugging_itch_parser/</guid>
-      <description>CLOSED: [2019-10-22 Tue 23:47]</description>
-    </item>
-    
-    <item>
-      <title>Scratching NASDAQ&#39;s ITCH</title>
       <link>http://petr-tik.github.io/posts/itch_parser_debugging/</link>
-      <pubDate>Tue, 22 Oct 2019 00:00:00 +0100</pubDate>
+      <pubDate>Wed, 23 Oct 2019 00:02:00 +0100</pubDate>
       
       <guid>http://petr-tik.github.io/posts/itch_parser_debugging/</guid>
-      <description>CLOSED: [2019-10-22 Tue 23:47]</description>
+      <description>I am building yet another order book tool in Rust, which requires me to parse L3 (full) market data feed from NASDAQ.</description>
     </item>
     
     <item>

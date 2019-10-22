@@ -405,9 +405,9 @@ gc_list_merge(PyGC_Head *from, PyGC_Head *to)
 <p>The PyObject struct is defined in <a href="https://github.com/python/cpython/blob/3.6/Include/object.h">Include/object.h</a>. Contains the reference count and type of the object.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#080;font-style:italic">/* Define pointers to support a doubly-linked list of all live heap objects. */</span>
 <span style="color:#080">#define _PyObject_HEAD_EXTRA            \
-</span><span style="color:#080"></span>    <span style="color:#a2f;font-weight:bold">struct</span> _object <span style="color:#666">*</span>_ob_next;           \
-    <span style="color:#a2f;font-weight:bold">struct</span> _object <span style="color:#666">*</span>_ob_prev;
-
+</span><span style="color:#080">    struct _object *_ob_next;           \
+</span><span style="color:#080">    struct _object *_ob_prev;
+</span><span style="color:#080"></span>
 <span style="color:#a2f;font-weight:bold">typedef</span> <span style="color:#a2f;font-weight:bold">struct</span> _object {
     _PyObject_HEAD_EXTRA
     Py_ssize_t ob_refcnt;

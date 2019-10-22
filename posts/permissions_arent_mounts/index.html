@@ -129,8 +129,8 @@ Below is my journey, which I intend to finish by adding read-only mode, which wi
 </span><span style="color:#bbb">    </span>old_man_doc.add_text(title,<span style="color:#bbb"> </span><span style="color:#b44">&#34;The Old Man and the Sea&#34;</span>);<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>old_man_doc.add_text(<span style="color:#bbb">
 </span><span style="color:#bbb">        </span>body,<span style="color:#bbb">
-</span><span style="color:#bbb">        </span><span style="color:#b44">&#34;He was an old man who fished alone in a skiff in the Gulf Stream and \
-</span><span style="color:#b44">         he had gone eighty-four days now without taking a fish.&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="">&#34;</span>He<span style="color:#bbb"> </span>was<span style="color:#bbb"> </span>an<span style="color:#bbb"> </span>old<span style="color:#bbb"> </span>man<span style="color:#bbb"> </span>who<span style="color:#bbb"> </span>fished<span style="color:#bbb"> </span>alone<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>a<span style="color:#bbb"> </span>skiff<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>Gulf<span style="color:#bbb"> </span>Stream<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">         </span>he<span style="color:#bbb"> </span>had<span style="color:#bbb"> </span>gone<span style="color:#bbb"> </span>eighty<span style="color:#666">-</span>four<span style="color:#bbb"> </span>days<span style="color:#bbb"> </span>now<span style="color:#bbb"> </span>without<span style="color:#bbb"> </span>taking<span style="color:#bbb"> </span>a<span style="color:#bbb"> </span>fish.<span style="">&#34;</span>,<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>);<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// ... and add it to the `IndexWriter`.
@@ -140,23 +140,23 @@ Below is my journey, which I intend to finish by adding read-only mode, which wi
 </span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// reduce the boilerplate above.
 </span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span>index_writer.add_document(doc<span style="color:#666">!</span>(<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>title<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;Of Mice and Men&#34;</span>,<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>body<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;A few miles south of Soledad, the Salinas River drops in close to the hillside \
-</span><span style="color:#b44">            bank and runs deep and green. The water is warm too, for it has slipped twinkling \
-</span><span style="color:#b44">            over the yellow sands in the sunlight before reaching the narrow pool. On one \
-</span><span style="color:#b44">            side of the river the golden foothill slopes curve up to the strong and rocky \
-</span><span style="color:#b44">            Gabilan Mountains, but on the valley side the water is lined with trees—willows \
-</span><span style="color:#b44">            fresh and green with every spring, carrying in their lower leaf junctures the \
-</span><span style="color:#b44">            debris of the winter’s flooding; and sycamores with mottled, white, recumbent \
-</span><span style="color:#b44">            limbs and branches that arch over the pool&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>body<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="">&#34;</span>A<span style="color:#bbb"> </span>few<span style="color:#bbb"> </span>miles<span style="color:#bbb"> </span>south<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>Soledad,<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>Salinas<span style="color:#bbb"> </span>River<span style="color:#bbb"> </span>drops<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>close<span style="color:#bbb"> </span>to<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>hillside<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>bank<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>runs<span style="color:#bbb"> </span>deep<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>green.<span style="color:#bbb"> </span>The<span style="color:#bbb"> </span>water<span style="color:#bbb"> </span>is<span style="color:#bbb"> </span>warm<span style="color:#bbb"> </span>too,<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">for</span><span style="color:#bbb"> </span>it<span style="color:#bbb"> </span>has<span style="color:#bbb"> </span>slipped<span style="color:#bbb"> </span>twinkling<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>over<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>yellow<span style="color:#bbb"> </span>sands<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>sunlight<span style="color:#bbb"> </span>before<span style="color:#bbb"> </span>reaching<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>narrow<span style="color:#bbb"> </span>pool.<span style="color:#bbb"> </span>On<span style="color:#bbb"> </span>one<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>side<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>river<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>golden<span style="color:#bbb"> </span>foothill<span style="color:#bbb"> </span>slopes<span style="color:#bbb"> </span>curve<span style="color:#bbb"> </span>up<span style="color:#bbb"> </span>to<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>strong<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>rocky<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>Gabilan<span style="color:#bbb"> </span>Mountains,<span style="color:#bbb"> </span>but<span style="color:#bbb"> </span>on<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>valley<span style="color:#bbb"> </span>side<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>water<span style="color:#bbb"> </span>is<span style="color:#bbb"> </span>lined<span style="color:#bbb"> </span>with<span style="color:#bbb"> </span>trees<span style="">—</span>willows<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>fresh<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>green<span style="color:#bbb"> </span>with<span style="color:#bbb"> </span>every<span style="color:#bbb"> </span>spring,<span style="color:#bbb"> </span>carrying<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>their<span style="color:#bbb"> </span>lower<span style="color:#bbb"> </span>leaf<span style="color:#bbb"> </span>junctures<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>debris<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>winter<span style="">’</span>s<span style="color:#bbb"> </span>flooding;<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>sycamores<span style="color:#bbb"> </span>with<span style="color:#bbb"> </span>mottled,<span style="color:#bbb"> </span>white,<span style="color:#bbb"> </span>recumbent<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span>limbs<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>branches<span style="color:#bbb"> </span>that<span style="color:#bbb"> </span>arch<span style="color:#bbb"> </span>over<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>pool<span style="">&#34;</span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span>));<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic">// Multivalued field just need to be repeated.
 </span><span style="color:#080;font-style:italic"></span><span style="color:#bbb">    </span>index_writer.add_document(doc<span style="color:#666">!</span>(<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>title<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;Frankenstein&#34;</span>,<span style="color:#bbb">
-</span><span style="color:#bbb">    </span>body<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="color:#b44">&#34;You will rejoice to hear that no disaster has accompanied the commencement of an \
-</span><span style="color:#b44">             enterprise which you have regarded with such evil forebodings.  I arrived here \
-</span><span style="color:#b44">             yesterday, and my first task is to assure my dear sister of my welfare and \
-</span><span style="color:#b44">             increasing confidence in the success of my undertaking.&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>body<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span><span style="">&#34;</span>You<span style="color:#bbb"> </span>will<span style="color:#bbb"> </span>rejoice<span style="color:#bbb"> </span>to<span style="color:#bbb"> </span>hear<span style="color:#bbb"> </span>that<span style="color:#bbb"> </span>no<span style="color:#bbb"> </span>disaster<span style="color:#bbb"> </span>has<span style="color:#bbb"> </span>accompanied<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>commencement<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>an<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">             </span>enterprise<span style="color:#bbb"> </span>which<span style="color:#bbb"> </span>you<span style="color:#bbb"> </span>have<span style="color:#bbb"> </span>regarded<span style="color:#bbb"> </span>with<span style="color:#bbb"> </span>such<span style="color:#bbb"> </span>evil<span style="color:#bbb"> </span>forebodings.<span style="color:#bbb">  </span>I<span style="color:#bbb"> </span>arrived<span style="color:#bbb"> </span>here<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">             </span>yesterday,<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span>my<span style="color:#bbb"> </span>first<span style="color:#bbb"> </span>task<span style="color:#bbb"> </span>is<span style="color:#bbb"> </span>to<span style="color:#bbb"> </span>assure<span style="color:#bbb"> </span>my<span style="color:#bbb"> </span>dear<span style="color:#bbb"> </span>sister<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>my<span style="color:#bbb"> </span>welfare<span style="color:#bbb"> </span>and<span style="color:#bbb"> </span><span style="">\</span><span style="color:#bbb">
+</span><span style="color:#bbb">             </span>increasing<span style="color:#bbb"> </span>confidence<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">in</span><span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>success<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>my<span style="color:#bbb"> </span>undertaking.<span style="">&#34;</span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span>));<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">match</span><span style="color:#bbb"> </span>index_writer.commit()<span style="color:#bbb"> </span>{<span style="color:#bbb">
@@ -169,7 +169,8 @@ Below is my journey, which I intend to finish by adding read-only mode, which wi
 </span><span style="color:#bbb">    </span>};<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
 <p>Compile the example, run it and check that index files have been persisted.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> <span style="color:#b8860b">$$$$</span> cargo build --example write_index
    Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">5</span>.09s
@@ -210,7 +211,8 @@ need a small application to check <code>Index::open_in_dir</code>.</p>
 </span><span style="color:#bbb">        </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>};<span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#a2f">Ok</span>(())<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
 <p>Compiling an example gives us a debug build binary in <code>target/debug/examples</code></p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo build --example open_in_dir
 Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.19s</code></pre></div>
@@ -266,12 +268,8 @@ total <span style="color:#666">100</span>
 ...
 <span style="color:#b8860b">$$$$</span> ./target/debug/examples/open_in_dir
 Failed to open index at small_index/ with error: An IO error occurred: <span style="color:#b44">&#39;io error occurred on path &#39;</span><span style="color:#b44">&#34;.managed.json&#34;</span><span style="color:#b44">&#39;: &#39;</span>Permission denied <span style="color:#666">(</span>os error <span style="color:#666">13</span><span style="color:#666">)</span><span style="color:#b44">&#39;&#39;</span></code></pre></div>
-
 <figure>
-    
-        <img src="/images/bingo2.gif" />
-    
-    
+    <img src="/images/bingo2.gif"/> 
 </figure>
 
 

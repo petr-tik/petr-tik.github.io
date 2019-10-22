@@ -119,7 +119,8 @@
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#080">#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]</span><span style="color:#bbb"> 
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">pub</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">struct</span> <span style="color:#00f">Amount</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
 </span><span style="color:#bbb">    </span><span style="color:#a2f;font-weight:bold">pub</span><span style="color:#bbb"> </span>as_int: <span style="color:#0b0;font-weight:bold">i64</span>,<span style="color:#bbb">
-</span><span style="color:#bbb"></span>}</code></pre></div>
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div>
 <p>For me the biggest gain wasn&rsquo;t saving time to type lines of code. The opportunity to continue solving the problem of storing an ordered collection of amounts without context switching to implement hashing was the winner for me. Later I needed to implement a custom way of ordering amounts.</p>
 
 <p>There was only one minor downside, less related to the language and more to my laziness. The immediate feeling of proficiency with auto-complete gave me an illusion that I know rust APIs and can write them from memory.</p>
