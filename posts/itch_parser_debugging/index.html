@@ -103,7 +103,7 @@ line away from importing to my <code>Cargo.toml</code>.</p>
 files are periodically updated, so if you are reading this later, don&rsquo;t expect
 to find the same file on the ftp server.</p>
 
-<h3 id="parse-market-data-or-panic-trying">Parse market data or panic trying</h3>
+<h2 id="parse-market-data-or-panic-trying">Parse market data or panic trying</h2>
 
 <p>The itchy library has a user-friendly Readme that allows you to copy-paste a
 code snippet that creates a stream of messages from a given file!</p>
@@ -127,20 +127,20 @@ person and buy them a beverage of choice *<strong><em>waves</em></strong>*.)</p>
 .
 thread <span style="color:#b44">&#39;main&#39;</span> panicked at <span style="color:#b44">&#39;called `Result::unwrap()` on an `Err` value: Error(Msg(&#34;Parse failed: Switch&#34;), State { next_error: None, backtrace: None })&#39;</span>, src/libcore/result.rs:1084:5
 note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span><span style="color:#666">1</span><span style="color:#b44">`</span> environment variable to display a backtrace.</code></pre></div>
-<h3 id="hypotheses">Hypotheses</h3>
+<h2 id="hypotheses">Hypotheses</h2>
 
 <p>I needed to find out the reason for failing.</p>
 
-<h4 id="corrupt-market-data-file">Corrupt market data file</h4>
+<h3 id="corrupt-market-data-file">Corrupt market data file</h3>
 
 <p>The downloaded market data file may have been corrupt. The ftp server provides
 checksums for every archive. I checked it and found that the checksums matched.</p>
 
 <p>Maybe, NASDAQ created and checksumed a file without checking its validity?</p>
 
-<h4 id="check-that-it-wasn-t-a-corrupt-md-file">Check that it wasn&rsquo;t a corrupt MD file</h4>
+<h3 id="check-another-file">Check another file</h3>
 
-<p>I decided to download and run the same application on another file - &ldquo;12282018.NASDAQ_ITCH50.gz&rdquo;.</p>
+<p>I decided to download and run the same application on another file - <code>12282018.NASDAQ_ITCH50.gz</code>.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> $ <span style="color:#b8860b">RUSTC_WRAPPER</span><span style="color:#666">=</span> cargo run --release
     Compiling ob_visualiser v0.1.0 <span style="color:#666">(</span>/home/petr_tik/Coding/rust/ob_visualiser<span style="color:#666">)</span>
 .
@@ -152,7 +152,7 @@ note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST
 
 <p>They might have different reasons for failing though.</p>
 
-<h4 id="find-the-context-for-each-failure">Find the context for each failure</h4>
+<h3 id="find-the-context-for-each-failure">Find the context for each failure</h3>
 
 <p>To establish the context, I decided to:</p>
 
@@ -319,7 +319,7 @@ that failed to parse, before returning the error.</p>
 </code></pre></div>
 <p>Because of the order, debug_assertions in the itchy library prints the buffer before our binary prints the last parsed message.</p>
 
-<h4 id="examining-the-results">Examining the results</h4>
+<h3 id="examining-the-results">Examining the results</h3>
 
 <p>The last successfully parsed message is the a StockDirectory message related to
 the same company. The only differences are stock_locate (day-specific id of
