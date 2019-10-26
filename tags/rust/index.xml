@@ -6,10 +6,19 @@
     <description>Recent content in rust on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 23 Oct 2019 00:02:00 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 26 Oct 2019 23:58:00 +0100</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/tags/rust/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Using intuition to avoid reading binary</title>
+      <link>http://petr-tik.github.io/posts/debugging_messages_in_binary/</link>
+      <pubDate>Sat, 26 Oct 2019 23:58:00 +0100</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/debugging_messages_in_binary/</guid>
+      <description>In the previous write-up we found that the itchy parser failed to parse mostly similar messages from 2 different market data files.</description>
+    </item>
     
     <item>
       <title>Scratching NASDAQ&#39;s ITCH</title>
