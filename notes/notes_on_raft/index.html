@@ -118,76 +118,22 @@ this election.</li>
 
 <p>There are only 3 roles and transitions between them can be represented by this finite state machine.</p>
 
-<div class="SOURCE">
-  <div></div>
-
-<p><del>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;</del></p>
-
-<p>|  |
-|&ndash;|
-|  |</p>
-
-<p>v                          |
-<del>&mdash;&mdash;&mdash;&mdash;&mdash;</del>          <del>&mdash;&mdash;-</del>&mdash;&mdash;&mdash;-+         <del>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</del></p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>follower</td>
-<td></td>
-<td>candidate</td>
-<td></td>
-<td>leader</td>
-</tr>
-</tbody>
-</table>
-
-<p>+&mdash;-&gt;|               +&mdash;&mdash;&mdash;&gt;|                  +&mdash;&mdash;&ndash;&gt;|                  |</p>
-
-<p>|  |   |   |   |   |
-|&ndash;|&mdash;|&mdash;|&mdash;|&mdash;|
-|  |   |   |   |   |</p>
-
-<p><del>&mdash;&mdash;&mdash;&mdash;&mdash;</del>          <del>&mdash;&mdash;&mdash;&mdash;&mdash;</del>&ndash;+         <del>&mdash;&mdash;&mdash;</del>&mdash;&mdash;&ndash;+
-        ^                         ^        |                      |</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><del>&mdash;&mdash;&ndash;</del></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-<p><del>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</del></p>
-
-<p></div></p>
+<pre>
+               +--------------------------+
+               |                          |
+               v                          |
+       +---------------+          +-------|----------+         +------------------+
+       |               |          |                  |         |                  |
+       |   follower    |          |    candidate     |         |      leader      |
+ +---->|               +--------->|                  +-------->|                  |
+       |               |          |                  |         |                  |
+       +---------------+          +---------------|--+         +---------|--------+
+               ^                         ^        |                      |
+               |                         |        |                      |
+               |                         +--------+                      |
+               |                                                         |
+               +---------------------------------------------------------+
+</pre>
 
 <ul>
 <li><p>Follower</p>
@@ -249,11 +195,11 @@ the same message twice doesn&rsquo;t change system state.</li>
 <li>Dynamically changing the state of the system - adding new nodes or hot
 upgrades to currently running nodes.</li>
 <li>State machine replication for event-sourced systems. Once the leader
-sequences messages from the outside world, we can do a Gaddafi without
-losing system state.</li>
+sequences messages from the outside world and its followers commit them to
+their logs, we can do a Gaddafi without losing system state.</li>
 </ul>
 
-<h2 id="find-out-more">Find out more</h2>
+<h2 id="cool-visualition-with-more-detail">Cool visualition with more detail</h2>
 
 <p><a href="http://thesecretlivesofdata.com/raft/">http://thesecretlivesofdata.com/raft/</a></p>
 
