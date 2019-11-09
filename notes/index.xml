@@ -6,10 +6,19 @@
     <description>Recent content in Notes on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 24 Jun 2019 21:57:00 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 09 Nov 2019 22:43:00 +0000</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/notes/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Notes on raft</title>
+      <link>http://petr-tik.github.io/notes/notes_on_raft/</link>
+      <pubDate>Sat, 09 Nov 2019 22:43:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/notes/notes_on_raft/</guid>
+      <description>Below are my notes from watching Martin Thompson&amp;rsquo;s talk on Cluster consensus in Aeron.</description>
+    </item>
     
     <item>
       <title>Life hacks</title>

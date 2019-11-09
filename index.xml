@@ -12,21 +12,21 @@
     
     
     <item>
-      <title>Posts</title>
-      <link>http://petr-tik.github.io/posts/</link>
-      <pubDate>Sat, 26 Oct 2019 23:58:00 +0100</pubDate>
+      <title>Notes</title>
+      <link>http://petr-tik.github.io/notes/</link>
+      <pubDate>Sat, 09 Nov 2019 22:43:00 +0000</pubDate>
       <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/posts/</guid>
+      <guid>http://petr-tik.github.io/notes/</guid>
       <description></description>
       
     </item>
     
     <item>
-      <title>Notes</title>
-      <link>http://petr-tik.github.io/notes/</link>
-      <pubDate>Mon, 24 Jun 2019 21:57:00 +0100</pubDate>
+      <title>Posts</title>
+      <link>http://petr-tik.github.io/posts/</link>
+      <pubDate>Sat, 26 Oct 2019 23:58:00 +0100</pubDate>
       <author>Petr Tikilyaynen</author>
-      <guid>http://petr-tik.github.io/notes/</guid>
+      <guid>http://petr-tik.github.io/posts/</guid>
       <description></description>
       
     </item>

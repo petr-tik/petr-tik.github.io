@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Notes on raft | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+    </div>
+    <h2 class="subtitle is-6">November 9, 2019</h2>
+    <h1 class="title">Notes on raft</h1>
+    
+    <div class="content">
+      
+
+<p>Below are my notes from watching Martin Thompson&rsquo;s <a href="https://www.youtube.com/watch?v=GFfLCGW%5F5-w">talk on Cluster consensus in Aeron</a>.</p>
+
+<h2 id="raft-a-consensus-algorithm">Raft - a consensus algorithm</h2>
+
+<h3 id="most-fitting-definition-of-consensus">Most fitting definition of consensus</h3>
+
+<blockquote>
+<p>the judgement agreed on by the majority</p>
+</blockquote>
+
+<p>Consensus can apply to a single value or shared state made of different primitives.</p>
+
+<h3 id="prior-work-paxos">Prior work - Paxos</h3>
+
+<p>Consensus algorithms were an active research topic in the 1970s and 1980s and
+Paxos was one of the early ones.</p>
+
+<p>However, the implementation complexity has let Paxos down and made it hard to use.</p>
+
+<h3 id="what-problem-is-raft-solving">What problem is Raft solving</h3>
+
+<p>Raft is a consensus algorithm that optimises for human understanding and ease of
+implementation.</p>
+
+<h2 id="in-a-nutshell">In a nutshell</h2>
+
+<p>Raft makes the implementation easy to follow by minimising the state space as much as possible and sticking to a few key principles.</p>
+
+<h4 id="principles">Principles</h4>
+
+<ul>
+<li>Monotonically increasing time divided into terms: every term starts
+with an election. Elections can either results in a new leader for this
+term or undecided, in which case a new term starts with another election.</li>
+<li>Randomisation settles conflicts.
+Followers have a random timeout. If they don&rsquo;t receive an AppendEntries RPC
+from their leader after this time out, they assume that the king/leader
+is dead (long live the leader), they randomly decide to throw in the ring and become candidates for
+this election.</li>
+</ul>
+
+<h4 id="roles">Roles</h4>
+
+<p>There are only 3 roles and transitions between them can be represented by this finite state machine.</p>
+
+<div class="SOURCE">
+  <div></div>
+
+<p><del>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;</del></p>
+
+<p>|  |
+|&ndash;|
+|  |</p>
+
+<p>v                          |
+<del>&mdash;&mdash;&mdash;&mdash;&mdash;</del>          <del>&mdash;&mdash;-</del>&mdash;&mdash;&mdash;-+         <del>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</del></p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>follower</td>
+<td></td>
+<td>candidate</td>
+<td></td>
+<td>leader</td>
+</tr>
+</tbody>
+</table>
+
+<p>+&mdash;-&gt;|               +&mdash;&mdash;&mdash;&gt;|                  +&mdash;&mdash;&ndash;&gt;|                  |</p>
+
+<p>|  |   |   |   |   |
+|&ndash;|&mdash;|&mdash;|&mdash;|&mdash;|
+|  |   |   |   |   |</p>
+
+<p><del>&mdash;&mdash;&mdash;&mdash;&mdash;</del>          <del>&mdash;&mdash;&mdash;&mdash;&mdash;</del>&ndash;+         <del>&mdash;&mdash;&mdash;</del>&mdash;&mdash;&ndash;+
+        ^                         ^        |                      |</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><del>&mdash;&mdash;&ndash;</del></td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<p><del>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</del></p>
+
+<p></div></p>
+
+<ul>
+<li><p>Follower</p>
+
+<p>Every node starts as a follower. Followers are passive and issue no requests,
+they can only serve the requests of others: candidates or the current leader.</p></li>
+
+<li><p>Candidate</p>
+
+<p>A node that wants to become leader in this term/election cycle. Sends the
+RequestVote RPC to followers with its current state.</p></li>
+
+<li><p>Leader</p>
+
+<p>The only node that can send AppendEntries requests to other nodes. Is in
+charge of dealing with requests from the client and passing them to
+followers.</p></li>
+</ul>
+
+<h4 id="rpc">RPC</h4>
+
+<ul>
+<li><p>RequestVote</p>
+
+<p>Candidates get on the campaign trail by asking followers to back them.
+Instead of hosting debates, this election is settled by checking if the
+candidate &ldquo;knows more&rdquo; i.e. is further ahead in its state than the
+follower that receives the request.</p>
+
+<p>When a follower receives a RequestVote it compares its state with that of
+the candidate and sends a positive vote if the candidate is further ahead
+in its state.</p>
+
+<p>This ensures that no candidate that is behind in terms is elected to be leader.</p>
+
+<blockquote>
+<p>This is one of the crucial differences between Paxos and Raft. Paxos allows
+electing a leader that is behind in its state. After electing such a leader,
+they need to catch up/replay the state from their followers. This removes the
+monotonic principle and increases implementation complexity by needing more RPC
+types.</p>
+</blockquote></li>
+
+<li><p>AppendEntries</p>
+
+<p>After successfully winning an election, the leader uses the same RPC to
+replicate his state and heartbeat with all other nodes.</p>
+
+<p>If there are no entries to append, this RPC serves as a heartbeat. In
+case, there are new entries, the leader sends it out to all its followers.</p></li>
+</ul>
+
+<h2 id="applications">Applications</h2>
+
+<ul>
+<li>Using Raft enables aeron to focus on &ldquo;Guaranteed Processing&rdquo; of messages
+instead of &ldquo;Guaranteed Delivery&rdquo;. If processing is idempotent, delivering
+the same message twice doesn&rsquo;t change system state.</li>
+<li>Dynamically changing the state of the system - adding new nodes or hot
+upgrades to currently running nodes.</li>
+<li>State machine replication for event-sourced systems. Once the leader
+sequences messages from the outside world, we can do a Gaddafi without
+losing system state.</li>
+</ul>
+
+<h2 id="find-out-more">Find out more</h2>
+
+<p><a href="http://thesecretlivesofdata.com/raft/">http://thesecretlivesofdata.com/raft/</a></p>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
