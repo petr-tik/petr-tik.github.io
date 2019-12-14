@@ -13,10 +13,10 @@
     
     <item>
       <title>Takeaways from my tantivy talk</title>
-      <link>http://petr-tik.github.io/posts/tantivy_demo_conclusions/</link>
+      <link>http://petr-tik.github.io/posts/tantivy_talk_conclusions/</link>
       <pubDate>Tue, 01 Oct 2019 22:51:00 +0100</pubDate>
       
-      <guid>http://petr-tik.github.io/posts/tantivy_demo_conclusions/</guid>
+      <guid>http://petr-tik.github.io/posts/tantivy_talk_conclusions/</guid>
       <description>I spoke about tantivy at the Rust London meetup last week (video).</description>
     </item>
     
