@@ -84,20 +84,12 @@
     <h1 class="title">Comparing different ways to add ints I</h1>
     
     <div class="content">
-      
-
-<h2 id="puzzle">Puzzle</h2>
-
+      <h2 id="puzzle">Puzzle</h2>
 <p>Given 2 ints represented as array of digits in order (eg. 843 = [8, 4, 3]), implement a function that returns a sum of the 2 ints in the same format.</p>
-
 <p>eg.</p>
-
 <p>[8, 4, 3] + [1, 8, 2] = [1, 0, 2, 5]</p>
-
 <h2 id="idea">Idea</h2>
-
 <p>Implement and profile recursive and iterative solutions to the puzzle above.</p>
-
 <h3 id="recursive-solution">Recursive solution</h3>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">recur_sum_helper</span>(arr1, arr2, idx<span style="color:#666">=</span><span style="color:#666">0</span>, res<span style="color:#666">=</span>[], carry<span style="color:#666">=</span><span style="color:#666">0</span>):
     <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f;font-weight:bold">not</span> res:
@@ -120,15 +112,11 @@
     carry, item_to_add <span style="color:#666">=</span> <span style="color:#a2f">divmod</span>(carry <span style="color:#666">+</span> arr1[idx] <span style="color:#666">+</span> arr2[idx], <span style="color:#666">10</span>)
     res<span style="color:#666">.</span>append(item_to_add)
     idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
-    <span style="color:#a2f;font-weight:bold">return</span> recur_sum_helper(arr1, arr2, idx, res, carry)</code></pre></div>
-<p>Having done some Clojure, functional tools like map and reduce made it feel that a recursive solution was going to be concise. Handling the same edge cases across different array lengths made the implementation more heavily branched and less pretty than expected.</p>
-
+    <span style="color:#a2f;font-weight:bold">return</span> recur_sum_helper(arr1, arr2, idx, res, carry)
+</code></pre></div><p>Having done some Clojure, functional tools like map and reduce made it feel that a recursive solution was going to be concise. Handling the same edge cases across different array lengths made the implementation more heavily branched and less pretty than expected.</p>
 <p>The final return statement will activate once idx exhausts both arrays (i.e. incremented beyond both lengths). If the carry bit has been carried over from the previous stack frame, which called this last stack frame, add 1 to the end of the array and return the result.</p>
-
 <p>Otherwise, if either of the arrays is exhausted, add the ints from the other array keeping carry bit in mind. All 3 cases (arr1 - exhausted, arr2 - not; arr2 - exhaused, arr1 - not; arr1 and arr2 still not exhausted) use divmod function to set the carry bit and item_to_add. On Intel CPUs this should happen in 1 instruction. The only difference is using both arrays if both are still not exhausted.</p>
-
 <h3 id="iterative-solution">Iterative solution</h3>
-
 <p>Unrolls the recursive loop. Instead of creating a stack frame for each digit, add as many digits as possible before one of the arrays runs out, then handle the leftover digits from the longer array. In the case of arrays/numbers of the same length, there won&rsquo;t be any branch misprediction and we will fall through down to the return statement.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">iter_sum_helper</span>(arr1, arr2):
     idx <span style="color:#666">=</span> <span style="color:#666">0</span>
@@ -150,8 +138,8 @@
             idx <span style="color:#666">+=</span> <span style="color:#666">1</span>
     <span style="color:#a2f;font-weight:bold">if</span> carry <span style="color:#666">==</span> <span style="color:#666">1</span>:
         res<span style="color:#666">.</span>append(<span style="color:#666">1</span>)
-    <span style="color:#a2f;font-weight:bold">return</span> res</code></pre></div>
-<h3 id="wrapper-to-time-each-function-call">Wrapper to time each function call</h3>
+    <span style="color:#a2f;font-weight:bold">return</span> res
+</code></pre></div><h3 id="wrapper-to-time-each-function-call">Wrapper to time each function call</h3>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">timeit</span>(func):
     <span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">newfunc</span>(<span style="color:#666">*</span>args, <span style="color:#666">**</span>kwargs):
         startTime <span style="color:#666">=</span> time<span style="color:#666">.</span>time()
@@ -159,28 +147,21 @@
         elapsedTime <span style="color:#666">=</span> time<span style="color:#666">.</span>time() <span style="color:#666">-</span> startTime
         time_as_string <span style="color:#666">=</span> <span style="color:#b44">&#39;{:.6f}&#39;</span><span style="color:#666">.</span>format(elapsedTime <span style="color:#666">*</span> <span style="color:#666">1000</span>)
         <span style="color:#a2f;font-weight:bold">return</span> (res, time_as_string)
-    <span style="color:#a2f;font-weight:bold">return</span> newfunc</code></pre></div>
-<p>This takes the wrapped function, passes the original args, times how long it took to execute and returns a tuple of function return value and time_as_string.</p>
+    <span style="color:#a2f;font-weight:bold">return</span> newfunc
+</code></pre></div><p>This takes the wrapped function, passes the original args, times how long it took to execute and returns a tuple of function return value and time_as_string.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f">@timeit</span>
-<span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">iter_sum</span>(arr1, arr2):</code></pre></div>
-<p>For a fair comparison, both should have the same design and stack allocation strategy. Hence both iter_sum and recur_sum methods reverse the incoming arrays and return the result of the helper. The iterative method calculates everything in 1 stack frame. The recursive recur_sum_helper (by definition) creates a stack frame for each call.</p>
-
+<span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">iter_sum</span>(arr1, arr2):
+</code></pre></div><p>For a fair comparison, both should have the same design and stack allocation strategy. Hence both iter_sum and recur_sum methods reverse the incoming arrays and return the result of the helper. The iterative method calculates everything in 1 stack frame. The recursive recur_sum_helper (by definition) creates a stack frame for each call.</p>
 <p>As both _sum methods prepare and pass reversed arrays into helper methods, the helper methods return the result array in the opposite order. Both _sum methods reverse the return arrays before returning.</p>
-
 <h4 id="bug">Bug</h4>
-
 <p>In the first version of the recur_sum_helper and wrapper there was a bug - the recursive solution returned an array much longer than expected. This was the wrapper&rsquo;s fault, as was proven by running the methods without wrapping and stepping through it with pdb.</p>
-
 <p>The timeit wrapper method tooks the args and kwargs of the wrappee and kept them across runs. From the second interation onwards, the res array in the wrapped recur_sum_helper was kept inside the wrapper. Python variables are references, so after the res variable was created inside the scope of the wrapper, following <code>res.append</code> calls grew the same res array as before.</p>
-
 <p>Adding</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">recur_sum_helper</span>(arr1, arr2, idx<span style="color:#666">=</span><span style="color:#666">0</span>, res<span style="color:#666">=</span>[], carry<span style="color:#666">=</span><span style="color:#666">0</span>):
     <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f;font-weight:bold">not</span> res:
-        res <span style="color:#666">=</span> <span style="color:#a2f">list</span>()</code></pre></div>
-<p>solved the problem by creating a new array.</p>
-
+        res <span style="color:#666">=</span> <span style="color:#a2f">list</span>()
+</code></pre></div><p>solved the problem by creating a new array.</p>
 <h2 id="performance-comparison">Performance comparison</h2>
-
 <p>Using the script below, the wrapper described above, recursive and iterative solutions were benchmarked. The plots below show show time on the y-axis against the size of 2 input arrays on the x-axis. Green points - recursive times, red - iterative, blue star is the stack length of the array at which stack overflows. Catching stack overflow at runtime has to be done with a try/except loop, which breaks on RuntimeError.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">try_different_lengths_before_breaks</span>(r_limit, l_limit, py_stack_limit<span style="color:#666">=</span>None):
     <span style="color:#a2f;font-weight:bold">if</span> py_stack_limit:
@@ -234,9 +215,8 @@
 
     fname <span style="color:#666">=</span> <span style="color:#b44">&#34;sum_ints_plot.png&#34;</span>
     plt<span style="color:#666">.</span>savefig(fname, dpi<span style="color:#666">=</span><span style="color:#666">1200</span>)
-    <span style="color:#a2f;font-weight:bold">print</span>(<span style="color:#b44">&#34;Saved plot as {}&#34;</span><span style="color:#666">.</span>format(fname))</code></pre></div>
-<h3 id="stack-depth-limits">Stack depth limits</h3>
-
+    <span style="color:#a2f;font-weight:bold">print</span>(<span style="color:#b44">&#34;Saved plot as {}&#34;</span><span style="color:#666">.</span>format(fname))
+</code></pre></div><h3 id="stack-depth-limits">Stack depth limits</h3>
 <p>The first discovery was the limit to stack depth (it grows downards, contrary to common sense of adding things to the top of the stack). The default value is 1000 in Python 3.4 (use <code>sys.getrecursionlimit()</code> to look it up). Considering that recur_sum_helper is called inside recur_sum, which is wrapped and called inside __main__, we only have 996 stack frames for the recursive sum.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="">$$$</span> python3
 Python <span style="color:#666">3.4</span><span style="color:#666">.</span><span style="color:#666">3</span><span style="color:#666">+</span> (default, Oct <span style="color:#666">14</span> <span style="color:#666">2015</span>, <span style="color:#666">16</span>:<span style="color:#666">03</span>:<span style="color:#666">50</span>) 
@@ -244,21 +224,14 @@ Python <span style="color:#666">3.4</span><span style="color:#666">.</span><span
 Type <span style="color:#b44">&#34;help&#34;</span>, <span style="color:#b44">&#34;copyright&#34;</span>, <span style="color:#b44">&#34;credits&#34;</span> <span style="color:#a2f;font-weight:bold">or</span> <span style="color:#b44">&#34;license&#34;</span> <span style="color:#a2f;font-weight:bold">for</span> more information<span style="color:#666">.</span>
 <span style="color:#666">&gt;&gt;&gt;</span> <span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">sys</span>
 <span style="color:#666">&gt;&gt;&gt;</span> sys<span style="color:#666">.</span>getrecursionlimit()
-<span style="color:#666">1000</span></code></pre></div>
-<h3 id="plots">Plots</h3>
-
-<p><img src="{attach}images/plot_sum_ints_stack_standard.png" alt="Photo" /></p>
-
+<span style="color:#666">1000</span>
+</code></pre></div><h3 id="plots">Plots</h3>
+<p><img src="%7Battach%7Dimages/plot_sum_ints_stack_standard.png" alt="Photo"></p>
 <p>The blue star marks a point of max_stack_depth. Generally, both scatter plots show linear increase in time with a sudden jump in recursive at ~900</p>
-
-<p><img src="{attach}images/plot_sum_ints_stack_extra.png" alt="Photo" /></p>
-
+<p><img src="%7Battach%7Dimages/plot_sum_ints_stack_extra.png" alt="Photo"></p>
 <p>Using the same sys module, I could setrecursionlimit to a higher than default value and explore the difference between recursive and iterative solution on bigger input arrays. As expected, iterative kept winning and recursive suffered another drastic jump in times (~1600), thought the gradient remained linear.</p>
-
 <h2 id="conclusion">Conclusion</h2>
-
 <p>In this post, a simple problem was solved recursively and iteratively. Afterwards, both solutions were benchmarked and analysed in terms of their scalability.</p>
-
 <p>A recursive solution appears to purists and can be more readable in some cases like tree traversal. In this case, the recursive solution suffered. When combined with the lack of TCO and a relatively low default recursion depth limit value in the CPython interpreter, it proved unscalable and less efficient than iterative. Additionally, wrapping a recusive function introduced a bug, which was absent from the iterative solution.</p>
 
       
@@ -266,6 +239,7 @@ Type <span style="color:#b44">&#34;help&#34;</span>, <span style="color:#b44">&#
     
   </div>
 </section>
+
 
 
 
@@ -280,4 +254,5 @@ Type <span style="color:#b44">&#34;help&#34;</span>, <span style="color:#b44">&#
 
 </body>
 </html>
+
 

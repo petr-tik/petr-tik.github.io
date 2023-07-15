@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Comparing asm to Python bitecode | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="http://petr-tik.github.io/posts/bivittatus2/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/python">#python</a>
+
+
+
+  
+  | <a class="subtitle is-6" href="/tags/asm">#asm</a>
+  
+
+      
+    </div>
+    <h2 class="subtitle is-6">March 10, 2018</h2>
+    <h1 class="title">Comparing asm to Python bitecode</h1>
+    
+    <div class="content">
+      <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="">&gt;&gt;&gt;</span> <span style="color:#00a000">from</span> <span style="color:#800">py_trie</span> <span style="color:#800">import</span> <span style="color:#800">PyTrie</span>
+<span style="">&gt;&gt;&gt;</span> <span style="color:#00a000">import</span> <span style="color:#800">dis</span>
+<span style="">&gt;&gt;&gt;</span> <span style="color:#00a000">tr</span> <span style="">=</span> <span style="color:#800">PyTrie</span>()
+<span style="">&gt;&gt;&gt;</span> <span style="color:#00a000">dis.dis</span>(<span style="color:#800">tr.find</span>)
+ <span style="">44</span>           <span style="">0</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">0</span> (<span style="color:#800">self</span>)
+              <span style="">3</span> <span style="color:#00a000">LOAD_ATTR</span>                <span style="color:#666">0</span> (<span style="color:#800">head</span>)
+              <span style="">6</span> <span style="color:#00a000">STORE_FAST</span>               <span style="color:#666">2</span> (<span style="color:#800">cur</span>)
+
+ <span style="">45</span>           <span style="">9</span> <span style="color:#00a000">SETUP_LOOP</span>              <span style="color:#666">52</span> (<span style="color:#800">to</span> <span style="color:#666">64</span>)
+             <span style="">12</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">1</span> (<span style="color:#800">word</span>)
+             <span style="">15</span> <span style="color:#00a000">GET_ITER</span>
+        <span style="">&gt;&gt;</span>   <span style="">16</span> <span style="color:#00a000">FOR_ITER</span>                <span style="color:#666">44</span> (<span style="color:#800">to</span> <span style="color:#666">63</span>)
+             <span style="">19</span> <span style="color:#00a000">STORE_FAST</span>               <span style="color:#666">3</span> (<span style="color:#800">char</span>)
+
+ <span style="">46</span>          <span style="">22</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">2</span> (<span style="color:#800">cur</span>)
+             <span style="">25</span> <span style="color:#00a000">LOAD_ATTR</span>                <span style="color:#666">1</span> (<span style="color:#800">children</span>)
+             <span style="">28</span> <span style="color:#00a000">LOAD_GLOBAL</span>              <span style="color:#666">2</span> (<span style="color:#800">PyTrie</span>)
+             <span style="">31</span> <span style="color:#00a000">LOAD_ATTR</span>                <span style="color:#666">3</span> (<span style="color:#800">char_to_idx</span>)
+             <span style="">34</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">3</span> (<span style="color:#800">char</span>)
+             <span style="">37</span> <span style="color:#00a000">CALL_FUNCTION</span>            <span style="color:#666">1</span> (<span style="color:#666">1</span> <span style="color:#800">positional</span>, <span style="color:#666">0</span> <span style="color:#800">keyword</span> <span style="color:#800">pair</span>)
+             <span style="">40</span> <span style="color:#00a000">BINARY_SUBSCR</span>
+             <span style="">41</span> <span style="color:#00a000">STORE_FAST</span>               <span style="color:#666">4</span> (<span style="color:#800">child</span>)
+
+ <span style="">47</span>          <span style="">44</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">4</span> (<span style="color:#800">child</span>)
+             <span style="">47</span> <span style="color:#00a000">POP_JUMP_IF_TRUE</span>        <span style="color:#666">54</span>
+
+ <span style="">48</span>          <span style="">50</span> <span style="color:#00a000">LOAD_CONST</span>               <span style="color:#666">1</span> (<span style="color:#800">False</span>)
+             <span style="">53</span> <span style="color:#00a000">RETURN_VALUE</span>
+
+ <span style="">49</span>     <span style="">&gt;&gt;</span>   <span style="">54</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">4</span> (<span style="color:#800">child</span>)
+             <span style="">57</span> <span style="color:#00a000">STORE_FAST</span>               <span style="color:#666">2</span> (<span style="color:#800">cur</span>)
+             <span style="">60</span> <span style="color:#00a000">JUMP_ABSOLUTE</span>           <span style="color:#666">16</span>
+        <span style="">&gt;&gt;</span>   <span style="">63</span> <span style="color:#00a000">POP_BLOCK</span>
+
+ <span style="">51</span>     <span style="">&gt;&gt;</span>   <span style="">64</span> <span style="color:#00a000">LOAD_FAST</span>                <span style="color:#666">2</span> (<span style="color:#800">cur</span>)
+             <span style="">67</span> <span style="color:#00a000">LOAD_ATTR</span>                <span style="color:#666">4</span> (<span style="color:#800">is_word</span>)
+             <span style="">70</span> <span style="color:#00a000">LOAD_CONST</span>               <span style="color:#666">2</span> (<span style="color:#800">True</span>)
+             <span style="">73</span> <span style="color:#00a000">COMPARE_OP</span>               <span style="color:#666">2</span> (<span style="">==</span>)
+             <span style="">76</span> <span style="color:#00a000">RETURN_VALUE</span>
+
+
+</code></pre></div><div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="color:#a0a000">b50:</span>	<span style="">55</span>                   	<span style="color:#00a000">push</span>   <span style="color:#b8860b">%rbp</span>
+ <span style="color:#a0a000">b51:</span>	<span style="">53</span>                   	<span style="color:#00a000">push</span>   <span style="color:#b8860b">%rbx</span>
+ <span style="color:#a0a000">b52:</span>	<span style="">48</span> <span style="">89</span> <span style="color:#00a000">fb</span>             	<span style="color:#800">mov</span>    <span style="color:#b8860b">%rdi</span>,<span style="color:#b8860b">%rbx</span>
+ <span style="color:#a0a000">b55:</span>	<span style="">48</span> <span style="">89</span> <span style="color:#00a000">f7</span>             	<span style="color:#800">mov</span>    <span style="color:#b8860b">%rsi</span>,<span style="color:#b8860b">%rdi</span>
+ <span style="color:#a0a000">b58:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">d</span> <span style="color:#666">35</span> <span style="color:#666">0</span><span style="color:#800">e</span> <span style="color:#666">02</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">lea</span>    <span style="color:#666">0x20e</span>(<span style="color:#b8860b">%rip</span>),<span style="color:#b8860b">%rsi</span>        <span style="color:#080;font-style:italic"># d6d &lt;_fini+0x9&gt;
+</span><span style="color:#080;font-style:italic"></span> <span style="color:#800">b5f</span>:	<span style="color:#666">48</span> <span style="color:#666">83</span> <span style="color:#800">ec</span> <span style="color:#666">28</span>          	<span style="color:#800">sub</span>    <span style="color:#800">$0x28</span>,<span style="color:#b8860b">%rsp</span>
+ <span style="color:#a0a000">b63:</span>	<span style="">64</span> <span style="">48</span> <span style="">8</span><span style="color:#00a000">b</span> <span style="color:#666">04</span> <span style="color:#666">25</span> <span style="color:#666">28</span> <span style="color:#666">00</span> 	<span style="color:#800">mov</span>    <span style="color:#b8860b">%fs</span>:<span style="color:#666">0x28</span>,<span style="color:#b8860b">%rax</span>
+ <span style="color:#a0a000">b6a:</span>	<span style="">00</span> <span style="">00</span> 
+ <span style="color:#a0a000">b6c:</span>	<span style="">48</span> <span style="">89</span> <span style="">44</span> <span style="">24</span> <span style="">18</span>       	<span style="color:#00a000">mov</span>    <span style="color:#b8860b">%rax</span>,<span style="color:#666">0x18</span>(<span style="color:#b8860b">%rsp</span>)
+ <span style="color:#a0a000">b71:</span>	<span style="">31</span> <span style="color:#00a000">c0</span>                	<span style="color:#800">xor</span>    <span style="color:#b8860b">%eax</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b73:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">d</span> <span style="color:#666">4</span><span style="color:#800">c</span> <span style="color:#666">24</span> <span style="color:#666">0</span><span style="color:#800">c</span>       	<span style="color:#800">lea</span>    <span style="color:#666">0xc</span>(<span style="color:#b8860b">%rsp</span>),<span style="color:#b8860b">%rcx</span>
+ <span style="color:#a0a000">b78:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">d</span> <span style="color:#666">54</span> <span style="color:#666">24</span> <span style="color:#666">10</span>       	<span style="color:#800">lea</span>    <span style="color:#666">0x10</span>(<span style="color:#b8860b">%rsp</span>),<span style="color:#b8860b">%rdx</span>
+ <span style="color:#a0a000">b7d:</span>	<span style="color:#00a000">c7</span> <span style="color:#666">44</span> <span style="color:#666">24</span> <span style="color:#666">0</span><span style="color:#800">c</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">movl</span>   <span style="color:#800">$0x0</span>,<span style="color:#666">0xc</span>(<span style="color:#b8860b">%rsp</span>)
+ <span style="color:#a0a000">b84:</span>	<span style="">00</span> 
+ <span style="color:#a0a000">b85:</span>	<span style="color:#00a000">e8</span> <span style="color:#666">06</span> <span style="color:#800">fe</span> <span style="color:#800">ff</span> <span style="color:#800">ff</span>       	<span style="color:#800">callq</span>  <span style="color:#666">990</span> &lt;<span style="color:#800">PyArg_ParseTuple@plt</span>&gt;
+ <span style="color:#a0a000">b8a:</span>	<span style="">85</span> <span style="color:#00a000">c0</span>                	<span style="color:#800">test</span>   <span style="color:#b8860b">%eax</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b8c:</span>	<span style="">0</span><span style="color:#00a000">f</span> <span style="color:#666">84</span> <span style="color:#666">7</span><span style="color:#800">e</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span>    	<span style="color:#800">je</span>     <span style="color:#666">c10</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0xc0</span>&gt;
+ <span style="color:#a0a000">b92:</span>	<span style="">8</span><span style="color:#00a000">b</span> <span style="color:#666">44</span> <span style="color:#666">24</span> <span style="color:#666">0</span><span style="color:#800">c</span>          	<span style="color:#800">mov</span>    <span style="color:#666">0xc</span>(<span style="color:#b8860b">%rsp</span>),<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b96:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">b</span> <span style="color:#666">6</span><span style="color:#800">b</span> <span style="color:#666">10</span>          	<span style="color:#800">mov</span>    <span style="color:#666">0x10</span>(<span style="color:#b8860b">%rbx</span>),<span style="color:#b8860b">%rbp</span>
+ <span style="color:#a0a000">b9a:</span>	<span style="">83</span> <span style="color:#00a000">e8</span> <span style="color:#666">01</span>             	<span style="color:#800">sub</span>    <span style="color:#800">$0x1</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b9d:</span>	<span style="">85</span> <span style="color:#00a000">c0</span>                	<span style="color:#800">test</span>   <span style="color:#b8860b">%eax</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">b9f:</span>	<span style="">7</span><span style="color:#00a000">e</span> <span style="color:#666">5</span><span style="color:#800">f</span>                	<span style="color:#800">jle</span>    <span style="color:#666">c00</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0xb0</span>&gt;
+ <span style="color:#a0a000">ba1:</span>	<span style="">31</span> <span style="color:#00a000">db</span>                	<span style="color:#800">xor</span>    <span style="color:#b8860b">%ebx</span>,<span style="color:#b8860b">%ebx</span>
+ <span style="color:#a0a000">ba3:</span>	<span style="color:#00a000">eb</span> <span style="color:#666">29</span>                	<span style="color:#800">jmp</span>    <span style="color:#666">bce</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0x7e</span>&gt;
+ <span style="color:#a0a000">ba5:</span>	<span style="">0</span><span style="color:#00a000">f</span> <span style="color:#666">1</span><span style="color:#800">f</span> <span style="color:#666">00</span>             	<span style="color:#800">nopl</span>   (<span style="color:#b8860b">%rax</span>)
+ <span style="color:#a0a000">ba8:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">b</span> <span style="color:#666">54</span> <span style="color:#666">24</span> <span style="color:#666">10</span>       	<span style="color:#800">mov</span>    <span style="color:#666">0x10</span>(<span style="color:#b8860b">%rsp</span>),<span style="color:#b8860b">%rdx</span>
+ <span style="color:#a0a000">bad:</span>	<span style="">48</span> <span style="">63</span> <span style="color:#00a000">c3</span>             	<span style="color:#800">movslq</span> <span style="color:#b8860b">%ebx</span>,<span style="color:#b8860b">%rax</span>
+ <span style="color:#a0a000">bb0:</span>	<span style="">83</span> <span style="color:#00a000">c3</span> <span style="color:#666">01</span>             	<span style="color:#800">add</span>    <span style="color:#800">$0x1</span>,<span style="color:#b8860b">%ebx</span>
+ <span style="color:#a0a000">bb3:</span>	<span style="">0</span><span style="color:#00a000">f</span> <span style="color:#800">be</span> <span style="color:#666">3</span><span style="color:#800">c</span> <span style="color:#666">02</span>          	<span style="color:#800">movsbl</span> (<span style="color:#b8860b">%rdx</span>,<span style="color:#b8860b">%rax</span>,<span style="color:#666">1</span>),<span style="color:#b8860b">%edi</span>
+ <span style="color:#a0a000">bb7:</span>	<span style="color:#00a000">e8</span> <span style="color:#666">84</span> <span style="color:#800">ff</span> <span style="color:#800">ff</span> <span style="color:#800">ff</span>       	<span style="color:#800">callq</span>  <span style="color:#666">b40</span> &lt;<span style="color:#800">char_to_ascii</span>&gt;
+ <span style="color:#a0a000">bbc:</span>	<span style="">48</span> <span style="">98</span>                	<span style="color:#00a000">cltq</span>   
+ <span style="color:#800">bbe</span>:	<span style="color:#666">48</span> <span style="color:#666">8</span><span style="color:#800">b</span> <span style="color:#666">6</span><span style="color:#800">c</span> <span style="color:#800">c5</span> <span style="color:#666">00</span>       	<span style="color:#800">mov</span>    <span style="color:#666">0x0</span>(<span style="color:#b8860b">%rbp</span>,<span style="color:#b8860b">%rax</span>,<span style="color:#666">8</span>),<span style="color:#b8860b">%rbp</span>
+ <span style="color:#a0a000">bc3:</span>	<span style="">8</span><span style="color:#00a000">b</span> <span style="color:#666">44</span> <span style="color:#666">24</span> <span style="color:#666">0</span><span style="color:#800">c</span>          	<span style="color:#800">mov</span>    <span style="color:#666">0xc</span>(<span style="color:#b8860b">%rsp</span>),<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">bc7:</span>	<span style="">83</span> <span style="color:#00a000">e8</span> <span style="color:#666">01</span>             	<span style="color:#800">sub</span>    <span style="color:#800">$0x1</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">bca:</span>	<span style="">39</span> <span style="color:#00a000">d8</span>                	<span style="color:#800">cmp</span>    <span style="color:#b8860b">%ebx</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">bcc:</span>	<span style="">7</span><span style="color:#00a000">e</span> <span style="color:#666">32</span>                	<span style="color:#800">jle</span>    <span style="color:#666">c00</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0xb0</span>&gt;
+ <span style="color:#a0a000">bce:</span>	<span style="">48</span> <span style="">85</span> <span style="color:#00a000">ed</span>             	<span style="color:#800">test</span>   <span style="color:#b8860b">%rbp</span>,<span style="color:#b8860b">%rbp</span>
+ <span style="color:#a0a000">bd1:</span>	<span style="">75</span> <span style="color:#00a000">d5</span>                	<span style="color:#800">jne</span>    <span style="color:#666">ba8</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0x58</span>&gt;
+ <span style="color:#a0a000">bd3:</span>	<span style="">31</span> <span style="color:#00a000">f6</span>                	<span style="color:#800">xor</span>    <span style="color:#b8860b">%esi</span>,<span style="color:#b8860b">%esi</span>
+ <span style="color:#a0a000">bd5:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">d</span> <span style="color:#666">3</span><span style="color:#800">d</span> <span style="color:#666">94</span> <span style="color:#666">01</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">lea</span>    <span style="color:#666">0x194</span>(<span style="color:#b8860b">%rip</span>),<span style="color:#b8860b">%rdi</span>        <span style="color:#080;font-style:italic"># d70 &lt;_fini+0xc&gt;
+</span><span style="color:#080;font-style:italic"></span> <span style="color:#800">bdc</span>:	<span style="color:#666">31</span> <span style="color:#800">c0</span>                	<span style="color:#800">xor</span>    <span style="color:#b8860b">%eax</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">bde:</span>	<span style="color:#00a000">e8</span> <span style="color:#666">7</span><span style="color:#800">d</span> <span style="color:#800">fd</span> <span style="color:#800">ff</span> <span style="color:#800">ff</span>       	<span style="color:#800">callq</span>  <span style="color:#666">960</span> &lt;<span style="color:#800">Py_BuildValue@plt</span>&gt;
+ <span style="color:#a0a000">be3:</span>	<span style="">48</span> <span style="">8</span><span style="color:#00a000">b</span> <span style="color:#666">4</span><span style="color:#800">c</span> <span style="color:#666">24</span> <span style="color:#666">18</span>       	<span style="color:#800">mov</span>    <span style="color:#666">0x18</span>(<span style="color:#b8860b">%rsp</span>),<span style="color:#b8860b">%rcx</span>
+ <span style="color:#a0a000">be8:</span>	<span style="">64</span> <span style="">48</span> <span style="">33</span> <span style="">0</span><span style="color:#00a000">c</span> <span style="color:#666">25</span> <span style="color:#666">28</span> <span style="color:#666">00</span> 	<span style="color:#800">xor</span>    <span style="color:#b8860b">%fs</span>:<span style="color:#666">0x28</span>,<span style="color:#b8860b">%rcx</span>
+ <span style="color:#a0a000">bef:</span>	<span style="">00</span> <span style="">00</span> 
+ <span style="color:#a0a000">bf1:</span>	<span style="">75</span> <span style="">21</span>                	<span style="color:#00a000">jne</span>    <span style="color:#666">c14</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0xc4</span>&gt;
+ <span style="color:#a0a000">bf3:</span>	<span style="">48</span> <span style="">83</span> <span style="color:#00a000">c4</span> <span style="color:#666">28</span>          	<span style="color:#800">add</span>    <span style="color:#800">$0x28</span>,<span style="color:#b8860b">%rsp</span>
+ <span style="color:#a0a000">bf7:</span>	<span style="">5</span><span style="color:#00a000">b</span>                   	<span style="color:#800">pop</span>    <span style="color:#b8860b">%rbx</span>
+ <span style="color:#a0a000">bf8:</span>	<span style="">5</span><span style="color:#00a000">d</span>                   	<span style="color:#800">pop</span>    <span style="color:#b8860b">%rbp</span>
+ <span style="color:#a0a000">bf9:</span>	<span style="color:#00a000">c3</span>                   	<span style="color:#800">retq</span>   
+ <span style="color:#800">bfa</span>:	<span style="color:#666">66</span> <span style="color:#666">0</span><span style="color:#800">f</span> <span style="color:#666">1</span><span style="color:#800">f</span> <span style="color:#666">44</span> <span style="color:#666">00</span> <span style="color:#666">00</span>    	<span style="color:#800">nopw</span>   <span style="color:#666">0x0</span>(<span style="color:#b8860b">%rax</span>,<span style="color:#b8860b">%rax</span>,<span style="color:#666">1</span>)
+ <span style="color:#a0a000">c00:</span>	<span style="">48</span> <span style="">85</span> <span style="color:#00a000">ed</span>             	<span style="color:#800">test</span>   <span style="color:#b8860b">%rbp</span>,<span style="color:#b8860b">%rbp</span>
+ <span style="color:#a0a000">c03:</span>	<span style="">74</span> <span style="color:#00a000">ce</span>                	<span style="color:#800">je</span>     <span style="color:#666">bd3</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0x83</span>&gt;
+ <span style="color:#a0a000">c05:</span>	<span style="">0</span><span style="color:#00a000">f</span> <span style="color:#800">be</span> <span style="color:#800">b5</span> <span style="color:#800">d1</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">movsbl</span> <span style="color:#666">0xd1</span>(<span style="color:#b8860b">%rbp</span>),<span style="color:#b8860b">%esi</span>
+ <span style="color:#a0a000">c0c:</span>	<span style="color:#00a000">eb</span> <span style="color:#800">c7</span>                	<span style="color:#800">jmp</span>    <span style="color:#666">bd5</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0x85</span>&gt;
+ <span style="color:#a0a000">c0e:</span>	<span style="">66</span> <span style="">90</span>                	<span style="color:#00a000">xchg</span>   <span style="color:#b8860b">%ax</span>,<span style="color:#b8860b">%ax</span>
+ <span style="color:#a0a000">c10:</span>	<span style="">31</span> <span style="color:#00a000">c0</span>                	<span style="color:#800">xor</span>    <span style="color:#b8860b">%eax</span>,<span style="color:#b8860b">%eax</span>
+ <span style="color:#a0a000">c12:</span>	<span style="color:#00a000">eb</span> <span style="color:#800">cf</span>                	<span style="color:#800">jmp</span>    <span style="color:#666">be3</span> &lt;<span style="color:#800">trie_find</span>+<span style="color:#666">0x93</span>&gt;
+ <span style="color:#a0a000">c14:</span>	<span style="color:#00a000">e8</span> <span style="color:#666">17</span> <span style="color:#800">fd</span> <span style="color:#800">ff</span> <span style="color:#800">ff</span>       	<span style="color:#800">callq</span>  <span style="color:#666">930</span> &lt;<span style="color:#800">__stack_chk_fail@plt</span>&gt;
+ <span style="color:#a0a000">c19:</span>	<span style="">0</span><span style="color:#00a000">f</span> <span style="color:#666">1</span><span style="color:#800">f</span> <span style="color:#666">80</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">nopl</span>   <span style="color:#666">0x0</span>(<span style="color:#b8860b">%rax</span>)
+
+</code></pre></div>
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
+

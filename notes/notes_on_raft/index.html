@@ -72,38 +72,23 @@
     <h1 class="title">Notes on raft</h1>
     
     <div class="content">
-      
-
-<p>Below are my notes from watching Martin Thompson&rsquo;s <a href="https://www.youtube.com/watch?v=GFfLCGW%5F5-w">talk on Cluster consensus in Aeron</a>.</p>
-
+      <p>Below are my notes from watching Martin Thompson&rsquo;s <a href="https://www.youtube.com/watch?v=GFfLCGW%5F5-w">talk on Cluster consensus in Aeron</a>.</p>
 <h2 id="raft-a-consensus-algorithm">Raft - a consensus algorithm</h2>
-
 <h3 id="most-fitting-definition-of-consensus">Most fitting definition of consensus</h3>
-
 <blockquote>
 <p>the judgement agreed on by the majority</p>
 </blockquote>
-
 <p>Consensus can apply to a single value or shared state made of different primitives.</p>
-
 <h3 id="prior-work-paxos">Prior work - Paxos</h3>
-
 <p>Consensus algorithms were an active research topic in the 1970s and 1980s and
 Paxos was one of the early ones.</p>
-
 <p>However, the implementation complexity has let Paxos down and made it hard to use.</p>
-
 <h3 id="what-problem-is-raft-solving">What problem is Raft solving</h3>
-
 <p>Raft is a consensus algorithm that optimises for human understanding and ease of
 implementation.</p>
-
 <h2 id="in-a-nutshell">In a nutshell</h2>
-
 <p>Raft makes the implementation easy to follow by minimising the state space as much as possible and sticking to a few key principles.</p>
-
 <h4 id="principles">Principles</h4>
-
 <ul>
 <li>Monotonically increasing time divided into terms: every term starts
 with an election. Elections can either results in a new leader for this
@@ -114,81 +99,60 @@ from their leader after this time out, they assume that the king/leader
 is dead (long live the leader), they randomly decide to throw in the ring and become candidates for
 this election.</li>
 </ul>
-
 <h4 id="roles">Roles</h4>
-
 <p>There are only 3 roles and transitions between them can be represented by this finite state machine.</p>
-
-<pre>
-               +--------------------------+
-               |                          |
-               v                          |
-       +---------------+          +-------|----------+         +------------------+
-       |               |          |                  |         |                  |
-       |   follower    |          |    candidate     |         |      leader      |
- +---->|               +--------->|                  +-------->|                  |
-       |               |          |                  |         |                  |
-       +---------------+          +---------------|--+         +---------|--------+
-               ^                         ^        |                      |
-               |                         |        |                      |
-               |                         +--------+                      |
-               |                                                         |
-               +---------------------------------------------------------+
-</pre>
-
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <ul>
-<li><p>Follower</p>
-
-<p>Every node starts as a follower. Followers are passive and issue no requests,
-they can only serve the requests of others: candidates or the current leader.</p></li>
-
-<li><p>Candidate</p>
-
-<p>A node that wants to become leader in this term/election cycle. Sends the
-RequestVote RPC to followers with its current state.</p></li>
-
-<li><p>Leader</p>
-
-<p>The only node that can send AppendEntries requests to other nodes. Is in
-charge of dealing with requests from the client and passing them to
-followers.</p></li>
+<li>Follower</li>
 </ul>
-
-<h4 id="rpc">RPC</h4>
-
+<pre><code>Every node starts as a follower. Followers are passive and issue no requests,
+they can only serve the requests of others: candidates or the current leader.
+</code></pre>
 <ul>
-<li><p>RequestVote</p>
-
-<p>Candidates get on the campaign trail by asking followers to back them.
+<li>Candidate</li>
+</ul>
+<pre><code>A node that wants to become leader in this term/election cycle. Sends the
+RequestVote RPC to followers with its current state.
+</code></pre>
+<ul>
+<li>Leader</li>
+</ul>
+<pre><code>The only node that can send AppendEntries requests to other nodes. Is in
+charge of dealing with requests from the client and passing them to
+followers.
+</code></pre>
+<h4 id="rpc">RPC</h4>
+<ul>
+<li>RequestVote</li>
+</ul>
+<pre><code>Candidates get on the campaign trail by asking followers to back them.
 Instead of hosting debates, this election is settled by checking if the
-candidate &ldquo;knows more&rdquo; i.e. is further ahead in its state than the
-follower that receives the request.</p>
+candidate &quot;knows more&quot; i.e. is further ahead in its state than the
+follower that receives the request.
 
-<p>When a follower receives a RequestVote it compares its state with that of
+When a follower receives a RequestVote it compares its state with that of
 the candidate and sends a positive vote if the candidate is further ahead
-in its state.</p>
+in its state.
 
-<p>This ensures that no candidate that is behind in terms is elected to be leader.</p>
+This ensures that no candidate that is behind in terms is elected to be leader.
 
-<blockquote>
-<p>This is one of the crucial differences between Paxos and Raft. Paxos allows
+&gt; This is one of the crucial differences between Paxos and Raft. Paxos allows
 electing a leader that is behind in its state. After electing such a leader,
 they need to catch up/replay the state from their followers. This removes the
 monotonic principle and increases implementation complexity by needing more RPC
-types.</p>
-</blockquote></li>
-
-<li><p>AppendEntries</p>
-
-<p>After successfully winning an election, the leader uses the same RPC to
-replicate his state and heartbeat with all other nodes.</p>
-
-<p>If there are no entries to append, this RPC serves as a heartbeat. In
-case, there are new entries, the leader sends it out to all its followers.</p></li>
+types.
+</code></pre>
+<ul>
+<li>AppendEntries</li>
 </ul>
+<pre><code>After successfully winning an election, the leader uses the same RPC to
+replicate his state and heartbeat with all other nodes.
 
+If there are no entries to append, this RPC serves as a heartbeat. In
+case, there are new entries, the leader sends it out to all its followers.
+</code></pre>
 <h2 id="applications">Applications</h2>
-
 <ul>
 <li>Using Raft enables aeron to focus on &ldquo;Guaranteed Processing&rdquo; of messages
 instead of &ldquo;Guaranteed Delivery&rdquo;. If processing is idempotent, delivering
@@ -199,9 +163,7 @@ upgrades to currently running nodes.</li>
 sequences messages from the outside world and its followers commit them to
 their logs, we can do a Gaddafi without losing system state.</li>
 </ul>
-
 <h2 id="cool-visualition-with-more-detail">Cool visualition with more detail</h2>
-
 <p><a href="http://thesecretlivesofdata.com/raft/">http://thesecretlivesofdata.com/raft/</a></p>
 
       
@@ -209,6 +171,7 @@ their logs, we can do a Gaddafi without losing system state.</li>
     
   </div>
 </section>
+
 
 
 
@@ -223,4 +186,5 @@ their logs, we can do a Gaddafi without losing system state.</li>
 
 </body>
 </html>
+
 

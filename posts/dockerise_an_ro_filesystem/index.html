@@ -82,91 +82,65 @@
     <h1 class="title">Using Docker to reproduce a read-only file system</h1>
     
     <div class="content">
-      
-
-<p>This is part 2 of my journey adding read-only mode to <a href="https://github.com/tantivy-search/tantivy/">tantivy</a>. It started, when a user reported a <a href="https://github.com/tantivy-search/tantivy/issues/557">bug</a> of an application failing to open an index on a read-only file system.</p>
-
+      <p>This is part 2 of my journey adding read-only mode to <a href="https://github.com/tantivy-search/tantivy/">tantivy</a>. It started, when a user reported a <a href="https://github.com/tantivy-search/tantivy/issues/557">bug</a> of an application failing to open an index on a read-only file system.</p>
 <p>Before implementing the read-only feature, I would like to a) reproduce the bug b) step through it with a debugger to see what causes the error.</p>
-
 <p>In the <a href="/posts/permissions_arent_mounts/">previous post</a>, we found that removing write and execute permissions on files and directory of the tantivy index doesn&rsquo;t simulate a read-only file system.</p>
-
 <p>So we are back to the drawing board for ideas on how to reproduce the bug.</p>
-
 <p>One way of simulating a different OS configuration locally is to use Docker.</p>
-
 <p>Docker is a <del>fad</del> system that allows you to specify, build and run snapshoted applications.</p>
-
 <h2 id="how-do-you-build-a-container">How do you build a container?</h2>
-
 <p>First let&rsquo;s define a docker image in a Dockerfile.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#a2f;font-weight:bold">FROM</span><span style="color:#b44"> ubuntu:18.04</span><span style="">
 </span><span style=""></span><span style="color:#a2f;font-weight:bold">COPY</span> open_in_dir /repro/open_in_dir<span style="">
-</span><span style=""></span><span style="color:#080;font-style:italic"># copies file_on_host path_on_container/file_on_host</span></code></pre></div>
-<p>This builds on top of the ubuntu 18.04 image, which provides compatibility with my host.</p>
-
+</span><span style=""></span><span style="color:#080;font-style:italic"># copies file_on_host path_on_container/file_on_host</span><span style="">
+</span></code></pre></div><p>This builds on top of the ubuntu 18.04 image, which provides compatibility with my host.</p>
 <p>The <code>COPY</code> command copies the open_in_dir executable to a repro directory of the container.</p>
-
 <p>Make sure the Dockerfile and the open_in_dir executable are in the small_index directory locally run the following command.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> sudo docker build -t tantivy_cont .
-Sending build context to Docker daemon  <span style="color:#666">63</span>.84MB
-Step <span style="color:#666">1</span>/2 : FROM ubuntu:18.04
+Sending build context to Docker daemon  63.84MB
+Step 1/2 : FROM ubuntu:18.04
  ---&gt; 7698f282e524
-Step <span style="color:#666">2</span>/2 : COPY open_in_dir /repro/open_in_dir
+Step 2/2 : COPY open_in_dir /repro/open_in_dir
  ---&gt; Using cache
  ---&gt; 442ddff8340e
 Successfully built 442ddff8340e
-Successfully tagged tantivy_cont:latest</code></pre></div>
-<p>We have built a container image and tagged it with tantivy_cont.</p>
-
+Successfully tagged tantivy_cont:latest
+</code></pre></div><p>We have built a container image and tagged it with tantivy_cont.</p>
 <h2 id="so-you-built-a-container-now-what">So you built a container, now what?</h2>
-
 <p>We have successfully specified a container image that includes our open_in_dir executable in a repro directory.</p>
-
 <p>On Linux, Docker relies on 2 OS primitives: control groups and namespaces.
 One of the namespaces is the mount namespace, which allows you to mount a specific fs point into your process. To the container it looks like the subdir in a subdir on the host is one of the top directories in its file system.</p>
-
 <p>When running the container, we can mount <code>pwd</code>, which is the small_index/ directory on the host, as a <strong>read-only</strong> small_index/ directory in the repro dir on the container.</p>
-
 <p>For more information run <code>man 7 namespaces</code> in your terminal.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span>:/tantivy/small_index sudo docker run -v <span style="color:#b44">`</span><span style="color:#a2f">pwd</span><span style="color:#b44">`</span>:/repro/small_index:ro -it tantivy_cont
 root@21541302399e:/# <span style="color:#a2f">cd</span> repro
 root@21541302399e:/repro# ls -al
 total <span style="color:#666">62328</span>
-drwxr-xr-x <span style="color:#666">1</span> root root     <span style="color:#666">4096</span> Jun <span style="color:#666">18</span> <span style="color:#666">21</span>:09 .
-drwxr-xr-x <span style="color:#666">1</span> root root     <span style="color:#666">4096</span> Jun <span style="color:#666">18</span> <span style="color:#666">21</span>:09 ..
--rwxrwxr-x <span style="color:#666">1</span> root root <span style="color:#666">63810624</span> Jun <span style="color:#666">18</span> <span style="color:#666">18</span>:24 open_in_dir
-drwxr-xr-x <span style="color:#666">2</span> <span style="color:#666">1000</span> <span style="color:#666">1000</span>     <span style="color:#666">4096</span> Jun <span style="color:#666">18</span> <span style="color:#666">21</span>:04 small_index
+drwxr-xr-x <span style="color:#666">1</span> root root     <span style="color:#666">4096</span> Jun <span style="color:#666">18</span> 21:09 .
+drwxr-xr-x <span style="color:#666">1</span> root root     <span style="color:#666">4096</span> Jun <span style="color:#666">18</span> 21:09 ..
+-rwxrwxr-x <span style="color:#666">1</span> root root <span style="color:#666">63810624</span> Jun <span style="color:#666">18</span> 18:24 open_in_dir
+drwxr-xr-x <span style="color:#666">2</span> <span style="color:#666">1000</span> <span style="color:#666">1000</span>     <span style="color:#666">4096</span> Jun <span style="color:#666">18</span> 21:04 small_index
 root@21541302399e:/repro# touch small_index/meta.json
 touch: cannot touch <span style="color:#b44">&#39;small_index/meta.json&#39;</span>: Read-only file system
 root@21541302399e:/repro# cat /proc/mounts | grep <span style="color:#b44">&#34;small&#34;</span>
-/dev/sda7 /repro/small_index ext4 ro,relatime,data<span style="color:#666">=</span>ordered <span style="color:#666">0</span> <span style="color:#666">0</span></code></pre></div>
-<p>We are now the <code>root</code> user in a running container. We can check that our executable and the small_index dir are here as expected.</p>
-
+/dev/sda7 /repro/small_index ext4 ro,relatime,data<span style="color:#666">=</span>ordered <span style="color:#666">0</span> <span style="color:#666">0</span>
+</code></pre></div><p>We are now the <code>root</code> user in a running container. We can check that our executable and the small_index dir are here as expected.</p>
 <p>If we try to <code>touch</code> one of the files in the small_index/ directory, we will get rejected, because it&rsquo;s a read-only file system and touch wanted to modify the file.</p>
-
 <p>Looking inside the container-wide <code>/proc/mounts</code> we find that small_index/ is indeed read-only - <code>ro</code>.</p>
-
 <p>The stage is set. We have a read-only file system running inside the container with our executable and the index directory.</p>
-
 <h2 id="we-only-need-to-run-the-executable-dot-dot-dot">We only need to run the executable&hellip;</h2>
-
 <p>&hellip;and we should see the &ldquo;Read-only file system&rdquo; error message thrown by <code>Index::open_in_dir</code> as reported in the ticket.</p>
-
 <p>So we run it.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@21541302399e:/repro# ./open_in_dir
-Successfully opened the index</code></pre></div>
-<figure>
+Successfully opened the index
+</code></pre></div><figure>
     <img src="/images/me_vs_filesystem.gif"/> 
 </figure>
 
-
 <h2 id="what-have-i-learnt">What have I learnt?</h2>
-
 <p>As it stands, I have found a configuration in which tantivy fails to open an
 index inside a given directory. I tried to simulate a read-only file system by removing write and execute permissions from file and directory of the index. That proved useless (it threw an error, but not what was expected), so I decided to simulate the whole fs to be read-only.</p>
-
 <p>Using Docker I mounted the index directory of the host into a running container, where the application successfully opened the index.</p>
-
 <p>I have exhausted my creativity to come up with a repro, so I will have to implement read-only mode relying on my understanding of tantivy internals rather than fs configuration.</p>
 
       
@@ -174,6 +148,7 @@ index inside a given directory. I tried to simulate a read-only file system by r
     
   </div>
 </section>
+
 
 
 
@@ -188,4 +163,5 @@ index inside a given directory. I tried to simulate a read-only file system by r
 
 </body>
 </html>
+
 

@@ -72,12 +72,8 @@
     <h1 class="title"></h1>
     
     <div class="content">
-      
-
-<h2 id="remote--rust--development-environment"><span class="org-todo done DONE">DONE</span> Remote (rust) development environment</h2>
-
+      <h2 id="remote--rust--development-environment"><!-- raw HTML omitted -->DONE<!-- raw HTML omitted --> Remote (rust) development environment</h2>
 <h3 id="picture-this-at-home">Picture this at home</h3>
-
 <p>Imaging you are working on a large Rust project. You have added a new feature,
 wrote some tests and kick off the compile and test process. While you wait, you
 switch to browsing Reddit. You like using a thin laptop - you can take it
@@ -86,58 +82,46 @@ along, it&rsquo;s getting hotter under your hands and you see that Reddit is les
 responsive. After several such compilation cycles, you notice that your battery
 indicator has one bar left. You only unplugged it an hour ago and now you have
 to go charge it again.</p>
-
 <p>I found myself in that situation, when I started working on <a href="https://github.com/tantivy-search/tantivy/">tantivy</a>. During
 winter months, using my laptop as an additional heater felt like a useful life
 hack. Now that spring has sprung, I prefer to keep it cool. I decided to offload
 CPU and RAM-intensive compilation and testing cycle to a remote machine.</p>
-
 <p>This post outlines my system for saving battery and longevity of my laptop by
 making someone else&rsquo;s computer suffer.</p>
-
 <p>It&rsquo;s largely inspired by <a href="https://github.com/pzmarzly/cloudy">pzmarzly&rsquo;s cloudy</a> project.</p>
-
 <h3 id="mvp">MVP</h3>
-
 <p>Whenever possible, CPU-heavy compilation will take place on the VPS. All source
 code changes will be updated, so at every point both local and VPS version of
 the code match. If compilation and testing succeed, the executables are rsync&rsquo;ed
 from the VPS to my laptop.</p>
-
 <h3 id="do-you-always-compile-remotely">Do you always compile remotely?</h3>
-
 <p>Obviously, if there is no internet connection and I cannot reach my droplet, it doesn&rsquo;t matter how big the repo is - I can only compile locally.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">is_connected <span style="color:#666">()</span> <span style="color:#666">{</span>
-  <span style="color:#a2f">echo</span> <span style="color:#a2f;font-weight:bold">$(</span>nc -z <span style="color:#b8860b">$VPS_IP</span> <span style="color:#666">22</span><span style="color:#a2f;font-weight:bold">)</span>
-<span style="color:#666">}</span></code></pre></div>
-<p>Depending on the compile times of a given project network latency between the
+  <span style="color:#a2f">echo</span> <span style="color:#a2f;font-weight:bold">$(</span>nc -z <span style="color:#b8860b">$VPS_IP</span> 22<span style="color:#a2f;font-weight:bold">)</span>
+<span style="color:#666">}</span>
+</code></pre></div><p>Depending on the compile times of a given project network latency between the
 compile droplet and my laptop might cancel out the time wins. I want to build a
 general solution, so I need to decide when to compile locally or offload it
 externally.</p>
-
 <p>Using advanced ML algorithms and groundbreaking mathematical methods like linear
 regression, I can classify if the compilation time is long enough to justify
 offloading it to a VPS.</p>
-
 <p>I use line count as a predictor for compile times that are long enough to be offloaded. Counts the total number of lines in .rs source files.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">is_project_big <span style="color:#666">()</span> <span style="color:#666">{</span>
       <span style="color:#080;font-style:italic"># get a list of directories with interesting rust code - either src or tests</span>
-        <span style="color:#b8860b">DIRECTORIES</span><span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">$(</span>find . -maxdepth <span style="color:#666">1</span> -type d | grep <span style="color:#b44">&#34;src\|test&#34;</span> | cut -c <span style="color:#666">3</span>-<span style="color:#a2f;font-weight:bold">)</span>;
+        <span style="color:#b8860b">DIRECTORIES</span><span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">$(</span>find . -maxdepth <span style="color:#666">1</span> -type d | grep <span style="color:#b44">&#34;src\|test&#34;</span> | cut -c 3-<span style="color:#a2f;font-weight:bold">)</span>;
         <span style="color:#080;font-style:italic"># get the total LoC in any .rs files in these directories</span>
         <span style="color:#b8860b">LOC_IN_RUST_FILES</span><span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">$(</span>find <span style="color:#b8860b">$DIRECTORIES</span> -type f -name <span style="color:#b44">&#34;*.rs&#34;</span> | xargs wc -l | tail -1 | cut -d<span style="color:#b44">&#34; &#34;</span> -f3<span style="color:#a2f;font-weight:bold">)</span>;
-        <span style="color:#b8860b">THRESHOLD_TO_COMPILE_REMOTELY</span><span style="color:#666">=</span><span style="color:#666">25000</span>;
+        <span style="color:#b8860b">THRESHOLD_TO_COMPILE_REMOTELY</span><span style="color:#666">=</span>25000;
         <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#666">[</span> <span style="color:#b8860b">$LOC_IN_RUST_FILES</span> -ge <span style="color:#b8860b">$THRESHOLD_TO_COMPILE_REMOTELY</span> <span style="color:#666">]</span>; <span style="color:#a2f;font-weight:bold">then</span>
             <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;true&#34;</span>
         <span style="color:#a2f;font-weight:bold">else</span>
             <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;false&#34;</span>
         <span style="color:#a2f;font-weight:bold">fi</span>
-    <span style="color:#666">}</span></code></pre></div>
-<p>At the time of writing tantivy has <code>35856</code> lines of Rust code.</p>
-
+    <span style="color:#666">}</span>
+</code></pre></div><p>At the time of writing tantivy has <code>35856</code> lines of Rust code.</p>
 <h3 id="what-do-you-need-to-compile-remotely">What do you need to compile remotely?</h3>
-
 <h4 id="local-config">Local config</h4>
-
 <p>Put this in a config_remote_dev</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># insert your VPS IP</span>
 <span style="color:#b8860b">VPS_IP</span><span style="color:#666">=</span>XXX.XXX.XXX.XXX
@@ -147,9 +131,8 @@ offloading it to a VPS.</p>
 <span style="color:#080;font-style:italic"># Send gitignore-d files.</span>
 <span style="color:#b8860b">SEND_GITIGNORE</span><span style="color:#666">=</span><span style="color:#666">0</span>
 <span style="color:#080;font-style:italic"># Send .git directory.</span>
-<span style="color:#b8860b">SEND_GIT</span><span style="color:#666">=</span><span style="color:#666">0</span></code></pre></div>
-<h4 id="configure-cargo-and-necessary-build-tools-on-vps">Configure cargo and necessary build tools on VPS</h4>
-
+<span style="color:#b8860b">SEND_GIT</span><span style="color:#666">=</span><span style="color:#666">0</span>
+</code></pre></div><h4 id="configure-cargo-and-necessary-build-tools-on-vps">Configure cargo and necessary build tools on VPS</h4>
 <p>I created a dedicated DigitalOcean droplet that will only be used for compiling large projects.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">server_setup<span style="color:#666">()</span> <span style="color:#666">{</span>
     <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;Setting up server...&#34;</span>
@@ -163,9 +146,8 @@ offloading it to a VPS.</p>
     <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;</span><span style="color:#b8860b">$UTILS_CMD</span><span style="color:#b44">&#34;</span> | m_ssh <span style="color:#b44">&#34;</span><span style="color:#b8860b">$ID</span><span style="color:#b44">&#34;</span> <span style="color:#b44">&#34;</span><span style="color:#b8860b">$IP</span><span style="color:#b44">&#34;</span> <span style="color:#b44">&#34; bash -ls&#34;</span>
 
     <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;</span><span style="color:#b8860b">$ID</span><span style="color:#b44"> </span><span style="color:#b8860b">$IP</span><span style="color:#b44">&#34;</span> &gt; <span style="color:#b44">&#34;</span><span style="color:#b8860b">$LOCAL_LOCKFILE</span><span style="color:#b44">&#34;</span>
-<span style="color:#666">}</span></code></pre></div>
-<h4 id="sync-all-relevant-files-to-a-directory-on-the-vps"><span class="org-todo todo TODO">TODO</span> sync all relevant files to a directory on the VPS</h4>
-
+<span style="color:#666">}</span>
+</code></pre></div><h4 id="sync-all-relevant-files-to-a-directory-on-the-vps"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> sync all relevant files to a directory on the VPS</h4>
 <p>First I need to sync files between my laptop and the VPS to make sure I am compiling the most current version.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">m_rsync <span style="color:#666">()</span> <span style="color:#666">{</span>
     <span style="color:#a2f">declare</span> -a FLAGS
@@ -201,9 +183,8 @@ offloading it to a VPS.</p>
 sync_files_over<span style="color:#666">()</span> <span style="color:#666">{</span>
     m_rsync <span style="color:#b8860b">$ID</span> <span style="color:#b8860b">$IP</span> &amp;
     run_init
-<span style="color:#666">}</span></code></pre></div>
-<h4 id="pass-my-local-compile-commands-over-to-the-vps">Pass my local compile commands over to the VPS</h4>
-
+<span style="color:#666">}</span>
+</code></pre></div><h4 id="pass-my-local-compile-commands-over-to-the-vps">Pass my local compile commands over to the VPS</h4>
 <p>After that, I remotely pass my cargo command (usually <code>test</code>, but sometimes <code>build</code>) over ssh to cargo running on the VPS.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cmd_cmd<span style="color:#666">()</span> <span style="color:#666">{</span>
     assert_lockfile_present
@@ -212,72 +193,63 @@ sync_files_over<span style="color:#666">()</span> <span style="color:#666">{</sp
     m_rsync <span style="color:#b8860b">$ID</span> <span style="color:#b8860b">$IP</span> <span style="color:#b8860b">$DIRNAME</span>
     <span style="color:#b8860b">CMD</span><span style="color:#666">=</span><span style="color:#b44">&#34; cd </span><span style="color:#b8860b">$DIRNAME</span><span style="color:#b44">; </span><span style="color:#b8860b">$@</span><span style="color:#b44">&#34;</span>
     m_ssh <span style="color:#b8860b">$ID</span> <span style="color:#b8860b">$IP</span> <span style="color:#b44">&#34; bash -ls -c \&#34;</span><span style="color:#b8860b">$CMD</span><span style="color:#b44">\&#34;&#34;</span>
-<span style="color:#666">}</span></code></pre></div>
-<h3 id="what-do-you-do-with-results"><span class="org-todo todo TODO">TODO</span> What do you do with results?</h3>
-
-<h4 id="stream-them-back-to-terminal-and-watch-results"><span class="org-todo todo TODO">TODO</span> Stream them back to terminal and watch results</h4>
-
+<span style="color:#666">}</span>
+</code></pre></div><h3 id="what-do-you-do-with-results"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> What do you do with results?</h3>
+<h4 id="stream-them-back-to-terminal-and-watch-results"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> Stream them back to terminal and watch results</h4>
 <ul>
-<li><p><span class="org-todo todo TODO">TODO</span>  run the cargo command over ssh on remote and stream results</p></li>
-
-<li><p><span class="org-todo todo TODO">TODO</span>  check result - if 1, abort rest of script, deal with errors locally</p></li>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  run the cargo command over ssh on remote and stream results</p>
+</li>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  check result - if 1, abort rest of script, deal with errors locally</p>
+</li>
 </ul>
-
-<h4 id="copy-executables-back-to-local-target-directory"><span class="org-todo todo TODO">TODO</span> Copy executables back to local target directory</h4>
-
+<h4 id="copy-executables-back-to-local-target-directory"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> Copy executables back to local target directory</h4>
 <p>I also want to rsync the target directory back, so I can pull back executables to run locally.</p>
-
 <ul>
-<li><p><span class="org-todo todo TODO">TODO</span>  Check minimum number of executables to rsync from dev to laptop</p>
-
-<p>Check that that cargo run can work without any other libraries/binaries apart from `target/release/executable`.</p></li>
-
-<li><p><span class="org-todo todo TODO">TODO</span>  clean local target and rsync them back</p></li>
-
-<li><p><span class="org-todo todo TODO">TODO</span>  make sure it runs locally</p></li>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  Check minimum number of executables to rsync from dev to laptop</p>
+<p>Check that that cargo run can work without any other libraries/binaries apart from `target/release/executable`.</p>
+</li>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  clean local target and rsync them back</p>
+</li>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  make sure it runs locally</p>
+</li>
 </ul>
-
-<h3 id="how-does-it-fit-into-your-normal-workflow"><span class="org-todo todo TODO">TODO</span> How does it fit into your normal workflow? <code>[0/2]</code></h3>
-
-<h4 id="alias-cargo-to-pt-cargo"><span class="org-todo todo TODO">TODO</span> Alias cargo to pt_cargo</h4>
-
-<h4 id="write-emacs-integration-to-wrap-it"><span class="org-todo todo TODO">TODO</span> Write emacs integration to wrap it</h4>
-
+<h3 id="how-does-it-fit-into-your-normal-workflow"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> How does it fit into your normal workflow? <!-- raw HTML omitted -->[0/2]<!-- raw HTML omitted --></h3>
+<h4 id="alias-cargo-to-pt-cargo"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> Alias cargo to pt_cargo</h4>
+<h4 id="write-emacs-integration-to-wrap-it"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> Write emacs integration to wrap it</h4>
 <h3 id="how-good-is-it">How good is it?</h3>
-
 <h4 id="benefits">Benefits</h4>
-
 <ul>
 <li>Fast builds! Keep the same laptop and get faster builds by getting a faster VPS.</li>
 <li>Save disk space locally.</li>
 </ul>
-
 <h4 id="disadvantages-and-additional-requirements">Disadvantages and additional requirements</h4>
-
 <ul>
 <li>Need to keep the environment (Linux, environment vars, rust toolchain) in sync across machines.</li>
 <li>If connection fails during a dev/debugging session, I won&rsquo;t have debug symbols or any dependencies locally, so will need to rebuild from scratch.</li>
 <li>More network traffic - minor risk of hitting the bandwidth quota for my VPS. Minimise the risk by only mirroring to source code and release/debug binaries.</li>
 <li>Not running into disk problems locally will make me forget how much I am using up in the VPS.</li>
 </ul>
-
 <h4 id="results">Results</h4>
-
 <p>After implementing this my compile-and-test cycle went from</p>
-
 <p>Local build</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cargo clean
-<span style="color:#a2f">time</span> cargo <span style="color:#a2f">test</span> -q</code></pre></div>
-<p>Offload build</p>
+<span style="color:#a2f">time</span> cargo <span style="color:#a2f">test</span> -q
+</code></pre></div><p>Offload build</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cargo clean
-<span style="color:#a2f">time</span> cargo <span style="color:#a2f">test</span> -q</code></pre></div>
-<p>Aside from the times, I now don&rsquo;t need to worry about a hot laptop.</p>
+<span style="color:#a2f">time</span> cargo <span style="color:#a2f">test</span> -q
+</code></pre></div><p>Aside from the times, I now don&rsquo;t need to worry about a hot laptop.</p>
 
       
     </div>
     
   </div>
 </section>
+
 
 
 
@@ -292,4 +264,5 @@ sync_files_over<span style="color:#666">()</span> <span style="color:#666">{</sp
 
 </body>
 </html>
+
 

@@ -6,7 +6,7 @@
     <description>Recent content in Tags on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 26 Oct 2019 23:58:00 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 15 Dec 2019 21:02:00 +0000</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,9 +14,18 @@
     <item>
       <title>rust</title>
       <link>http://petr-tik.github.io/tags/rust/</link>
-      <pubDate>Sat, 26 Oct 2019 23:58:00 +0100</pubDate>
+      <pubDate>Sun, 15 Dec 2019 21:02:00 +0000</pubDate>
       
       <guid>http://petr-tik.github.io/tags/rust/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tantivy</title>
+      <link>http://petr-tik.github.io/tags/tantivy/</link>
+      <pubDate>Sun, 15 Dec 2019 21:02:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/tags/tantivy/</guid>
       <description></description>
     </item>
     
@@ -26,15 +35,6 @@
       <pubDate>Sat, 26 Oct 2019 23:58:00 +0100</pubDate>
       
       <guid>http://petr-tik.github.io/tags/trading/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>tantivy</title>
-      <link>http://petr-tik.github.io/tags/tantivy/</link>
-      <pubDate>Tue, 01 Oct 2019 22:51:00 +0100</pubDate>
-      
-      <guid>http://petr-tik.github.io/tags/tantivy/</guid>
       <description></description>
     </item>
     

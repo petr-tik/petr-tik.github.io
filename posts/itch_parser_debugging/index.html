@@ -82,35 +82,23 @@
     <h1 class="title">Scratching NASDAQ&#39;s ITCH</h1>
     
     <div class="content">
-      
-
-<p>I am building yet another order book tool in Rust, which
+      <p>I am building yet another order book tool in Rust, which
 requires me to parse L3 (full) market data feed from NASDAQ.</p>
-
-<p>In the words of one experienced trading systems developer <code>writing a feed
-handler is boooooring, but does not build an order book</code>, so I searched if
+<p>In the words of one experienced trading systems developer <code>writing a feed handler is boooooring, but does not build an order book</code>, so I searched if
 someone else has implemented it already.</p>
-
 <p>Thankfully, <a href="https://github.com/adwhit/itchy-rust">adwhit has implemented a library to parse ITCH 5.0 feeds from files</a>, which is one
 line away from importing to my <code>Cargo.toml</code>.</p>
-
 <h2 id="getting-and-parsing-market-data">Getting and parsing market data</h2>
-
 <p>I decided to have a look at the market data first.</p>
-
 <p>Anyone can download a sample itch feed file from <a href="ftp://emi.nasdaq.com/ITCH/">NASDAQ&rsquo;s own ftp server</a> to play around with (NB. they seem to limit the download speed).</p>
-
 <p>I downloaded &ldquo;07302019.NASDAQ_ITCH50.gz&rdquo;, which was available at the time. Those
 files are periodically updated, so if you are reading this later, don&rsquo;t expect
 to find the same file on the ftp server.</p>
-
 <h2 id="parse-market-data-or-panic-trying">Parse market data or panic trying</h2>
-
 <p>The itchy library has a user-friendly Readme that allows you to copy-paste a
 code snippet that creates a stream of messages from a given file!</p>
-
 <p>(According to GitHub, the author lives in London, so I would be happy to meet in
-person and buy them a beverage of choice *<strong><em>waves</em></strong>*.)</p>
+person and buy them a beverage of choice <strong><strong>waves</strong></strong>.)</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>itchy;<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">fn</span> <span style="color:#00a000">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
@@ -119,28 +107,21 @@ person and buy them a beverage of choice *<strong><em>waves</em></strong>*.)</p>
 </span><span style="color:#bbb">     </span>println<span style="color:#666">!</span>(<span style="color:#b44">&#34;{:?}&#34;</span>,<span style="color:#bbb"> </span>msg.unwrap());<span style="color:#bbb">
 </span><span style="color:#bbb">   </span>}<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
-<p>The results were not promising.</p>
+</span></code></pre></div><p>The results were not promising.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> $ <span style="color:#b8860b">RUSTC_WRAPPER</span><span style="color:#666">=</span> cargo run --release
     Compiling ob_visualiser v0.1.0 <span style="color:#666">(</span>/home/petr_tik/Coding/rust/ob_visualiser<span style="color:#666">)</span>
 .
 .
 .
 thread <span style="color:#b44">&#39;main&#39;</span> panicked at <span style="color:#b44">&#39;called `Result::unwrap()` on an `Err` value: Error(Msg(&#34;Parse failed: Switch&#34;), State { next_error: None, backtrace: None })&#39;</span>, src/libcore/result.rs:1084:5
-note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span><span style="color:#666">1</span><span style="color:#b44">`</span> environment variable to display a backtrace.</code></pre></div>
-<h2 id="hypotheses">Hypotheses</h2>
-
+note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span>1<span style="color:#b44">`</span> environment variable to display a backtrace.
+</code></pre></div><h2 id="hypotheses">Hypotheses</h2>
 <p>I needed to find out the reason for failing.</p>
-
 <h3 id="corrupt-market-data-file">Corrupt market data file</h3>
-
 <p>The downloaded market data file may have been corrupt. The ftp server provides
 checksums for every archive. I checked it and found that the checksums matched.</p>
-
 <p>Maybe, NASDAQ created and checksumed a file without checking its validity?</p>
-
 <h3 id="check-another-file">Check another file</h3>
-
 <p>I decided to download and run the same application on another file - <code>12282018.NASDAQ_ITCH50.gz</code>.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> $ <span style="color:#b8860b">RUSTC_WRAPPER</span><span style="color:#666">=</span> cargo run --release
     Compiling ob_visualiser v0.1.0 <span style="color:#666">(</span>/home/petr_tik/Coding/rust/ob_visualiser<span style="color:#666">)</span>
@@ -148,21 +129,16 @@ checksums for every archive. I checked it and found that the checksums matched.<
 .
 .
 thread <span style="color:#b44">&#39;main&#39;</span> panicked at <span style="color:#b44">&#39;called `Result::unwrap()` on an `Err` value: Error(Msg(&#34;Parse failed: Switch&#34;), State { next_error: None, backtrace: None })&#39;</span>, src/libcore/result.rs:1084:5
-note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span><span style="color:#666">1</span><span style="color:#b44">`</span> environment variable to display a backtrace.</code></pre></div>
-<p>There is also a panic on the file.</p>
-
+note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST_BACKTRACE</span><span style="color:#666">=</span>1<span style="color:#b44">`</span> environment variable to display a backtrace.
+</code></pre></div><p>There is also a panic on the file.</p>
 <p>They might have different reasons for failing though.</p>
-
 <h3 id="find-the-context-for-each-failure">Find the context for each failure</h3>
-
 <p>To establish the context, I decided to:</p>
-
 <ol>
 <li>save and print the last successfully parsed message</li>
 <li>Give the state of the buffer on which parsing fails</li>
 </ol>
-
-<!--listend-->
+<!-- raw HTML omitted -->
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>itchy;<span style="color:#bbb">
 </span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">use</span><span style="color:#bbb"> </span>std::env::args;<span style="color:#bbb">
@@ -186,22 +162,16 @@ note: run with <span style="color:#b44">`</span><span style="color:#b8860b">RUST
 </span><span style="color:#bbb">        </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>}<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
-<p>The pedantic reader might notice the code snippet above doesn&rsquo;t satisfy (2) and
+</span></code></pre></div><p>The pedantic reader might notice the code snippet above doesn&rsquo;t satisfy (2) and
 doesn&rsquo;t print the state of the buffer.</p>
-
 <p>Luckily, cargo makes it easy to monkey-patch our dependencies</p>
-
 <p>First, git clone the itchy library locally and point cargo to the local copy instead of the one available on crates.io.</p>
-
 <p><code>/ob_visualiser/Cargo.toml</code></p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-toml" data-lang="toml">[dependencies]
-itchy = <span style="">{</span> path = <span style="color:#b44">&#34;../itchy-rust/&#34;</span> <span style="">}</span></code></pre></div>
-<p>Then, monkey patch your local copy of itchy-rust to print 50 bytes of the buffer
+itchy = <span style="">{</span> path = <span style="color:#b44">&#34;../itchy-rust/&#34;</span> <span style="">}</span>
+</code></pre></div><p>Then, monkey patch your local copy of itchy-rust to print 50 bytes of the buffer
 that failed to parse, before returning the error.</p>
-
 <p>50 bytes is big enough to capture any NASDAQ ITCH 5.0 message, so we can examine it.</p>
-
 <p><code>/itchy-rust/src/lib.rs</code></p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#bbb">                </span>Error(e)<span style="color:#bbb"> </span><span style="color:#666">=&gt;</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
 </span><span style="color:#bbb">                    </span><span style="color:#080;font-style:italic">// We need to inform user of error, but don&#39;t want to get
@@ -223,16 +193,13 @@ that failed to parse, before returning the error.</p>
 </span><span style="color:#bbb"></span><span style="color:#666">+</span><span style="color:#bbb">                       </span>}<span style="color:#bbb">
 </span><span style="color:#bbb">                        </span><span style="color:#a2f;font-weight:bold">return</span><span style="color:#bbb"> </span><span style="color:#a2f">Some</span>(<span style="color:#a2f">Err</span>(format<span style="color:#666">!</span>(<span style="color:#b44">&#34;Parse failed: {}&#34;</span>,<span style="color:#bbb"> </span>e).into()));<span style="color:#bbb">
 </span><span style="color:#bbb">                    </span>}<span style="color:#bbb">
-</span></code></pre></div>
-<p>Use a bit of bash magic to run the 2 binaries and produce results easy to review:</p>
-
+</span></code></pre></div><p>Use a bit of bash magic to run the 2 binaries and produce results easy to review:</p>
 <ul>
 <li>debug_assertions prints to stderr, which we need to redirect to stdout with <code>2&gt;&amp;1</code></li>
 <li><code>diff -ty</code> prints the result of 2 diffs side-by-side and turns tabs to spaces (cue flamewar) to make it easy to copy-paste.</li>
 <li><code>diff &lt;x &lt;y</code> is a convention to diff the stdout outputs of shell commands x and y.</li>
 </ul>
-
-<!--listend-->
+<!-- raw HTML omitted -->
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">$$$$ diff -ty &lt;(2&gt;&amp;1 cargo -q run -- 12282018.NASDAQ_ITCH50.gz) &lt;(2&gt;&amp;1 cargo -q run -- 07302019.NASDAQ_ITCH50.gz)
 50 bytes of the buffer                                             50 bytes of the buffer
 0                                                                  0
@@ -317,28 +284,19 @@ that failed to parse, before returning the error.</p>
         ),                                                                 ),
     },                                                                 },
 )                                                                  )
-</code></pre></div>
-<p>Because of the order, debug_assertions in the itchy library prints the buffer before our binary prints the last parsed message.</p>
-
+</code></pre></div><p>Because of the order, debug_assertions in the itchy library prints the buffer before our binary prints the last parsed message.</p>
 <h3 id="examining-the-results">Examining the results</h3>
-
 <p>The last successfully parsed message is the StockDirectory message related to
 the same company - IBKCP. The only differences are stock_locate (day-specific id of
 instrument) and timestamp, as expected.</p>
-
 <p>The first 4 bytes are identical, followed by one different byte,
 followed by mostly matching bytes.</p>
-
 <p>This is a stronger indicator that the itch parser doesn&rsquo;t support some message types.</p>
-
 <p>Stay tuned for more parser-monkey-patching and binary-file-diffing!</p>
-
 <blockquote>
 <p>As an aside, my first method of examining the buffer for a failed parse
 was to run gdb, wait for a panic and then recover the state of the buffer.</p>
-
 <p>It involved more steps and had an ncurses UI and a suboptimal UX.</p>
-
 <p>Print debugging is much nicer in this case.</p>
 </blockquote>
 
@@ -347,6 +305,7 @@ was to run gdb, wait for a panic and then recover the state of the buffer.</p>
     
   </div>
 </section>
+
 
 
 
@@ -361,4 +320,5 @@ was to run gdb, wait for a panic and then recover the state of the buffer.</p>
 
 </body>
 </html>
+
 

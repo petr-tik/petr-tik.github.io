@@ -82,21 +82,14 @@
     <h1 class="title">Using intuition to avoid reading binary</h1>
     
     <div class="content">
-      
-
-<p>In the previous write-up we found that the itchy parser failed to parse mostly
+      <p>In the previous write-up we found that the itchy parser failed to parse mostly
 similar messages from 2 different market data files. The error appeared after successfully
 parsing the same StockDirectory message in both cases.</p>
-
 <h2 id="using-our-intuition-to-read-1s-and-0s">Using our intuition to read 1s and 0s</h2>
-
 <p>Let&rsquo;s examine the buffer which fails to parse and use some intuition to guess what it might be.</p>
-
 <p>The last message was a StockDirectory message, which suggests that the next
 message is likely to be another StockDirectory message.</p>
-
 <p>To confirm this suspicion let&rsquo;s examine the buffer below.</p>
-
 <h3 id="what-curious-properties-can-you-see-in-the-buffer-below">What curious properties can you see in the buffer below?</h3>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">0                                                                  0
 39                                                                 39
@@ -139,22 +132,15 @@ message is likely to be another StockDirectory message.</p>
 78                                                                 78
 0                                                                  0
 39                                                                 39
-</code></pre></div>
-<p>&ldquo;0 39&rdquo; define the length of the following message.</p>
-
+</code></pre></div><p>&ldquo;0 39&rdquo; define the length of the following message.</p>
 <p>The next byte is the message tag/type - 82 is &ldquo;R&rdquo; in ASCII, which is the code for a StockDirectory message.</p>
-
 <p>Knowing that stock sybmol is a right-whitespace-padded alphabetic string of
 eight ASCII characters helps us interpret &ldquo;73 66 75 82 32 32 32 32&rdquo;, which appears in both buffers.</p>
-
 <p>&ldquo;32&rdquo; is ASCII for whitespace.</p>
-
 <p>&ldquo;72 66 75 82&rdquo; is &ldquo;IBKR&rdquo;.</p>
-
 <p>Looking up NASDAQ IBKR in your favourite search engine finds Interactive
 Brokers, a company which changed its listing to the most recently opened trading
 venue - Investors Exchange.</p>
-
 <p>At the time of writing, itchy didn&rsquo;t have Investors Exchange as a variant of the MarketCategory enum</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#080">#[derive(Debug, Clone, Copy, PartialEq, Eq)]</span><span style="color:#bbb">
 </span><span style="color:#bbb"></span><span style="color:#a2f;font-weight:bold">pub</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">enum</span> <span style="color:#00f">MarketCategory</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
@@ -167,26 +153,20 @@ venue - Investors Exchange.</p>
 </span><span style="color:#bbb">    </span>BatsZExchange,<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>Unavailable,<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
-<p>However, a PR with those changes has been opened on the repo. I recently opened
+</span></code></pre></div><p>However, a PR with those changes has been opened on the repo. I recently opened
 a PR that corrects the IssueSubTypes in the StockDirectory messages.</p>
-
 <h3 id="let-s-combine-them">Let&rsquo;s combine them!</h3>
-
 <p>I created <a href="https://github.com/petr-tik/itchy-rust/tree/update%5Fitchy">a new branch</a> that merges seanlane&rsquo;s changes with InvestorsExchange as a MarketCategory variant and mine outstanding PR.</p>
-
 <p>Checking this branch out locally, so Cargo.toml builds the binary against it results in a panic free run through the market data file.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo run -- <span style="color:#666">07302019</span>.NASDAQ_ITCH50
-    Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.02s
-     Running <span style="color:#b44">`</span>target/debug/ob_visualiser <span style="color:#666">07302019</span>.NASDAQ_ITCH50<span style="color:#b44">`</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo run -- 07302019.NASDAQ_ITCH50
+    Finished dev <span style="color:#666">[</span>unoptimized + debuginfo<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in 0.02s
+     Running <span style="color:#b44">`</span>target/debug/ob_visualiser 07302019.NASDAQ_ITCH50<span style="color:#b44">`</span>
 <span style="color:#b8860b">$$$$</span> <span style="color:#a2f">echo</span> <span style="color:#b8860b">$?</span>
-<span style="color:#666">0</span></code></pre></div>
-<h2 id="so-how-quickly-does-it-run">So how quickly does it run?</h2>
-
+<span style="color:#666">0</span>
+</code></pre></div><h2 id="so-how-quickly-does-it-run">So how quickly does it run?</h2>
 <p>Now that we fixed our fork of the itchy parsing library, we will remove all
 debug prints from the library and compile our application with the &ldquo;&ndash;release&rdquo;
 flag to measure maximum throughput.</p>
-
 <p>We will also switch to dealing with unzipped, binary files to move gzip out of the hot path.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a2f;font-weight:bold">extern</span><span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">crate</span><span style="color:#bbb"> </span>itchy;<span style="color:#bbb">
 </span><span style="color:#bbb">
@@ -213,20 +193,20 @@ flag to measure maximum throughput.</p>
 </span><span style="color:#bbb">        </span>messages,<span style="color:#bbb"> </span>duration,<span style="color:#bbb"> </span>speed<span style="color:#bbb">
 </span><span style="color:#bbb">    </span>);<span style="color:#bbb">
 </span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
-<p>Compile and run this executable and give it an unzipped market data file.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo run --release -- <span style="color:#666">07302019</span>.NASDAQ_ITCH50
+</span></code></pre></div><p>Compile and run this executable and give it an unzipped market data file.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> cargo run --release -- 07302019.NASDAQ_ITCH50
    Compiling ob_visualiser v0.1.0 <span style="color:#666">(</span>/home/petr_tik/Coding/rust/ob_visualiser<span style="color:#666">)</span>
-    Finished release <span style="color:#666">[</span>optimized<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in <span style="color:#666">0</span>.34s
-     Running <span style="color:#b44">`</span>target/release/ob_visualiser <span style="color:#666">07302019</span>.NASDAQ_ITCH50<span style="color:#b44">`</span>
-Parsed <span style="color:#666">282229684</span> messages in <span style="color:#666">12</span>.229675518s at the rate of <span style="color:#666">23519140</span> messages per second</code></pre></div>
-<p>In this example we can parse 23,519,140 messages per second or a message every 40 nanoseconds.</p>
+    Finished release <span style="color:#666">[</span>optimized<span style="color:#666">]</span> target<span style="color:#666">(</span>s<span style="color:#666">)</span> in 0.34s
+     Running <span style="color:#b44">`</span>target/release/ob_visualiser 07302019.NASDAQ_ITCH50<span style="color:#b44">`</span>
+Parsed <span style="color:#666">282229684</span> messages in 12.229675518s at the rate of <span style="color:#666">23519140</span> messages per second
+</code></pre></div><p>In this example we can parse 23,519,140 messages per second or a message every 40 nanoseconds.</p>
 
       
     </div>
     
   </div>
 </section>
+
 
 
 
@@ -241,4 +221,5 @@ Parsed <span style="color:#666">282229684</span> messages in <span style="color:
 
 </body>
 </html>
+
 

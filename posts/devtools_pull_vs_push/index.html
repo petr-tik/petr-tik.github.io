@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Devtools_pull_vs_push | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="http://petr-tik.github.io/posts/devtools_pull_vs_push/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+    </div>
+    
+    <h1 class="title">Devtools_pull_vs_push</h1>
+    
+    <div class="content">
+      <h2 id="developer-tools-that-pull-their-weight"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> Developer tools that pull their weight</h2>
+<h3 id="intro-developer-tooling-is-improving">Intro/Developer tooling is improving</h3>
+<h4 id="industry-maturing-around-the-usefulness-of-multiple-code-checks">Industry maturing around the usefulness of multiple code checks</h4>
+<p>We started with hacking something together, but increasingly even the less software-oriented business are converging on the importance of deep checks.</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  Try to find a timeline of software engineering practices</p>
+<p>what order were these introduced in:</p>
+<ul>
+<li>automated testing</li>
+<li>source formatters</li>
+<li>linters</li>
+<li>refactoring tools</li>
+<li>IDEs with intellisense</li>
+<li>clippy/tidy style correctors</li>
+<li>watchers/runners</li>
+<li>fuzzers</li>
+<li>symbolic execution</li>
+<li>type checkers/gradual typing in dynamic langs (mypy, sorbet)</li>
+<li>formal verification</li>
+</ul>
+<p>i guess it&rsquo;s roughly:
+think carefully -&gt; compile -&gt; find bugs in prod
+think carefully -&gt; write good comments -&gt; compile -&gt; find bugs in prod
+think carefully -&gt; write code -&gt; write tests -&gt; find memory bugs in prod</p>
+<p>I would love to see a comprehensive timeline that shows the introduction of different software engineering practices (across all languages) and some adoption milestones.</p>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>Bringing more academic findings into commercial software development</li>
+</ul>
+<h4 id="we-can-have-nice-things-rust-cargo-go-jetbrains-vscode-spoilt-people">We can have nice things - rust/cargo/go/jetbrains/vscode spoilt people</h4>
+<p>Developers&rsquo; own attitude to their own tooling seems to have changed. In the 2015 Stackoverflow developer survey, C++11 was the second (75.6%) most loved language ahead of Rust (73.8%).
+<a href="https://insights.stackoverflow.com/survey/2015#techSuper">https://insights.stackoverflow.com/survey/2015#techSuper</a></p>
+<p>Back then C++ had few comprehensive, open-source build systems, getting template
+error messages was considered a good way to test how quickly your terminal can
+process loads of output and there was no package manager. The &ldquo;love&rdquo; for C++11
+is probably best explained by the dopamine hit that people got moving from C++03
+to C++11. That emotional response is less like loving a holiday and more similar
+to the relief of getting life in gaol instead of the death penalty.</p>
+<p>It&rsquo;s still impressive that Rust got this high in the rankings, considering how young it was in 2015.</p>
+<p>Golang was just behind Rust. Golang came with a cmdline tool to manage projects
+<code>go build, go test</code>, a novel approach to package management and an opinionated
+default formatter <code>gofmt</code>. This raised the bar for new languages.</p>
+<p>Since 2018, Rust, Kotlin, Golang and TypeScript have been regulars in the top 5.
+TypeScript was designed by Anders Hejlsberg who implements compilers and
+language tools for breakfast (TurboPascal and C#). JetBrains is a multi-million
+dollar IDE business. Google is renowned for company-wide consistent developer
+tooling - monorepo, bazel/blaze, mythical codesearch and many other tools. Rust
+is the only one of those whose corporate backer had expertise in developer
+tooling.</p>
+<p>Rust did one better - it shamelessly stole the best ideas <strong>and</strong> give flexible
+APIs to enable an ecosystem of libraries (crates) and plugins.</p>
+<blockquote>
+<p>Aside. I wouldn&rsquo;t be surprised to find out that Northern Europeans have something mixed into their water supply that makes them want to work on PLs and developer tooling:
+Bjarne, Guido van Rossum, Anders Hejlsberg, Lars Bak, Friedrich L. Bauer, Rasmus Lerdorf, Matthias Felleisen, Kristen Nygaard, Martin Odersky</p>
+</blockquote>
+<h4 id="common-protocol-interface-lsp">common protocol interface/LSP</h4>
+<p>Even then, the MxN problem persisted. The aforementioned Anders recognised it
+and extracted his understanding about code intelligence into a protocol and a
+client/server model. This enabled all editors to only implement the core
+protocol once and immediately acquire the ability to query/receive semantic
+information about all languages that implement a server.</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>Established languages like C++ have embraced LSP</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>New languages/runtimes like Zig and Deno respectively have an LSP before 1.0</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>even non-PL are getting LSP</p>
+<p><a href="https://github.com/regen100/cmake-language-server">https://github.com/regen100/cmake-language-server</a>
+<a href="https://github.com/latex-lsp/texlab">https://github.com/latex-lsp/texlab</a></p>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>LSP risks/drawbacks</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>No cross-lang intellisense</p>
+<p>emacs can jump from the lisp symbol to its implementation in C with <code>xref-find-definition</code></p>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>Risk of language-specific LSP extensions fracturing the ecosystem</p>
+<p>It&rsquo;s hard to continue developing a generic protocol quickly while keeping quality high.</p>
+<p>Several LSP servers already implement custom extensions, some of which they suggest as protocol enhancements.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="how-do-we-change-source-code">How do we change source code?</h3>
+<h4 id="source-changes-in-patches">Source changes in patches</h4>
+<p>The difference between analysing code statically versus dynamically matters in
+academia. In practice, what matters is the ability to adapt your software
+quickly and reliably according to new business needs.</p>
+<p>As far as the users are concerned, it&rsquo;s implementation detail whether patches
+come from a developer in deep thought or running and fixing a failing test or
+applying a linter or running a benchmark. What matters is the speed and
+reliability of the delivered change.</p>
+<p>Your customers don&rsquo;t care if you blindly smashed your face at a feature until
+you implemented desired functionality or if you run a clever static code analysis engine to replace a deprecated API.</p>
+<p>As long as your software update comes with new features or performance
+improvements, the customer doesn&rsquo;t care how you implemented that change.</p>
+<p>Since the customers don&rsquo;t care how we implement changes, it is our
+responsibility to find good ways to reliably change software.</p>
+<h4 id="how-do-we-know-our-changes-are-good">How do we know our changes are good?</h4>
+<p>we push our code at compilers, formatters, tests (locally and in CI), staging
+environments and customers.</p>
+<p>Those systems are often grouped into static code analysis tools (compiler
+front-end, type checkers like mypy, linters) and dynamic analysis - tests,
+profilers, benchmarks, CI and the ultimately dynamic realm of production.</p>
+<p>At the time of pushing you think your code is as good as it can be and you would
+like feedback to either confirm your amazing programming skill (obviously - all
+readers fall into that category) or point out the silly mistakes that less
+capable programmers make (some readers might think about the developers of
+upstream libraries or systems).</p>
+<p>Each one of those stages increases the cost of error (do you want your customers
+to find bugs in your software?) and extends the feedback loop.</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>In Soviet Russia turnstiles underground you</p>
+<p>if you have only taken the underground in a civilized country, you are probably used to a clearly communicating turnstile that opens once it knows you should be allowed in and you don&rsquo;t expect anything to go wrong.</p>
+<p>You may have never seen turnstiles like this.</p>
+<p>A nicer turnstile is closed by default, but once it opens you now you are welcome.</p>
+<p>Underground turnstiles in USSR were open by default and if you didn&rsquo;t pay or the
+turnstile machine failed to recognise your payment, the gates would close on you
+as you try to walk through. This can be quite painful.</p>
+<p>Having no feedback in the editor is the same as having an open-but-will-hit-you
+turnstile. You are lulled into a false of security and then you try to push the
+code you thought was fine at write-time and a CI linter/formatting/code-style
+tool punishes you for bad code.</p>
+<!-- raw HTML omitted -->
+<ul>
+<li><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  Add video of USSR metro turnstiles hitting someone</li>
+</ul>
+</li>
+</ul>
+<h4 id="is-there-life-before-compile-time-and-run-time">Is there life before compile-time and run-time?</h4>
+<p>Notice how you have to push your code at both static (compilers, type checkers)
+and dynamic analysis tools (test harness, CI). Which suggests both compile-time
+and run-time have push interfaces</p>
+<p>Yes, it&rsquo;s called write-time. The natural habitat of a programmer is in their
+emacs or any other inferior editor/IDE of choice. At the same time, both static
+(compile-time) and dynamic code analysis (tests, benchmarks, instrumentation,
+profiling) both run outside of your natural habitat.</p>
+<p>The environment where make your changes is the editor, so we should aim to bring
+the algorithms to the data, rather than bring our data (source code) to the
+algorithms (static and dynamic lints/checks/tests in CI).</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  xkcd drawing for write-time, compile-time, run-time</p>
+<p><a href="http://cmx.io/">http://cmx.io/</a></p>
+</li>
+</ul>
+<h4 id="we-need-a-new-category">We need a new category</h4>
+<p>Therefore I propose a new distinction to replace static vs dynamic code analysis
+tools - pull vs push. To increase the productivity of a developer give her levers that she can easily pull. Giving her interfaces to push against is
+also useful, but has a higher entry barrier and thus should be lower priority.</p>
+<p>Pull interfaces are surfaced to the developer in her IDE - through red
+squiggles, tooltips and shortcuts that wrap specific static code analysis tools
+or build invocations. The IDE abstracts the implementation away, runs the
+relevant tool and presents the results to the developer in an actionable format.</p>
+<p>Below are examples of existing pull interfaces that are usually classically
+separated into static and dynamic code analysis tools.</p>
+<h3 id="good-existing-pull-interfaces">Good existing pull interfaces</h3>
+<p>Currently most of the existing pull interfaces are static. However, adding pull interfaces that (build and) run your code like test explorer plugins in VS Code and the rust analyzer runnables interface suggests there is demand for a more interactive developer environment.</p>
+<h4 id="auto--formatting-documents">(Auto)-formatting documents</h4>
+<p>Either format in-editor or format on save</p>
+<h4 id="refactorings">refactorings</h4>
+<h4 id="go-to-definition">go to definition</h4>
+<h4 id="linters-like-clang-tidy-and-cargo-clippy">linters like clang-tidy and cargo clippy</h4>
+<h4 id="watchers">Watchers</h4>
+<p>Watchers are command line tools that run outside the editor (or in a terminal embedded in the editor), they provide a pull-like interface, where the pull lever is saving a file. The workflow starts with a developer choosing a command that they want to re-run on every change to get quick feedback on their changes. This command usually consists of running one or more tests.</p>
+<p>Most watchers wait for filesystem events and run a prepared command (often defaulting to the stock test command in the relevant language) and present results to the developer.</p>
+<p>The fact that both interpreted (python, ruby) and compiled (golang, rust notorious for long compile-times) languages boast watchers in their toolbox, suggests the usefulness of the interface.</p>
+<ul>
+<li><a href="https://github.com/guard/guard">https://github.com/guard/guard</a></li>
+<li><a href="https://pypi.org/project/pytest-watch/">https://pypi.org/project/pytest-watch/</a></li>
+<li><a href="https://crates.io/crates/cargo-watch">https://crates.io/crates/cargo-watch</a></li>
+<li><a href="https://github.com/mitranim/gow">https://github.com/mitranim/gow</a></li>
+</ul>
+<p>The pulling analogy falls short once we take into account the costs of changing the watch target. It involves Ctrl-C&rsquo;ing the watch process and changing the command for the watcher to re-run.</p>
+<h4 id="rust-analyzer-runnables">rust-analyzer runnables</h4>
+<p>Rust-analyzer has an LSP extension to provide a list of items that are runnable from the open document. Those runnables are rendered as clickable CodeLenses in VSCode and enable the developer to run 1 specific test or benchmark or a group thereof from her editor.</p>
+<p>Watch it in action
+<a href="https://rust-analyzer.github.io/manual.html#run">https://rust-analyzer.github.io/manual.html#run</a></p>
+<p>Read the extension spec
+<a href="https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/dev/lsp-extensions.md#runnables">https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/dev/lsp-extensions.md#runnables</a></p>
+<p>The author of rust-analyzer also submitted a proposal to extend the LSP spec with an endpoint to return context-specific runnables.
+<a href="https://github.com/microsoft/language-server-protocol/issues/944">https://github.com/microsoft/language-server-protocol/issues/944</a></p>
+<p>One can consider the context- and document-aware runnables interface an improvement of the aforementioned watcher interface.</p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>rust-analyzer run related tests</p>
+<p>Once you have an interactive interface to query runnable tasks in a given context, you can filter those runnables to only show tests. Rust was developed with a <code>#[test]</code> macro to mark test functions and cargo that can run individual tests. This enables rust-analyzer to query the project ast for all invocations of the function at point inside AST subtrees that are marked with the macro and present the developer with a choice of tests she can run.</p>
+<p><a href="https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/dev/lsp-extensions.md#related-tests">https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/dev/lsp-extensions.md#related-tests</a></p>
+</li>
+</ul>
+<h4 id="get-details-from-terje-about-his-favourite-lisp-environemt"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> Get details from Terje about his favourite lisp environemt?</h4>
+<p>I roughly remember</p>
+<blockquote>
+<p>It could disassemble the Common Lisp into assembly in your editor? I don&rsquo;t quite remember</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>What was it?</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>Was it interactive i.e. in your editor?</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>What did it enable you to do that you cannot do in other languages?</li>
+</ul>
+<h3 id="future-pull-interfaces">Future pull interfaces</h3>
+<p>How can we improve or add new write-time, pull interfaces?</p>
+<h4 id="code-completion-as-search">Code completion as Search</h4>
+<p>Indexing thousands and millions of documents with cross-refences and semantic information and ranking results into a search interface where the top 10 results are super relevant.</p>
+<p>Can you think of a company who would be good at that?
+<a href="https://releases.llvm.org/12.0.0/tools/clang/tools/extra/docs/ReleaseNotes.html#code-completion">https://releases.llvm.org/12.0.0/tools/clang/tools/extra/docs/ReleaseNotes.html#code-completion</a></p>
+<p>Another business that provides a (closer-source) code completion engine that is ostensibly based on Artificial Intelligence.
+[No affiliation]
+<a href="https://www.tabnine.com/">https://www.tabnine.com/</a></p>
+<h4 id="find-and-run-related-benchmarks-in-rust-analyzer">Find and run related benchmarks in rust-analyzer</h4>
+<!-- raw HTML omitted -->
+<ul>
+<li>Micro-benchmark runnables</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  Carl Cook has a post-it about instruction caches that he checks with a benchmark</p>
+<p>Is that interactive?</p>
+<!-- raw HTML omitted -->
+<ul>
+<li><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  find the youtube video with a timestamp</li>
+</ul>
+</li>
+</ul>
+<h4 id="in-editor-fuzzer-runnables">In-editor fuzzer runnables</h4>
+<p>An interface to run a guided fuzzer on a function that takes unstructured or semi-structured data as input. While a good fuzzer run can take up to several hours, a primitive fuzzer integrated with your test harness can be useful at early stages of implementation.</p>
+<p>Define a function, finalise the first pass implementation, start a fuzzer in a child process, so that the fuzzer adds crashes as unit tests to your test harness.</p>
+<p>Golang has a design proposal to add fuzzing as a first class testing primitive.
+<a href="https://go.googlesource.com/proposal/+/master/design/draft-fuzzing.md">https://go.googlesource.com/proposal/+/master/design/draft-fuzzing.md</a></p>
+<h4 id="symbolic-execution-of-snippets">Symbolic execution of snippets</h4>
+<p><a href="https://project-oak.github.io/rust-verification-tools/using-klee/">https://project-oak.github.io/rust-verification-tools/using-klee/</a></p>
+<h4 id="refactor-deprecated-apis">Refactor deprecated APIs</h4>
+<h4 id="sql-for-your-code">SQL for your code</h4>
+<h4 id="visualisation">visualisation</h4>
+<p><a href="https://marketplace.visualstudio.com/items?itemName=hediet.debug-visualizer">https://marketplace.visualstudio.com/items?itemName=hediet.debug-visualizer</a></p>
+<p><a href="https://github.com/vadimcn/vscode-lldb/wiki/Data-visualization">https://github.com/vadimcn/vscode-lldb/wiki/Data-visualization</a></p>
+<h4 id="reducer">reducer</h4>
+<p>c-reduce</p>
+<h4 id="multi-platform-rust-analyzer"><!-- raw HTML omitted -->TODO<!-- raw HTML omitted --> multi-platform rust-analyzer</h4>
+<p>less about the pull interface and more about the backend that can make it fast.</p>
+<p>Aleksey Kladov talks about that RA can abstract away from the concrete FS and have the indexer run quickly on the server.</p>
+<p>3 minutes from the start here.</p>
+<p><a href="https://youtu.be/SaSULKoSlWI?t=845">https://youtu.be/SaSULKoSlWI?t=845</a></p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>my message to clangd discourse</p>
+<p>what is rust-analyzer, if not the compiler front-end persevering?</p>
+<blockquote>
+<p>Reading this implementation of a distributed compilation system I asked myself if this was applicable to clangd.
+<a href="https://blog.nelhage.com/post/building-llvm-in-90s/">https://blog.nelhage.com/post/building-llvm-in-90s/</a></p>
+<p>After all, what is clangd, if not the compiler front-end persevering (TM) and if that&rsquo;s the case, could the indexing stage not be parallelised and then collected into 1 index to serialize on disk. For the sake of argument, we could think of the first stage as mapping TUs to remote index builder-workers and the last stage as reducing/downloading all index files into one index directory on disk. I hear a certain advertising company has a really neat framework to run such workloads too.</p>
+<p>Ideally, this would have a plugin architecture, where corporate users could plugin their in-house configs for lambda-like workers and OSS developers could wire it up with AWS lambda (or the equivalent google cloud offering)</p>
+<p>What do people think? How amenable is the indexing stage of clangd to being distributed to remote index workers? How easy would it be to collect 1 index from N indexes for each individual TU?</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li><!-- raw HTML omitted -->TODO<!-- raw HTML omitted -->  add discourse response</li>
+</ul>
+</li>
+</ul>
+<h3 id="an-optimistic-conclusion">An optimistic conclusion</h3>
+<p>Developer tooling has been improving as a combination of academic developments,
+commercial organisations increasing their investment in code quality as well as
+developers becoming spoilt by user-friendly, interactive tools with a consistent
+interface. The momentum behind the Language Server Protocol and interest in
+improving our tools opens exciting prospects.</p>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
+

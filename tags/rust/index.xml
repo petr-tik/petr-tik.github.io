@@ -6,10 +6,19 @@
     <description>Recent content in rust on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 26 Oct 2019 23:58:00 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 15 Dec 2019 21:02:00 +0000</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/tags/rust/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Understanding what new code does without reading it</title>
+      <link>http://petr-tik.github.io/posts/tracing_instead_of_reading/</link>
+      <pubDate>Sun, 15 Dec 2019 21:02:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/tracing_instead_of_reading/</guid>
+      <description>I recently started working on a ticket in tantivy that allows users to customise the weight of a field by increasing/decreasing the score of documents that match the query in a specific field.</description>
+    </item>
     
     <item>
       <title>Using intuition to avoid reading binary</title>

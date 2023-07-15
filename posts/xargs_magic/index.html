@@ -82,62 +82,34 @@
     <h1 class="title">How to update your changelog automatically</h1>
     
     <div class="content">
-      
-
-<p>If you ever needed a quick way to update your changelog - you should find the post below interesting.</p>
-
+      <p>If you ever needed a quick way to update your changelog - you should find the post below interesting.</p>
 <h2 id="how-did-i-get-here">How did I get here?</h2>
-
 <p>I have been using the SurfingKeys extension for Chrome and Firefox (thanks again for a great extension + shout-outs below).</p>
-
 <p>After a recent update to 0.9.42, I clicked on the changelog option in browser and realised that the last version summarised in the changelog was 0.9.30.</p>
-
 <p>All of development takes place on GitHub, so it is easy to fork and prepare a PR.</p>
-
 <h2 id="how-do-you-summarise-changes-since-a-given-version">How do you summarise changes since a given version?</h2>
-
 <p>I needed to populate the changelog with all changes that have been committed since the last time the changelog was updated. The last tag was 0.4.1, so instead of using git tags, I needed to find another way.</p>
-
 <p>So I wrote a bash script to dump a summary of all commits between last version in the changelog and current git HEAD.</p>
-
 <p>Here it is in all its splendour.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">grep -oP -m1 <span style="color:#b44">&#34;(?## )[0-9].+&#34;</span> pages/changelog.md | xargs -I LAST_VERSION git log --format<span style="color:#666">=</span><span style="color:#b44">&#34;%H&#34;</span> --grep<span style="color:#666">=</span><span style="color:#b44">&#34;LAST_VERSION&#34;</span> | xargs -I COMMIT_HASH git log --format<span style="color:#666">=</span>%s%n%b COMMIT_HASH..HEAD</code></pre></div>
-<p>Let&rsquo;s break it down into constituent parts.</p>
-
-<h2 id="step-one-find-the-latest-version-in-the-changelog">Step one - find the latest version in the changelog</h2>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">grep -oP -m1 <span style="color:#b44">&#34;(?## )[0-9].+&#34;</span> pages/changelog.md | xargs -I LAST_VERSION git log --format<span style="color:#666">=</span><span style="color:#b44">&#34;%H&#34;</span> --grep<span style="color:#666">=</span><span style="color:#b44">&#34;LAST_VERSION&#34;</span> | xargs -I COMMIT_HASH git log --format<span style="color:#666">=</span>%s%n%b COMMIT_HASH..HEAD
+</code></pre></div><p>Let&rsquo;s break it down into constituent parts.</p>
+<h2 id="step-one---find-the-latest-version-in-the-changelog">Step one - find the latest version in the changelog</h2>
 <p><code>grep -oP -m1 &quot;(?## )[0-9].+&quot; pages/changelog.md</code></p>
-
 <p>Finds the first match (<code>-m1</code>) of the given regex in the changelog file. The changelog file is written in reverse chronological order, so the first entry is the latest version.</p>
-
-<p><code>-oP</code> enables me to ignore the &ldquo;## &rdquo; at the start of the line to pass clean version number to the next stage.</p>
-
-<h2 id="step-two-find-git-commit-with-given-version-in-diff">Step two - find git commit with given version in diff</h2>
-
+<p><code>-oP</code> enables me to ignore the &ldquo;## &quot; at the start of the line to pass clean version number to the next stage.</p>
+<h2 id="step-two---find-git-commit-with-given-version-in-diff">Step two - find git commit with given version in diff</h2>
 <p><code>xargs -I LAST_VERSION git log --format=&quot;%H&quot; --grep=&quot;LAST_VERSION&quot;</code></p>
-
 <p>This is where xargs magic begins. We define a variable name <code>LAST_VERSION</code>, which will be replaced with the given value. I taught myself a mnemonic to remember <code>-I</code> as Instead.</p>
-
 <p>xargs is due to receive the most recent version number found in pages/changelog.md and</p>
-
-<h2 id="step-three-print-every-commit-between-now-and-then">Step three - print every commit between now and then</h2>
-
+<h2 id="step-three---print-every-commit-between-now-and-then">Step three - print every commit between now and then</h2>
 <p><code>xargs -I COMMIT_HASH git log --format=%s%n%b COMMIT_HASH..HEAD</code></p>
-
 <p>Using the same trick as above to substitute hash of the commit with the most last logged version found in pages/changelog.md</p>
-
 <p><code>--format=%s%n%b</code> prints subject and body of every commit separated by a newline.</p>
-
 <h2 id="result">Result</h2>
-
 <p>You will have the dump of git log since the version that was last mentioned in the changelog. You can add it to the changelog and tidy it up before committing the new changelog.</p>
-
 <h2 id="shoutouts">Shoutouts</h2>
-
 <p>Brook Hong for developing such a great Chrome extension and later porting it to Firefox New Edition.</p>
-
 <p>Other contributors to Surfing Keys.</p>
-
 <p>Douglas McIlroy - the creator of Unix pipes</p>
 
       
@@ -145,6 +117,7 @@
     
   </div>
 </section>
+
 
 
 
@@ -159,4 +132,5 @@
 
 </body>
 </html>
+
 

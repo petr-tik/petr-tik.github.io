@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Software and puns</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 26 Oct 2019 23:58:00 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 15 Dec 2019 21:02:00 +0000</lastBuildDate>
     
 	<atom:link href="http://petr-tik.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Understanding what new code does without reading it</title>
+      <link>http://petr-tik.github.io/posts/tracing_instead_of_reading/</link>
+      <pubDate>Sun, 15 Dec 2019 21:02:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/tracing_instead_of_reading/</guid>
+      <description>I recently started working on a ticket in tantivy that allows users to customise the weight of a field by increasing/decreasing the score of documents that match the query in a specific field.</description>
+    </item>
     
     <item>
       <title>Using intuition to avoid reading binary</title>
@@ -197,7 +206,16 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>http://petr-tik.github.io/posts/remote_dev/</guid>
-      <description>DONE Remote (rust) development environment Picture this at home Imaging you are working on a large Rust project.</description>
+      <description>DONERemote (rust) development environment Picture this at home Imaging you are working on a large Rust project.</description>
+    </item>
+    
+    <item>
+      <title>Devtools_pull_vs_push</title>
+      <link>http://petr-tik.github.io/posts/devtools_pull_vs_push/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://petr-tik.github.io/posts/devtools_pull_vs_push/</guid>
+      <description>TODODeveloper tools that pull their weight Intro/Developer tooling is improving Industry maturing around the usefulness of multiple code checks We started with hacking something together, but increasingly even the less software-oriented business are converging on the importance of deep checks.</description>
     </item>
     
   </channel>

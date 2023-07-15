@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Stracing emacs. Part 1 | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="http://petr-tik.github.io/posts/stracing_emacs_part_one/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/linux">#linux</a>
+
+
+
+  
+  | <a class="subtitle is-6" href="/tags/strace">#strace</a>
+  
+  | <a class="subtitle is-6" href="/tags/emacs">#emacs</a>
+  
+
+      
+    </div>
+    <h2 class="subtitle is-6">March 28, 2017</h2>
+    <h1 class="title">Stracing emacs. Part 1</h1>
+    
+    <div class="content">
+      <p>In this series of posts, I investigate and report Emacs start-up procedure and how to optimise it. Emacs is a beautiful OS with a built-in ELisp interpreter and some text editing capabilities.</p>
+<p>I used strace by examining the start up of emacs. <a href="https://github.com/petr-tik/emacs-config">My emacs config is different</a> and will be compared to a vanilla emacs start-up. For each syscall I investigated and summarised return values, their frequency to find out how I can improve it.</p>
+<p>I ran the command below, waited until emacs was fully loaded and quit it. -C combines -c with normal output i.e. it printed each syscall, while the process was live and finished the file with the summary table.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">strace -C -o emacs_strace_output emacs
+</code></pre></div><h2 id="format">Format</h2>
+<p>I will choose different parameters by which I will choose syscalls to analyse. Then I use the manpage, my favourite search engine (CrouchCrouchWalk) to write up my understanding of the processes.</p>
+<h2 id="top-10-by-time">Top 10 by time</h2>
+<p>From the <code>man strace | grep -A 4 sort</code> page - Strace can sort by time, calls, name, and nothing (default is time). For data consistency, I will use the same output file and awk magic.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> tail -n <span style="color:#666">69</span> emacs_strace_output | head -n <span style="color:#666">12</span>
+% <span style="color:#a2f">time</span>     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 27.05    0.000109           <span style="color:#666">0</span>     <span style="color:#666">18973</span>     <span style="color:#666">17979</span> open
+ 23.33    0.000094           <span style="color:#666">0</span>      <span style="color:#666">5192</span>      <span style="color:#666">3609</span> recvmsg
+ 15.88    0.000064           <span style="color:#666">0</span>      <span style="color:#666">2432</span>           munmap
+ 13.65    0.000055           <span style="color:#666">0</span>      <span style="color:#666">3179</span>           poll
+  8.44    0.000034           <span style="color:#666">0</span>      <span style="color:#666">3208</span>         <span style="color:#666">1</span> <span style="color:#a2f">read</span>
+  6.45    0.000026           <span style="color:#666">0</span>      <span style="color:#666">1610</span>           writev
+  2.73    0.000011           <span style="color:#666">0</span>      <span style="color:#666">5127</span>           lseek
+  2.48    0.000010           <span style="color:#666">0</span>      <span style="color:#666">1005</span>           close
+  0.00    0.000000           <span style="color:#666">0</span>        <span style="color:#666">14</span>           write
+  0.00    0.000000           <span style="color:#666">0</span>       <span style="color:#666">605</span>       <span style="color:#666">119</span> stat
+</code></pre></div><h2 id="open">open</h2>
+<p>Syscall that usually takes a pointer to const array of chars for pathname and an int for flags. Flags carry information about access modes (read-only, write-only or read-n-write) and file status flags.</p>
+<p>Returns an int that is a file descriptor (non-negative int), which other syscalls in the process will use to access the same file. There is no need to randomly assign fd numbers, so they are given out in ascending order.</p>
+<h4 id="errors">Errors:</h4>
+<p>Used the magic of grep and awk to extract, count and summarise the number of times each return value (including errors) occured.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">grep <span style="color:#b44">&#34;^open&#34;</span> emacs_strace_output | awk <span style="color:#b44">&#39;BEGIN { FS=&#34;)&#34; } { print $2 }&#39;</span> | awk <span style="color:#b44">&#39;{ print $2}&#39;</span> | sort | uniq -c | sort -nr
+</code></pre></div><p><code>grep &quot;open(&quot; emacs_strace_output</code>- returns the lines with open syscall trace. &ldquo;^open(&rdquo; guarantees that we only examine lines starting with &ldquo;open&rdquo;</p>
+<p><code>awk 'BEGIN { FS=&quot;)&quot;} { print $2 }'</code></p>
+<p>Takes the lines and prints column 2 after the &ldquo;)&rdquo; separator, which comes at the end of the open syscall. Return values come in different formats</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> -1 ENOENT <span style="color:#666">(</span>No such file or directory<span style="color:#666">)</span>
+ <span style="color:#666">8</span>
+</code></pre></div><p>So we need another awk with a different FS (field separator) variable.</p>
+<p><code>awk '{ print $2}'</code> - which uses the default field separator &quot; &quot; and prints the second column, which will be the return value.</p>
+<p>Successful return is a positive int file descriptor, a negative return value can be looked up in the man page for open. Sorting arranges values return values in order, so <code>uniq -c</code> can summarise and return the count of each value followed by the value. <code>sort -nr</code> sorts it by numeric value in descending order of counts.</p>
+<p>Below is the end bash one-liner and the resulting table.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;count   ret_val&#34;</span>; grep <span style="color:#b44">&#34;^open(&#34;</span> emacs_strace_output | awk <span style="color:#b44">&#39;BEGIN { FS=&#34;)&#34; } { print $2 }&#39;</span> | awk <span style="color:#b44">&#39;{ print $2}&#39;</span> | sort | uniq -c | sort -nr
+count   ret_val
+  <span style="color:#666">17979</span> -1
+    <span style="color:#666">624</span> <span style="color:#666">7</span>
+    <span style="color:#666">131</span> <span style="color:#666">8</span>
+     <span style="color:#666">86</span> <span style="color:#666">3</span>
+     <span style="color:#666">83</span> <span style="color:#666">9</span>
+     <span style="color:#666">20</span> <span style="color:#666">6</span>
+     <span style="color:#666">15</span> <span style="color:#666">4</span>
+     <span style="color:#666">11</span> <span style="color:#666">11</span>
+     <span style="color:#666">10</span> <span style="color:#666">5</span>
+      <span style="color:#666">6</span> <span style="color:#666">10</span>
+      <span style="color:#666">5</span> <span style="color:#666">14</span>
+      <span style="color:#666">2</span> <span style="color:#666">12</span>
+      <span style="color:#666">1</span> <span style="color:#666">13</span>
+</code></pre></div><p>As seen in the summary, 17979 open syscalls returned the error value -1, which stands for ENOINT - no such file or directory. Judging by the greatest return value, not more than 14 files are open simultaneously during the start-up process. 18973 - 17979 = 994 and there are 1005 succesful <code>close</code> syscalls, so 11 times an fd must have been closed and reused.</p>
+<p>Looking at each open syscall with return value 7.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$</span>$ grep <span style="color:#b44">&#34;^open&#34;</span> emacs_strace_output | awk <span style="color:#b44">&#39;BEGIN { FS=&#34;\&#34;| &#34; } { print $2,$6 }&#39;</span> | grep <span style="color:#b44">&#34; 7&#34;</span> | awk <span style="color:#b44">&#39;{ print $1 }&#39;</span> | sort | uniq -c | sort -nr
+     <span style="color:#666">23</span> /usr/share/icons/default/index.theme
+     <span style="color:#666">12</span> /home/petr_tik/.emacs.d/elpa/dash-20161121.55/dash-autoloads.el
+      <span style="color:#666">8</span> /home/petr_tik/.emacs.d/elpa/s-20140714.707/s-autoloads.el
+      <span style="color:#666">6</span> /usr/share/emacs/24.5/lisp/emacs-lisp/cl-seq.elc
+      <span style="color:#666">6</span> /home/petr_tik/.emacs.d/elpa/json-snatcher-20150511.2047/json-snatcher-autoloads.el
+      <span style="color:#666">6</span> /home/petr_tik/.emacs.d/elpa/json-reformat-20160212.53/json-reformat-autoloads.el
+      ...
+      more filespaths
+</code></pre></div><p>shows that several files are repeatedly opened on the same file descriptor.</p>
+<p>Looking at the usr/share/icons/default/index.theme</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep -n <span style="color:#b44">&#34;usr/share/icons/default/index.theme&#34;</span> emacs_strace_output 
+1530:open<span style="color:#666">(</span><span style="color:#b44">&#34;/usr/share/icons/default/index.theme&#34;</span>, O_RDONLY<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">6</span>
+3412:open<span style="color:#666">(</span><span style="color:#b44">&#34;/usr/share/icons/default/index.theme&#34;</span>, O_RDONLY<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">7</span>
+3446:open<span style="color:#666">(</span><span style="color:#b44">&#34;/usr/share/icons/default/index.theme&#34;</span>, O_RDONLY<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">7</span>
+    ...
+    more filespaths
+</code></pre></div><p>we take the line numbers where /usr/share/icons/default/index.theme appears and examine a typical case of such a syscall. The first line it is opened under fd 6, so we take the needed number of lines (head for first 1549 lines, out of which we will need the last 20).</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$</span>$ head -n <span style="color:#666">1535</span> emacs_strace_output | tail -n <span style="color:#666">6</span>
+open<span style="color:#666">(</span><span style="color:#b44">&#34;/usr/share/icons/default/index.theme&#34;</span>, O_RDONLY<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">6</span>
+fstat<span style="color:#666">(</span>6, <span style="color:#666">{</span><span style="color:#b8860b">st_mode</span><span style="color:#666">=</span>S_IFREG|0644, <span style="color:#b8860b">st_size</span><span style="color:#666">=</span>32, ...<span style="color:#666">})</span> <span style="color:#666">=</span> <span style="color:#666">0</span>
+mmap<span style="color:#666">(</span>NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0<span style="color:#666">)</span> <span style="color:#666">=</span> 0x7f24722d7000
+read<span style="color:#666">(</span>6, <span style="color:#b44">&#34;[Icon Theme]\nInherits=DMZ-White\n&#34;</span>, 4096<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">32</span>
+close<span style="color:#666">(</span>6<span style="color:#666">)</span>                                <span style="color:#666">=</span> <span style="color:#666">0</span>
+munmap<span style="color:#666">(</span>0x7f24722d7000, 4096<span style="color:#666">)</span>            <span style="color:#666">=</span> <span style="color:#666">0</span>
+</code></pre></div><p>after opening the file, emacs runs fstat on the given file descriptor. After that, 4096 bytes of memory is mapped.</p>
+<h2 id="recvmsg">recvmsg</h2>
+<p>syscall to receive messages from a socket. Came from 4.4BSD (sockets were a BSD invention).</p>
+<p>Input is a socket file descriptor int, pointer to the struct of type msghdr and int for flags. If succesful, they return the length of the receied message. -1 is the error ret value. Summary table shows &gt;3000 error returns, which are investigated below.</p>
+<p>recvmsg uses the pointer to the msghdr struct to minimise the number of arguments.</p>
+<h4 id="errors-1">Errors:</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$</span>$ <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;freq    ret_val&#34;</span>; grep <span style="color:#b44">&#34;^recvmsg(&#34;</span> emacs_strace_output | awk <span style="color:#b44">&#39;BEGIN { FS=&#34;) &#34;} { print $2 }&#39;</span> | awk <span style="color:#b44">&#39; { print $2 } &#39;</span> | sort | uniq -c | sort -nr
+freq    ret_val
+   <span style="color:#666">3609</span> -1
+   <span style="color:#666">1369</span> <span style="color:#666">32</span>
+     <span style="color:#666">97</span> <span style="color:#666">224</span>
+     <span style="color:#666">44</span> <span style="color:#666">48</span>
+     <span style="color:#666">17</span> <span style="color:#666">64</span>
+     <span style="color:#666">17</span> <span style="color:#666">40</span>
+      <span style="color:#666">8</span> <span style="color:#666">96</span>
+      <span style="color:#666">5</span> <span style="color:#666">36</span>
+      <span style="color:#666">4</span> <span style="color:#666">128</span>
+      <span style="color:#666">3</span> <span style="color:#666">4096</span>
+      <span style="color:#666">3</span> <span style="color:#666">1360</span>
+      <span style="color:#666">2</span> <span style="color:#666">76</span>
+      <span style="color:#666">2</span> <span style="color:#666">160</span>
+      <span style="color:#666">1</span> <span style="color:#666">896</span>
+      <span style="color:#666">1</span> <span style="color:#666">832</span>
+      <span style="color:#666">1</span> <span style="color:#666">56</span>
+      <span style="color:#666">1</span> <span style="color:#666">336</span>
+      <span style="color:#666">1</span> <span style="color:#666">3348</span>
+      <span style="color:#666">1</span> <span style="color:#666">3316</span>
+      <span style="color:#666">1</span> <span style="color:#666">268</span>
+      <span style="color:#666">1</span> <span style="color:#666">256</span>
+      <span style="color:#666">1</span> <span style="color:#666">208</span>
+      <span style="color:#666">1</span> <span style="color:#666">1948</span>
+      <span style="color:#666">1</span> <span style="color:#666">1236</span>
+      <span style="color:#666">1</span> <span style="color:#666">1188</span>
+
+</code></pre></div><p>The number of -1 matches the one 3609 in the summary table confirming that the bash oneliner was correct. The return value is usually the number of bytes read from the socket, which we can expect to be a power of 2.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;   freq socket_descriptor&#34;</span>; grep <span style="color:#b44">&#34;^recvmsg(&#34;</span> emacs_strace_output | grep -v <span style="color:#b44">&#34;= -1&#34;</span> | awk <span style="color:#b44">&#39;BEGIN { FS=&#34;\\\\(+|,+&#34; } { print $2 }&#39;</span> | uniq -c
+   freq socket_descriptor
+   <span style="color:#666">1583</span> <span style="color:#666">5</span>
+</code></pre></div><p>grep for all recvmsg syscalls, which don&rsquo;t return a -1 error value. NB &ldquo;\\(&rdquo; escapes the bracket character and returns the first argument of each recvmsg syscall invocation. uniq -c returns the frequncy for each value. It turned out that emacs listens on only one socket file descriptor (happens to be number 5). Further inspection didn&rsquo;t give too much information.</p>
+<h2 id="munmap">munmap</h2>
+<p>Evil brother of mmap (more info below), which deletes the mappings for the specified address. After that, all references to addresses in that range (addr + length) are invalidated. NB - closing a file descriptor doesn&rsquo;t unmap the region, which means for security you want to close fds and then unmap the region.</p>
+<p>Input:
+pointer of type void to address
+size_t length</p>
+<p>Returns:
+0 if succesful
+-1 on failure</p>
+<p>mmap - takes more parameters like flags and protection flags, which determine the access rights to those pages.</p>
+<p>Examining output. No errors, just invocation patterns.</p>
+<h5 id="bash-command">bash command</h5>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep <span style="color:#b44">&#34;^munmap(&#34;</span> emacs_strace_output | awk -F<span style="color:#b44">&#34;,|\\\\)&#34;</span> <span style="color:#b44">&#39;{ print $2 }&#39;</span> | sort | uniq -c | sort -nr
+</code></pre></div><ol>
+<li>grep for munmap at the beginning of the line - as before</li>
+<li>awk with 2 field separators comma &ldquo;,&rdquo; and closing bracket &ldquo;)&rdquo;</li>
+<li>print the second column, which will be the size_t var for length of region to unmap.</li>
+<li>sort all occurences of each size_t</li>
+<li>count each uniq value and return a table of counts</li>
+<li>sort the table in descending order</li>
+</ol>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> <span style="color:#a2f">echo</span> <span style="color:#b44">&#34;   freq  size_t&#34;</span>; grep <span style="color:#b44">&#34;^munmap(&#34;</span> emacs_strace_output | awk -F<span style="color:#b44">&#34;,|\\\\)&#34;</span> <span style="color:#b44">&#39;{ print $2 }&#39;</span> | sort | uniq -c | sort -nr
+   freq  size_t
+   <span style="color:#666">2067</span>  <span style="color:#666">69632</span>
+    <span style="color:#666">265</span>  <span style="color:#666">4096</span>
+     <span style="color:#666">84</span>  <span style="color:#666">790528</span>
+      <span style="color:#666">5</span>  <span style="color:#666">117548</span>
+      <span style="color:#666">2</span>  <span style="color:#666">565248</span>
+      <span style="color:#666">2</span>  <span style="color:#666">245760</span>
+      <span style="color:#666">2</span>  <span style="color:#666">2339</span>
+      <span style="color:#666">1</span>  <span style="color:#666">99000</span>
+      <span style="color:#666">1</span>  <span style="color:#666">606208</span>
+      <span style="color:#666">1</span>  <span style="color:#666">475136</span>
+      <span style="color:#666">1</span>  <span style="color:#666">424408</span>
+      <span style="color:#666">1</span>  <span style="color:#666">122880</span>
+</code></pre></div><p>Funny values of size_t. I found 2339 an interesting value for size_t and deciding to dig into it.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">grep -n <span style="color:#b44">&#34;^munmap(&#34;</span> emacs_strace_output | grep <span style="color:#b44">&#34;, 2339&#34;</span>
+1016:munmap<span style="color:#666">(</span>0x7f24722d7000, 2339<span style="color:#666">)</span>            <span style="color:#666">=</span> <span style="color:#666">0</span>
+1023:munmap<span style="color:#666">(</span>0x7f24722d7000, 2339<span style="color:#666">)</span>            <span style="color:#666">=</span> <span style="color:#666">0</span>
+</code></pre></div><p>returns the matched lines with the line number from the original strace_file. So I made a head and tail pipe, which opens the relevant region of the strace output. <a href="https://www.youtube.com/watch?v=Zk5Il6KQrd8">oh that&rsquo;s a bingo!</a> - it happens to be the region, when /etc/passwd was opened.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> head -n <span style="color:#666">1024</span> emacs_strace_output | tail -n <span style="color:#666">14</span>
+open<span style="color:#666">(</span><span style="color:#b44">&#34;/etc/passwd&#34;</span>, O_RDONLY|O_CLOEXEC<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">4</span>
+lseek<span style="color:#666">(</span>4, 0, SEEK_CUR<span style="color:#666">)</span>                   <span style="color:#666">=</span> <span style="color:#666">0</span>
+fstat<span style="color:#666">(</span>4, <span style="color:#666">{</span><span style="color:#b8860b">st_mode</span><span style="color:#666">=</span>S_IFREG|0644, <span style="color:#b8860b">st_size</span><span style="color:#666">=</span>2339, ...<span style="color:#666">})</span> <span style="color:#666">=</span> <span style="color:#666">0</span>
+mmap<span style="color:#666">(</span>NULL, 2339, PROT_READ, MAP_SHARED, 4, 0<span style="color:#666">)</span> <span style="color:#666">=</span> 0x7f24722d7000
+lseek<span style="color:#666">(</span>4, 2339, SEEK_SET<span style="color:#666">)</span>                <span style="color:#666">=</span> <span style="color:#666">2339</span>
+munmap<span style="color:#666">(</span>0x7f24722d7000, 2339<span style="color:#666">)</span>            <span style="color:#666">=</span> <span style="color:#666">0</span>
+close<span style="color:#666">(</span>4<span style="color:#666">)</span>                                <span style="color:#666">=</span> <span style="color:#666">0</span>
+open<span style="color:#666">(</span><span style="color:#b44">&#34;/etc/passwd&#34;</span>, O_RDONLY|O_CLOEXEC<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">4</span>
+lseek<span style="color:#666">(</span>4, 0, SEEK_CUR<span style="color:#666">)</span>                   <span style="color:#666">=</span> <span style="color:#666">0</span>
+fstat<span style="color:#666">(</span>4, <span style="color:#666">{</span><span style="color:#b8860b">st_mode</span><span style="color:#666">=</span>S_IFREG|0644, <span style="color:#b8860b">st_size</span><span style="color:#666">=</span>2339, ...<span style="color:#666">})</span> <span style="color:#666">=</span> <span style="color:#666">0</span>
+mmap<span style="color:#666">(</span>NULL, 2339, PROT_READ, MAP_SHARED, 4, 0<span style="color:#666">)</span> <span style="color:#666">=</span> 0x7f24722d7000
+lseek<span style="color:#666">(</span>4, 2339, SEEK_SET<span style="color:#666">)</span>                <span style="color:#666">=</span> <span style="color:#666">2339</span>
+munmap<span style="color:#666">(</span>0x7f24722d7000, 2339<span style="color:#666">)</span>            <span style="color:#666">=</span> <span style="color:#666">0</span>
+close<span style="color:#666">(</span>4<span style="color:#666">)</span>                                <span style="color:#666">=</span> <span style="color:#666">0</span>
+</code></pre></div><h2 id="poll">poll</h2>
+<p>Similar to select syscall, only newer. ppoll is newer still. Waits for one of a set of fds to come available for IO operations.</p>
+<p>Input:
+pointer to struct of type pollfd - carries the filedescriptor int and requested events
+nfds_t - number of file descriptors to watch
+timeout - milliseconds the syscall can block while waiting for an fd to be ready. It can be interrupted by a signal hanlder. You can set an infinite timeout with a negative value.</p>
+<p>Returns:
+if succesful - positive number of structures with several returned event fields.
+0 if timed out and/or no fds became ready
+-1 on error</p>
+<h4 id="inspecting">Inspecting</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep <span style="color:#b44">&#34;^poll(&#34;</span> emacs_strace_output | awk -F<span style="color:#b44">&#34; =&#34;</span> <span style="color:#b44">&#39; { print $2 }&#39;</span> | awk -F<span style="color:#b44">&#34; |=|,&#34;</span> <span style="color:#b44">&#39;{ print $2 }&#39;</span> | sort | uniq -c
+     <span style="color:#666">61</span> <span style="color:#666">0</span>
+   <span style="color:#666">3118</span> <span style="color:#666">1</span>
+</code></pre></div><p>61 poll calls timed out.</p>
+<h2 id="read">read</h2>
+<p>Tries to read bytes from a given file descriptor into a buffer.</p>
+<p>Gotcha: if count &gt; SSIZE_MAX, the result is unspecified.</p>
+<p>Input:
+file descriptor
+pointer to buf
+count of type size_t</p>
+<p>Returns:
+if successfully read - returns int number of read bytes, by which the file position is also advanced. The return value may be less than the count (bytes that were requested to read), if a signal interrupts the syscall or we reach EOF.
+on error, -1 is set to errno. Unspecified if the file position value changes.</p>
+<p>The only error happens when we try to read from the paredit.elc file descriptor.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep -n <span style="color:#b44">&#34;^open(.* = 7\|^read(.* = -1&#34;</span> emacs_strace_output | tail -n <span style="color:#666">2</span>
+50481:open<span style="color:#666">(</span><span style="color:#b44">&#34;/home/petr_tik/.emacs.d/elpa/paredit-20140128.1248/paredit.elc&#34;</span>, O_RDONLY|O_CLOEXEC<span style="color:#666">)</span> <span style="color:#666">=</span> <span style="color:#666">7</span>
+51237:read<span style="color:#666">(</span>7, 0x7fffe3761b80, 16<span style="color:#666">)</span>             <span style="color:#666">=</span> -1 EAGAIN <span style="color:#666">(</span>Resource temporarily unavailable<span style="color:#666">)</span>
+</code></pre></div><h2 id="writev">writev</h2>
+<p>Writes given buffers of data to a given file descriptor. Similar to write, but sequentially goes through all the buffers.</p>
+<p>Returns:
+number of bytes written.
+-1 if error</p>
+<h4 id="inspecting-1">Inspecting</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep <span style="color:#b44">&#34;^writev(&#34;</span> emacs_strace_output | awk -F<span style="color:#b44">&#34;\\\\(|,&#34;</span> <span style="color:#b44">&#39; {print $2}&#39;</span> | sort | uniq -c
+   <span style="color:#666">1610</span> <span style="color:#666">5</span>
+</code></pre></div><p>All writev syscalls take file descriptor 5. Is it a coincidence?</p>
+<h4 id="errors-2">Errors</h4>
+<p>None</p>
+<h2 id="lseek">lseek</h2>
+<p>Given a file descritpor, offset and whence parameters, reposition the offset on the file descriptor. It can move the offset beyond the file size.</p>
+<p>Returns: resulting offset location (in bytes) from the beginning of the file.</p>
+<h4 id="errors-3">Errors</h4>
+<p>None</p>
+<h2 id="close">close</h2>
+<p>Does what it says on the tin. Closes a given file desciptor, which allows the int value to be reused. It can return an error and you better check the return value to avoid nasty bugs. It can be interrupted by a signal, in which case it doesn&rsquo;t close the file. Prone to race conditions.</p>
+<h4 id="errors-4">Errors</h4>
+<p>None</p>
+<h2 id="write">write</h2>
+<p>writes to a given file descriptor.</p>
+<h4 id="errors-5">Errors</h4>
+<p>None</p>
+<h2 id="stat">stat</h2>
+<p>Like the terminal stat command, returns the status of a file at a given pathname.</p>
+<h4 id="errors-6">Errors</h4>
+<p>Confirming that the bash one-liner catches all the errors.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep <span style="color:#b44">&#34;^stat(.* = -1&#34;</span> emacs_strace_output | wc -l
+<span style="color:#666">119</span>
+</code></pre></div><p>Now print the list of pathnames that return errors and the ret_values.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">$$$$</span> grep <span style="color:#b44">&#34;^stat(.* = -&#34;</span> emacs_strace_output | awk -F<span style="color:#b44">&#34;\\\\(\&#34;|\&#34;,| =| &#34;</span> <span style="color:#b44">&#39; { print $2, $6 }&#39;</span> | sort
+</code></pre></div><p>Most errors have the value of -1, which according to error section in the <code>man 2 stat</code> is ENOENT A  component  of  pathname  does  not exist, or pathname is an empty string.</p>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
+

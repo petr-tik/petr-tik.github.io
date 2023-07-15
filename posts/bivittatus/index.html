@@ -82,56 +82,32 @@
     <h1 class="title">Search text fast or die trie-ing</h1>
     
     <div class="content">
-      
-
-<p>Benchmarking the Python and C implementation of a trie-as-a-dictionary.</p>
-
+      <p>Benchmarking the Python and C implementation of a trie-as-a-dictionary.</p>
 <h2 id="what-is-the-problem">What is the problem?</h2>
-
 <p>Searching for words in the dictionary is a tough problem. If the dictionary is sorted, you can implement binary search, but even then you can spend the worst-case time looking for a word that is not there. English prohibits some sequences of letters like <code>zv</code>, <code>sdr</code> and others. Checking the first 2 letters of such words will be faster than binary searching the whole dictionary. When the dictionary isn&rsquo;t sorted alphabetically, but according to a different parameter, it&rsquo;s even worse.</p>
-
 <h2 id="what-data-structure-can-we-use-instead">What data structure can we use instead?</h2>
-
 <p>Enter trie or prefix tree, a data structure that stores nodes with characters in the same order as they are in the word. It requires breaking words into a linked list of character nodes with an array of pointers to children nodes.</p>
-
 <p>A depth-first search from the head node will recreate all the words in the dictionary and we can save memory consumption by reusing prefixes common to many words.</p>
-
 <p>I wrote the same trie implementation in C and Python and benchmarked both to see which one is faster.</p>
-
 <h2 id="what-does-c-give-you-over-python">What does C give you over Python?</h2>
-
 <p>C is closer to the metal, saves memory for data structures and is compiled. The cTrie is implemented as a struct with 1 trie_node object and the PyObject_Head that is compulsory for Python extensions. This is lighter on methods and thus memory used than the PyTrie class, which inherits unnecessary methods from the Base Object.</p>
-
 <p>As far as I know, Python converts variable names to memory addresses, so using pointers in the cTrie implementation doesn&rsquo;t give an advantage over PyTrie.</p>
-
 <p>Characters are the same in C and Python - the CPython interpreter caches useful strings and individual characters are resolved as pointers to the immutable strings of characters.</p>
-
 <h2 id="how-much-infra-is-there-for-writing-python-extensions-in-c">How much infra is there for writing Python extensions in C?</h2>
-
 <p>Loads. The CPython developers are great, there are helper methods to parse arguments passed to the function and cast them to given C types, debug print method, method to build return values and for the method definitions. The documentation is detailed and includes a tutorial, which helps.</p>
-
 <p><a href="https://docs.python.org/3/extending/index.html">Series of tutorials</a> for rolling your own Python3 extension.</p>
-
 <h3 id="debugging">Debugging</h3>
-
 <p>After installing debug symbols</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo apt-get install python3.5-dbg</code></pre></div>
-<p>Compile the extension with <code>-g -O0</code> flags to make sure debug sybmols are available and compiler optimisations (gcc is clever nowadays) don&rsquo;t remove too much of your code.</p>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo apt-get install python3.5-dbg
+</code></pre></div><p>Compile the extension with <code>-g -O0</code> flags to make sure debug sybmols are available and compiler optimisations (gcc is clever nowadays) don&rsquo;t remove too much of your code.</p>
 <p>Run the line below (inside emacs or terminal).</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gdb -ex r --args python3 test.py</code></pre></div>
-<p>You can step through the programme, look at the backtrace and examine registers.</p>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gdb -ex r --args python3 test.py
+</code></pre></div><p>You can step through the programme, look at the backtrace and examine registers.</p>
 <h2 id="building">Building</h2>
-
 <p>Using distutils Extension class we only need to give our module a name that agrees with the tp_name as defined in the source and a list of source files. We can even pass compile flags to turn optimisations on/off.</p>
-
 <p>An object file is compiled in a temp build/ directory. The object file is used to compile a shared library compiled to the root of the project directory.</p>
-
 <h2 id="running-and-testing">Running and testing</h2>
-
 <p>After a build is succesful, cTrie is available to any python programme that is run inside the root directory. I wrote tests to make sure both PyTrie and cTrie implementations pass the same test suite.</p>
-
 <p>Using pytest and its mark.parametrize decorator, I define a list of parameters (different trie constructors) and make sure each test function is run with every trie constructor.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">pytest</span>
 
@@ -144,30 +120,23 @@ constructors <span style="color:#666">=</span> [cTrie, PyTrie]
 <span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">test_find_added</span>(constructor):
     tr <span style="color:#666">=</span> constructor()
     tr<span style="color:#666">.</span>add(<span style="color:#b44">&#34;bob&#34;</span>)
-    <span style="color:#a2f;font-weight:bold">assert</span> tr<span style="color:#666">.</span>find(<span style="color:#b44">&#34;bob&#34;</span>) <span style="color:#666">==</span> <span style="color:#666">1</span></code></pre></div>
-<h2 id="what-s-inside-the-shared-library">What&rsquo;s inside the shared library</h2>
-
+    <span style="color:#a2f;font-weight:bold">assert</span> tr<span style="color:#666">.</span>find(<span style="color:#b44">&#34;bob&#34;</span>) <span style="color:#666">==</span> <span style="color:#666">1</span>
+</code></pre></div><h2 id="whats-inside-the-shared-library">What&rsquo;s inside the shared library</h2>
 <p>Using objdump, we can examine the functions of the shared library.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">objdump -d ctrie.cpython-35m-x86_64-linux-gnu.so </code></pre></div>
-<p>eg. the shared library has a <code>char_to_ascii</code> function used to calculate the index of the character in the english alphabet i.e. a gives 0, z - 26. This index is used to retrieve the relevant child node to continue building or querying the trie.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">objdump -d ctrie.cpython-35m-x86_64-linux-gnu.so 
+</code></pre></div><p>eg. the shared library has a <code>char_to_ascii</code> function used to calculate the index of the character in the english alphabet i.e. a gives 0, z - 26. This index is used to retrieve the relevant child node to continue building or querying the trie.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="">0000000000000</span><span style="color:#00a000">b40</span> <span style="">&lt;</span><span style="color:#800">char_to_ascii</span><span style="">&gt;</span>:
  <span style="color:#a0a000">b40:</span>	<span style="">40</span> <span style="">0</span><span style="color:#00a000">f</span> <span style="color:#800">be</span> <span style="color:#800">c7</span>          	<span style="color:#800">movsbl</span> <span style="color:#b8860b">%dil</span>,<span style="color:#b8860b">%eax</span>
  <span style="color:#a0a000">b44:</span>	<span style="">83</span> <span style="color:#00a000">e8</span> <span style="color:#666">61</span>             	<span style="color:#800">sub</span>    <span style="color:#800">$0x61</span>,<span style="color:#b8860b">%eax</span>
  <span style="color:#a0a000">b47:</span>	<span style="color:#00a000">c3</span>                   	<span style="color:#800">retq</span>   
  <span style="color:#800">b48</span>:	<span style="color:#666">0</span><span style="color:#800">f</span> <span style="color:#666">1</span><span style="color:#800">f</span> <span style="color:#666">84</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> <span style="color:#666">00</span> 	<span style="color:#800">nopl</span>   <span style="color:#666">0x0</span>(<span style="color:#b8860b">%rax</span>,<span style="color:#b8860b">%rax</span>,<span style="color:#666">1</span>)
- <span style="color:#a0a000">b4f:</span>	<span style="">00</span> </code></pre></div>
-<p>%dil is the lowest 8 bits of the DI register, one of the core registers. Core registers are available in 32-bit and 16-bit modes. We are working with 1 char - 1 byte = 8 bits, so the CPython compiler order to use 8 bits of one of the core registers.</p>
-
+ <span style="color:#a0a000">b4f:</span>	<span style="">00</span> 
+</code></pre></div><p>%dil is the lowest 8 bits of the DI register, one of the core registers. Core registers are available in 32-bit and 16-bit modes. We are working with 1 char - 1 byte = 8 bits, so the CPython compiler order to use 8 bits of one of the core registers.</p>
 <p>movsbl - reads the value and moves into into the %eax register after sign-extending it to 32 bits.</p>
-
 <p>after that, constant hex value of 0x61 is substituted from the %eax register. hex works in powers of 16, making 0x61 = 6 * 16 + 1 * 16 ^ 0 = 97.</p>
-
 <p>retq jumps back to the return address that should be in the stack frame, but my understanding is getting quite hand-wavy here.</p>
-
 <p>Now that we know that ctrie shared library is a set of instructions that is exposed to the CPython interpreter, we can dig deeper into it or run the benchmark suite.</p>
-
-<h2 id="what-performs-better-compiled-c-or-python">What performs better - compiled C or Python?</h2>
-
+<h2 id="what-performs-better---compiled-c-or-python">What performs better - compiled C or Python?</h2>
 <p>The benchmark compiled a fresh version of the library, cleared all caches and run the <code>benchmark.py</code> script.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">building <span style="color:#b44">&#39;ctrie&#39;</span> extension
 creating build
@@ -192,19 +161,13 @@ Takes <span style="color:#666">0.012475</span>s to add <span style="color:#666">
 Takes <span style="color:#666">0.000002</span>s to instantiate before adding random words
 Takes <span style="color:#666">0.011485</span>s to add <span style="color:#666">18000</span> random words
 Takes <span style="color:#666">0.000142</span>s to find <span style="color:#666">100</span> random words
-Takes <span style="color:#666">0.000375</span>s to look <span style="color:#a2f;font-weight:bold">for</span>, but fail to find, <span style="color:#666">800</span> missing words</code></pre></div>
-<p>The C trie is faster in all cases apart from instantiating a new trie. As far as I understand, this is related to the fact that the bytecode for PyTrie is preloaded by the CPython interpreter, while the C library needs to load when it&rsquo;s first called. After that the speed improvement is at least a factor of 2. Searching for words inside the trie is an order of magnitude faster.</p>
-
+Takes <span style="color:#666">0.000375</span>s to look <span style="color:#a2f;font-weight:bold">for</span>, but fail to find, <span style="color:#666">800</span> missing words
+</code></pre></div><p>The C trie is faster in all cases apart from instantiating a new trie. As far as I understand, this is related to the fact that the bytecode for PyTrie is preloaded by the CPython interpreter, while the C library needs to load when it&rsquo;s first called. After that the speed improvement is at least a factor of 2. Searching for words inside the trie is an order of magnitude faster.</p>
 <h2 id="where-is-the-source">Where is the source?</h2>
-
 <p><a href="https://github.com/petr-tik/bivittatus">On my GitHub</a>. Feel free to open issues or send PRs.</p>
-
 <h2 id="why-is-it-called-bivittatus">Why is it called bivittatus?</h2>
-
 <p>Bivittatus <code>is one of the five largest species of snakes in the world</code> according to wikipedia. Seemed appropriate to name a Python extension after one of the longest types of Python in the world.</p>
-
 <h2 id="tl-dr">tl; dr</h2>
-
 <p>Writing own toy Python extension in C is fun, gives you a big performance win for limited investment and is easy thanks to great documentation and tooling.</p>
 
       
@@ -212,6 +175,7 @@ Takes <span style="color:#666">0.000375</span>s to look <span style="color:#a2f;
     
   </div>
 </section>
+
 
 
 
@@ -226,4 +190,5 @@ Takes <span style="color:#666">0.000375</span>s to look <span style="color:#a2f;
 
 </body>
 </html>
+
 

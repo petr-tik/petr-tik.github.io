@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>The pragmatics of programming languages | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="http://petr-tik.github.io/posts/pragmatics_of_pls/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/python">#python</a>
+
+
+
+  
+  | <a class="subtitle is-6" href="/tags/linguistics">#linguistics</a>
+  
+  | <a class="subtitle is-6" href="/tags/semantics">#semantics</a>
+  
+
+      
+    </div>
+    <h2 class="subtitle is-6">April 26, 2018</h2>
+    <h1 class="title">The pragmatics of programming languages</h1>
+    
+    <div class="content">
+      <p>Every programmer learning a new language goes through a code review, where they learn that their code isn&rsquo;t idiomatic. It sucks to hear, because it often lands on identity level. &ldquo;You cannot write good Python/C++/Java/Haskell code&rdquo; implies that you cannot write good code. Even if your co-worker corrects the code that you submitted now, it&rsquo;s hard to immediately internalise the conventions that make code more idiomatic.</p>
+<p>I want to lend to software engineering the distinction between semantics and pragmatics, which is used in linguistics of natural languages. To echo <a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson&rsquo;s talk</a> reading and writing code is similar to literary analysis. I agree with him and find it useful to borrow categories from linguistics to programming languages.</p>
+<p>Semantics studies the literal meaning of atomic units of language (words). It explains why words mean what they do and where the meaning comes from. You can scan brain activity to establish neural connections between different words or analyse n-grams in texts to investigate most commonly occurring combinations of words. You then see if the words &ldquo;dog&rdquo; and &ldquo;cat&rdquo; activate the same areas of the brain and establish neural links and semantic web of associations.</p>
+<p>Pragmatics studies the difference between the literal meaning of a phrase and its intended meaning. Pragmatics can explain euphemisms, idioms (turns of phrase) and requests. The literal meaning of the question:</p>
+<blockquote>
+<p>Can you please open the window?</p>
+</blockquote>
+<p>Can be &ldquo;transpiled&rdquo; to</p>
+<blockquote>
+<p>Are you capable of opening the window?</p>
+</blockquote>
+<p>In reality, however, the person asking the question means:</p>
+<blockquote>
+<p>Please open the window.</p>
+</blockquote>
+<p>The literal meaning of:</p>
+<blockquote>
+<p>Break a leg!</p>
+</blockquote>
+<p>is misleading, because they are actually wishing you luck</p>
+<blockquote>
+<p>Good luck for your performance!</p>
+</blockquote>
+<p>I will use examples from Python, the language I&rsquo;m most proficient in and can easily think of examples. Please email me or open GitHub issues to add examples in your favourite language.</p>
+<p>Python is a good language for such examples. The zen of python and pythonic code style is well evangelised and documented.</p>
+<h3 id="iterating-over-a-collection-vs-list-comprehension">Iterating over a collection vs list comprehension</h3>
+<p>List/set comprehensions are a Python syntactic feature for generating lists and sets concisely.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">l1 <span style="color:#666">=</span> [x<span style="color:#666">**</span><span style="color:#666">2</span> <span style="color:#a2f;font-weight:bold">for</span> x <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#a2f">range</span>(<span style="color:#666">10</span>)]
+l1 <span style="color:#666">=</span> 
+
+</code></pre></div><h3 id="opening-a-file">Opening a file</h3>
+<p>You can open a file by its filename to read its contents into memory or to make it available to the Python interpreter process under a file descriptor.</p>
+<p>Languages that offer a greater number of constructs to write software have a harder time defining such a standard.</p>
+<p>C++ has a complicated history of big standard library vs boost and other external libraries, wider user base of experts adopting it for niche problems and Turing completeness (i.e. another language) in its template system. The pragmatics of using language features affects readability and performance in some cases (constexpr statements for compile-time evaluation). This makes it harder for everyone to agree on a C++-ic style that can be evangelised to the community. I know someone who happily uses templates wherever possible. I admit that they are much smarter and more tenacious than me (reading those template error messages requires perseverance). I also hope their use of templates doesn&rsquo;t prevent them from making friends at work.</p>
+<p>Further reading:</p>
+<ul>
+<li>Unsurprisingly there is an <a href="https://www.inf.ed.ac.uk/teaching/courses/epl/">undergraduate course at Edinburgh university</a>, my alma mater, which analyses the pragmatics of different PLs.</li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
+

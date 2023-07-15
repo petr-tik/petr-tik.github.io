@@ -84,41 +84,24 @@
     <h1 class="title">CI for Solent-eng</h1>
     
     <div class="content">
-      
-
-<p>Spent the day working on a plan to build custom CI pipeline for <a href="https://github.com/solent-eng/solent">solent</a>. The design encourages and relies on GitHub-workflow using Pull Requests for all changes - even small ones made by the creator/admin. Will run test suites on different VMs and only allow PR to be merged, if all tests pass. Adding a new VM (for BSD, OSX, minix or other platform) should be: 1) easy, 2) independent of others and independent of the code on master.</p>
-
+      <p>Spent the day working on a plan to build custom CI pipeline for <a href="https://github.com/solent-eng/solent">solent</a>. The design encourages and relies on GitHub-workflow using Pull Requests for all changes - even small ones made by the creator/admin. Will run test suites on different VMs and only allow PR to be merged, if all tests pass. Adding a new VM (for BSD, OSX, minix or other platform) should be: 1) easy, 2) independent of others and independent of the code on master.</p>
 <h2 id="pull-request-workflow">Pull Request workflow</h2>
-
 <p>As an OSS project developed in 2017, Solent-eng should have a contributor-friendly way of reviewing issues, pushing changes and testing code. Using the GitHub webhook API, an event loop will notify the master slave of all changes to any Pull Requests (new or existing). This combined with the repo settings preventing from direct pushes to master will make everyone&rsquo;s commits go through the CI suite. This will also apply for the admin, as he is equally human and can make mistakes. Such culture of testing early, often and meritocratically, will help maintain the quality of code with hopefully few regressions.</p>
-
 <h2 id="ci-master-server">CI master server</h2>
-
 <p>Lives on a VM in the cloud. In charge of listening to GitHub hooks, keeps a queue of jobs. Starts and monitors OS-specific VMs that run the test suite as of a given commit. Communicates the outcome of all test runners to the GitHub commit&rsquo;s status API.</p>
-
 <h2 id="github-webhook">GitHub webhook</h2>
-
 <p>A server will listen to events from the GitHub webhook, which in their payload will carry the refs and commit hashes of the PR. Initially, we will consider 3 scenarios:</p>
-
 <ul>
 <li>New pull request</li>
 <li>Changes to a currently open PR</li>
-<li>Closed and merged a Pull Request
-<br /></li>
+<li>Closed and merged a Pull Request</li>
 </ul>
-
 <h3 id="new-pr-or-changes-to-current-pr">New PR or changes to current PR</h3>
-
 <p>First prototype - tear down current VMs of out-of-date commit hash. Start a new set of VMs with the new commit.</p>
-
 <p>Long-term plan: add the new commit hash to the job queue. Run all suites for all commits.</p>
-
 <h3 id="closed-and-merged-a-pull-request">Closed and merged a Pull Request</h3>
-
 <p>Each test VM, if test suite exits with 0 errors, should build its executable. The CI master will tell each VM to upload the artefact to a location. TODO: hardwire the address inside the VM test runner or pass it as part of the request from the master.</p>
-
 <h2 id="test-suite-vms">Test suite VMs</h2>
-
 <p>Plans to support linux, BSD, OSX and Windows. All test suites will be run in VMs either in the cloud or on-premises. If tests fail, logs of terminal output should be forwarded to master. TODO: decide how CI-master will show it to GitHub users.</p>
 
       
@@ -126,6 +109,7 @@
     
   </div>
 </section>
+
 
 
 
@@ -140,4 +124,5 @@
 
 </body>
 </html>
+
 

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Grokking dfs and backtracking on a Graph (sort of) | Software and puns</title>
+
+
+
+<link href="http://petr-tik.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Software and puns" />
+
+<link rel="stylesheet" href="/css/style.css"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="canonical" href="http://petr-tik.github.io/posts/possible_sum/">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="http://petr-tik.github.io/">
+          <h1 class="title is-4">Software and puns</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile"><a class="level-item" aria-label="github" href='https://github.com/petr-tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    
+  </svg></i>
+            </span>
+          </a><a class="level-item" aria-label="twitter" href='https://twitter.com/petr_tik'
+            target='_blank' rel='noopener'>
+            <span class="icon">
+              <i class><svg viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+    
+  </svg></i>
+            </span>
+          </a></nav>
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+      <div class="nav-left"><a class="nav-item" href="/about">
+          <h2 class="title is-5">whoami</h2>
+        </a></div>
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="subtitle tags is-6 is-pulled-right">
+      
+      
+<a class="subtitle is-6" href="/tags/algorithms">#algorithms</a>
+
+
+
+  
+  | <a class="subtitle is-6" href="/tags/graphs">#graphs</a>
+  
+  | <a class="subtitle is-6" href="/tags/dfs">#dfs</a>
+  
+
+      
+    </div>
+    <h2 class="subtitle is-6">April 12, 2017</h2>
+    <h1 class="title">Grokking dfs and backtracking on a Graph (sort of)</h1>
+    
+    <div class="content">
+      <h2 id="problem-statement">Problem statement</h2>
+<p>Given:</p>
+<ul>
+<li>an array of ints (default - 6)</li>
+<li>array of operations (default - addition, multiplication, division, deduction)</li>
+<li>a target int value.</li>
+</ul>
+<p>Return True, if it&rsquo;s possible to combine all numbers in the array with operations to result in target value</p>
+<h2 id="brute-force">Brute force</h2>
+<p>Generate all combinations of operations (4**5 = 1024) and calculate them. If any one of them gives the target_value, return True. Otherwise, return False at the end.</p>
+<h2 id="first-attempt">First attempt</h2>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">f</span>(arr, target, arr_index, results_so_far<span style="color:#666">=</span>None):
+    <span style="color:#a2f;font-weight:bold">if</span> results_so_far <span style="color:#666">==</span> None:
+        results_so_far <span style="color:#666">=</span> <span style="color:#a2f">set</span>()
+        results_so_far<span style="color:#666">.</span>add(arr[<span style="color:#666">5</span>])
+    <span style="color:#a2f;font-weight:bold">if</span> arr_index <span style="color:#666">==</span> <span style="color:#666">-</span><span style="color:#666">1</span>:
+        <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#a2f">any</span>(target <span style="color:#666">==</span> x <span style="color:#a2f;font-weight:bold">for</span> x <span style="color:#a2f;font-weight:bold">in</span> results_so_far)
+    s <span style="color:#666">=</span> <span style="color:#a2f">set</span>()
+    <span style="color:#a2f;font-weight:bold">for</span> item <span style="color:#a2f;font-weight:bold">in</span> results_so_far:
+        s<span style="color:#666">.</span>add(item <span style="color:#666">+</span> arr[arr_index])
+        s<span style="color:#666">.</span>add(item <span style="color:#666">*</span> arr[arr_index])
+        s<span style="color:#666">.</span>add(arr[arr_index] <span style="color:#666">-</span> item)
+        <span style="color:#a2f;font-weight:bold">if</span> item <span style="color:#666">!=</span> <span style="color:#666">0</span> <span style="color:#a2f;font-weight:bold">and</span> arr[arr_index] <span style="color:#666">/</span> item <span style="color:#666">==</span> <span style="color:#a2f">int</span>:
+            s<span style="color:#666">.</span>add(arr[arr_index] <span style="color:#666">/</span> item)
+    <span style="color:#a2f;font-weight:bold">return</span> f(arr, target, arr_index <span style="color:#666">-</span> <span style="color:#666">1</span>, s)
+</code></pre></div>
+      
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+
+
+</body>
+</html>
+
+

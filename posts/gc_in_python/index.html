@@ -84,36 +84,22 @@
     <h1 class="title">Notes on python&#39;s GC</h1>
     
     <div class="content">
-      
-
-<p>Notes on <a href="https://www.youtube.com/watch?v=arxWaw-E8QQ">Memory Management in Python - YouTube</a></p>
-
+      <p>Notes on <a href="https://www.youtube.com/watch?v=arxWaw-E8QQ">Memory Management in Python - YouTube</a></p>
 <p>GC is a mechanism for managing memory at runtime. There are several methods including: mark-and-sweep and reference counting. Different language runtimes use different GC mechanisms, each asking for tradeoffs. eg. Java uses mark-and-sweep, which runs less frequently, but the sweep stage &lsquo;stops the world&rsquo; and tidies up. I will be discussing CPython implementation and call it python for brevity (saving a character is very important). There are JPython and IronPython, which rely on JVM and CLR GC mechanisms respectively.</p>
-
 <h2 id="mechanism">Mechanism</h2>
-
 <p>CPython uses reference counting with an optimisation to eliminate cyclic references, hence slower runtime. Similarly to pointers in C, the variable name is created on the stack and the pointer on the heap. Each created object has a field for storing its reference count - the number of variables that refer to the object. As soon as the refcount falls to 0, the GC collects/tidies up the object.</p>
-
 <p>Doing simple reference counting is prone to not deleting cyclically referenced objects. eg. If Object A refers to Object B and Object B to Object A, they will never get collected using simple reference counting (both will always have a ref count of at least 1).</p>
-
 <h3 id="difference-between-py2-and-py3-gc">Difference between py2 and py3 gc.</h3>
-
 <p>Python3 has a get_stats() method, which returns a list of dictionaries containing per-generation statistics.</p>
-
 <h3 id="interacting">Interacting</h3>
-
-<p>THere is a builtin module called gc, which allows you to enable, disable or run GC at any point in your programme. Some explanations that I read say you can change the number of generations, yet I can&rsquo;t find a method for that. The gc.set_threshold() command throws a &ldquo;TypeError:  takes at most 3 arguments (4 given)&ldquo;.</p>
-
-<h2 id="optimisations-heuristics">Optimisations/heuristics</h2>
-
+<p>THere is a builtin module called gc, which allows you to enable, disable or run GC at any point in your programme. Some explanations that I read say you can change the number of generations, yet I can&rsquo;t find a method for that. The gc.set_threshold() command throws a &ldquo;TypeError:  takes at most 3 arguments (4 given)&quot;.</p>
+<h2 id="optimisationsheuristics">Optimisations/heuristics</h2>
 <h3 id="generations">Generations</h3>
-
 <p>All objects are split into 3 exclusive generations. The idea behind it is that objects won&rsquo;t live long, so younger generations are GC&rsquo;ed more often than older generations. Generation 0 is where the newly created object lives, until it&rsquo;s spent enough time to be promoted.</p>
-
 <h3 id="global-value-reuse">Global value reuse</h3>
-
 <p>When a new variable (reference) is created, the python runtime checks if an object with such a value already exists. If it does, the new variable doesn&rsquo;t create a reference, instead it increases the refcount of int_object with value 10 to 2 as below. This works either when the object a new object is created or a primitive object&rsquo;s value is changed to match the value of an already existing object.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#666">&gt;&gt;&gt;</span> x <span style="color:#666">=</span> <span style="color:#666">10</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#666">&gt;&gt;&gt;</span> x <span style="color:#666">=</span> <span style="color:#666">10</span>
 <span style="color:#666">&gt;&gt;&gt;</span> y <span style="color:#666">=</span> <span style="color:#666">10</span>
 <span style="color:#666">&gt;&gt;&gt;</span> x <span style="color:#a2f;font-weight:bold">is</span> y
 True
@@ -124,14 +110,15 @@ True
 False
 <span style="color:#666">&gt;&gt;&gt;</span> z <span style="color:#666">+=</span> <span style="color:#666">1</span>
 <span style="color:#666">&gt;&gt;&gt;</span> <span style="color:#a2f">id</span>(z) <span style="color:#666">==</span> <span style="color:#a2f">id</span>(y)
-True</code></pre></div>
-<p>Python creates an int object on the heap. If a new variable is created on the stack and assigned to a value, python sets up a reference between the new variable and the already existing object.</p>
+True
+</code></pre></div><p>Python creates an int object on the heap. If a new variable is created on the stack and assigned to a value, python sets up a reference between the new variable and the already existing object.</p>
 
       
     </div>
     
   </div>
 </section>
+
 
 
 
@@ -146,4 +133,5 @@ True</code></pre></div>
 
 </body>
 </html>
+
 

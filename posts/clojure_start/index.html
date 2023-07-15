@@ -79,19 +79,13 @@
     
     <div class="content">
       <p>I have spent the weekend reading and getting my head around Clojure and here are my first thoughts.</p>
-
 <p>It&rsquo;s definitely a great exercise and even if I will never get to write a single line of code in a functional language in my life, I will be more confident using map, filter and reduce in python.</p>
-
 <p>Adopting the immutable data approach, makes me really concentrate on the quality and good compositionality of the functions, where I really think through how to make a series of pure functions, whose output will feed into the next one&rsquo;s input well. WHile REPL-based development is helpful to try defn functions on the fly to experiment, my python background is annoyed that I cannot just print the state of the programme at every step:
 i) pure functions are stateless
 ii) pure functions have no side effect like printing to the stdout</p>
-
 <p>As this is an exercise in thinking and writing pure functions, printing to stdout is betraying the clojure way and would involve a helper function that needs to wrap each function and print the arguments and output.</p>
-
 <p>Going forward, I&rsquo;ve been told 4Clojure is a good source of problems and the TDD framework is very thorough. Another upside of pure functions I hope to experience soon is the ease of unit testing them. If you write all helper functions and main the UNIX way, you should be able to test each of them separately and when composed with easy input.</p>
-
 <p>A good exercise, which lends itself nicely to Clojure is checking if a given word and any word from a vector of words have are anagrams.</p>
-
 <pre><code>#!clojure
 (defn anagram?
 &quot;Takes 2 words - returns True if they are anagrams, false otherwise&quot;
@@ -117,6 +111,7 @@ Returns a list of anagrams of the target from the vector&quot;
 
 
 
+
 <section class="section">
   <div class="container has-text-centered">
     <p></p>
@@ -128,4 +123,5 @@ Returns a list of anagrams of the target from the vector&quot;
 
 </body>
 </html>
+
 
