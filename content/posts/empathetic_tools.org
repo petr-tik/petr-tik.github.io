@@ -1,0 +1,98 @@
+---
+title: "Empathetic tools"
+description: "Applying NVC to tooling"
+date: 2022-12-04T23:22:33Z
+draft: false
+categories: posts
+tags:
+ - tech
+ - nvc
+ - empathy
+---
+
+** Intro
+One of the main reasons the Rust programming language has been so popular is because of the empathy shown by the tooling.
+The rust compiler and other tools that give actionable errors apply the principles of Non-Violent Communication used for conflict resolution between humans.
+This technique establishes a trusting bond between the users and her tools, which results in higher user satisfaction, growth in adoption and a broad culture of empathy to users.
+
+** Body
+*** What is NVC?
+Non-violent commucation is a technique presented by Michael Rosenberg. I read the book when I wanted to get better at active listening, conflict resolution and managing difficult conversations at work and in my personal life.
+It comprises of 4 components:
+1. Making non-judgemental observations of other's actions
+2. Identifying and expressing one's feelings
+3. Connecting those feelings to one's underlying needs
+4. Making requests based on positive (please do X) language
+The book also explains how to mirror the same techniques to empower your interlocutor to express themselves using NVC technqiues, even if they don't know about them.
+As I read the book, I drew parallels between my experience using good developer tools and scenarios outlined in the NVC book.
+*** How does NVC map to software?
+Addressing a compiler error is a form of conflict resolution, where only 1 side is capable of emotion (human frustrated at the failing build).
+While the rust compiler doesn't currently have feelings, the 4 components of NVC map quite well to the error messages produced by rustc.
+1. ﻿﻿﻿rustc non-judgementally observes and presents the code I wrote by doing a lot of work to recover the original code from different stages and intermediate representations of the compiler pipeline.
+2. ﻿﻿﻿Instead of identifying feelings, rust identifies the type of error (by a given number ID) that this code snippet causes.
+3. ﻿﻿﻿Rust then connects this type of error to the language constraints (usually borrow checking) that all rust code *needs* to satisfy. The language constraints have 2 forms - short-form presented in the err or message and a long form explanation found under the =rust --explain= commandline flag.
+4. Wherever possible, rust generates a fixit that makes an actionable (often auto-applicable) request for the programmer to change the code such that it starts satisfying the needs of rustc.
+
+I wonder if any large corporate users of rust like Meta, AWS or Cloudflare can collect stats about the frequency of different errors (with vs without a fixit) and correlate that with developer satisfaction when using rust. My hypothesis is that developer satisfaction positively correlates with the proportion of error messages with fixits vs those without. Additionally, descriptive statistics about the frequency of different errors can be used to prioritise adding fixits to currently un-empathetic messages.
+
+**** Example error message
+We can find one of the many errors documented in the test harness here
+
+[[https://github.com/rust-lang/rust/blob/master/tests/ui/borrowck/suggest-local-var-for-vector.stderr]]
+
+Trying to compile this code
+#+begin_src rust
+let mut vec = vec![0u32; 420];
+vec[vec.len() - 1] = 123; //~ ERROR cannot borrow `vec` as immutable because it is also borrowed as mutable
+#+end_src
+
+Results in the following error message with my comments on the right.
+
+#+begin_example
+error[E0502]: cannot borrow `vec` as immutable because it is also borrowed as mutable    // <--- 2. the message leads with the unsatisfied needs to compiler this code
+  --> $DIR/suggest-local-var-for-vector.rs:3:9
+   |
+LL |     vec[vec.len() - 1] = 123;                                                       // <--- 1. the compiler observes and presents the code written by the programmer
+   |     ----^^^-----------
+   |     |   |
+   |     |   immutable borrow occurs here
+   |     mutable borrow occurs here
+   |     mutable borrow later used here
+   |
+help: try adding a local storing this...                                                 // <----- 4. the compiler makes an positive and actionable request
+  --> $DIR/suggest-local-var-for-vector.rs:3:9
+   |
+LL |     vec[vec.len() - 1] = 123;
+   |         ^^^^^^^^^
+help: ...and then using that local here
+  --> $DIR/suggest-local-var-for-vector.rs:3:5
+   |
+LL |     vec[vec.len() - 1] = 123;
+   |     ^^^^^^^^^^^^^^^^^^
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0502`.                      // <----- More detail can be found here
+#+end_example
+
+This includes 3, non-feeling components of NVC communication.
+
+*** How do NVC-practising tools influence users and culture?
++ Users are happy
+I think NVC is one of the major reasons rust has been voted the most loved language for 6 years in a row. Given the high percentage of hobbyist users, I think the empathetic communication style used by the rust compiler draws users in more than requirements at work or the potential of getting a stable job (let's see how rust survives the upcoming economic downturn).
+Happy users also make great ambassadors with word-of-mouth recommendations.
++ Users of NVC-commmunicating tools create an empathetic environment
+One can adapt this Churchill quote by replacing buildings with tools to understand what happens.
+#+begin_quote
+First we shape our buildings and then they shape us
+#+end_quote
+
+Once there are empathetic error messages that users enjoy seeing - error messages become a feature similar to other compiler features like compilation speed or quality of generated assembly. Maintainers like Esteban Kuber and new contributors allocate resources (Esteban being paid by AWS, others volunteering their time) to maintaining and improving the empathetic features of the rust compiler.
+SERIE
++ The users and maintainers want to increase the amount of empathy
+Once you commit to understanding your users and making their lives easier, you will keep going further in your pursuit of empathy and trust. Given the diverse group of users, rustc can infer that a significant percentage of rust users would benefit from instructions in languages other than English.
+There are some people who object on the grounds that rustc i18n might increase binary size or cause deployment difficulties. I hear their concern and I would love to understand what exactly they are feeling because of that - might it be anxiety about their employer adopting rust if it has a difficult deployment mechanism or are they worried this will divert resources from issues that affect them more than error messages in English. I hope the rust dev-team find a way to understand and address their needs.
+
+[[https://internals.rust-lang.org/t/translating-the-compiler/10376]]
+** Conclusion
+When tools show empathy to their users, users respond by using the tool with joy and telling others about it. This grows the user community and strengthens the case for more empathy in the tooling.
