@@ -29,3 +29,6 @@ platforms = ["github","twitter"]
 
 [params.sections_left]
 "/about" = "whoami"
+
+[params.assets]
+customCSS = ["css/custom.css"]

@@ -1,0 +1,13 @@
+h1.title {
+  font-weight: 400;
+}
+h3,h4 {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+/* Drop right navigation on separate row on mobile */
+@media screen and (max-width: 48em) {
+  .nav { display: block; }
+  .nav-right .nav-item { display: block; text-align: right; }
+}
