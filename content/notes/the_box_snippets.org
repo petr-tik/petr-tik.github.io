@@ -1,0 +1,64 @@
+---
+title: "Reviewing The Box"
+description: "What software people can learn from container shippers"
+date: 2023-07-23T23:22:33Z
+draft: true
+categories: notes
+tags:
+ - tech
+ - logistics
+ - book
+---
+
+In 2022, I read [[https://duckduckgo.com/?t=ffab&q=ISBN%3A+9780691170817&ia=web][The Box]] - a book about the invention and standardization of the shipping container.
+
+I think some approaches and organisational principles carry over from the shipping industry into software development.
+
+Below are snippets from the book and my comments.
+
+#+begin_quote
+But after years behind the wheel themselves, the McLeans understood that the easiest way to control costs was to get employees involved. Holding down insurance and repair bills. for example, meant having safety-conscious drivers. Novices were trained by being paired with senior drivers on the run from Winston-Salem to Atlanta. The senior driver got a bonus of one month's pay if a man he had trained made it through his first year without an accident. The incentives were powerful: the veteran had a strong financial incentive to train the newcomer well, and the new driver understood that he had best drive very carefully if he wanted to stick around.
+#+end_quote
+
+Formal mentoring with an explicitly rewarded set of behaviours, where result can be objectively measured. Curious if any software companies assess the quality of mentorship by measuring mentee's job performance.
+
+#+begin_quote
+Malcom McLean's fundamental insight, commonplace today but quite radical in the 1950s, was that the shipping industry's business was moving cargo, not sailing ships. That insight led him to a concept ot containerization quite different from anything that had come before.
+McLean understood that reducing the cost of shipping goods required not just a metal box but an entirely new way or handling freight.
+#+end_quote
+
+Your customer cares about moving their cargo, not your ability to sail ships. The public interface of a shipping company is "move my cargo as quickly and cheaply as possible from A to B". Once you offer that service to your users, you are free to implement the solution the way you see fit - invent containers, rebuild port infrastructure to load and unload them, change your ships from breakbulk into container shipping.
+
+
+#+begin_quote
+Weldon's research department pursued its quest for optimality by investigating the most efficient way to use Matson's fleet. Renting time on an IBM 704 computer at several hundred dollars a minute, the researchers built a fully fledged simulation model of the business, incorporating data on volume and costs for more than three hundred commodities at every port the company served at every time of year. Then they added in data on port labor costs, the current utilization of docks and cranes, and the load aboard each ship, to provide real-time answers to practical questions:
+
+Should a big Hawaii-bound ship call at Hilo and Lanai, or should it transfer its cargo to a feeder ship at Honolulu?
+
+What time of day should a vessel depart Honolulu so as to minimize total costs of delivering a load of pineapples to Oakland?
+#+end_quote
+
+
+Where there is a will to implement data-driven decision making, there is a way. The company committed resources to rent "cloud computers" to get insights that can increase its revenue. Simulated novel situations when they didn’t have data.
+
+#+begin_quote
+
+They were just recruiting ... Many were invited to Newark without being told what job McLean had in mind for them. When they arrived, they were given intelligence and personality tests - a rare practice in the 1950s. McLean wanted people who were smart, aggressive, and entrepreneurial, the wrong test scores meant no job offer. Education did not matter; although Malcom McLean had a box at the Metropolitan Opera, intellectual airs were frowned upon, and new hires were advised to fracture their grammar to fit in with a crowd of truckers. "When we had nothing else to do, we would stand and pitch pennies," remenbered naval architect Charles Cushing, an MIT graduate who joined the company in 1960. "They don't teach you to pitch pennies at the Wharton School.»
+#+end_quote
+
+Hired for brains, entrepreneurial attitude, but explicitly told to "culture fit" with their customers - truckers.
+
+#+begin_quote
+The work was seven days a week, in an exciting, demanding environment. Memos were not wanted. Conflict among executives was a given; managers were expected to meet, thrash out their differences, and act. Performance was measured constantly, and rewarded not with cash but with stock in the fast-growing company.
+#+end_quote
+
+Hire good people, create a culture of healthy debate, reward with stock to align incentives
+
+#+begin_quote
+Above all, he kept his eye on the money. Teletypes clattered constantly as outlying terminals sent booking information to headquarters. Clerks updated records showing how many days each container had carried revenue traffic, how many tons it had hauled, how many dollars it had grossed. Geographic analysis documented the land transportation patterns of Sea-Land cargo.
+Monthly financial reports revealed how much revenue Sea-Land received from each commodity shipped from Newark to Texas, reminding all that an eighteen-ton container of liquor was twice as profitable as a four-ton container of toys. Weekly reports documented cash flow.
+And there was an endless stream of demands for better cost control. Shaving 1.6 cents off the cost of handling 100 pounds in Ponce could save $14,300 a year. One more container lift per gang hour would save $180,000.
+Limiting long-distance telephone calls to three minutes would save $65,000. "Probably more attention was paid to financial results there than you find in any company around today," remembered Earl Hall, later Sea-Land's chief financial officer. In 1961, its sixth year, Sea-Land's container business had finally moved into the black. So long as McLean was involved in running it, Sea-Land never lost money again.
+#+end_quote
+
+Some people like to say that metrics are easy to game. Make revenue a metric and have your people game it. It's a nice game to win.
