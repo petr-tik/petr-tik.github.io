@@ -1,0 +1,35 @@
+---
+title: "Engaging volunteer developers effectively"
+description: "How to channel OSS contributions for public good"
+date: 2023-08-01T23:22:33Z
+draft: true
+categories: posts
+tags:
+ - tech
+ - volunteering
+ - open-source
+ - organization
+---
+
+Managing public digital services like open-source projects has greter community benefits than security costs.
+
+Public initiatives benefit from volunteering efforts. The UK Covid vaccination campaign directed the energy of thousands of volunteers to organise and administer thousands of vaccines for weeks. Park Runs take place every week across hundreds of sites - all completely run (pun intended) by volunteers. Most of these volunteers, who welcome people and do simple and effective administrative work - take someone's name, fill out a form, explain the next steps.
+
+413 million open-source contributions were made on GitHub according to the [[https://octoverse.github.com/][Octopus GitHub report]]. Assuming 10% of them were to projects shared by a community - we have a pool of 40 million contributions a year.
+
+GDS could improve its service by tapping into a huge pool of volunteers. This requires:
+1. Open-sourcing the projects you want people to contribute to
+2. Hiding all private data or security-sensitive details, while providing a feedback loop that enables contributors to test their changes
+3. Allocate time and effort in triaging and prioritising issues. Prioritisation can use citizen surveys.
+4. Review pull requests in a timely fashion
+5. Celebrating contributions and showcasing their impact.
+
+The first step is obvious - the repository needs to be open-sourced if you want people to know they can contribute to it. During the process of open-sourcing - a security and privacy audit should remove any sensitive information from the version control history and the codebase. This protects individuals and the organization legally and prevents simple mistakes like leaking Government-owned cloud access keys. Removing sensitive data might make some projects harder to test, so a new feedback loop needs to be established - maybe using synthetic, but representative data.
+
+Once you make the project public and secure to contribute to, the maintainers need to advertise the possibility of contributing, welcome new contributors and promote improvements that came from the volunteers.
+
+Celebrating new contributions encourages new contributors to celebrate their own work
+https://dev.to/bnjjj/what-i-learned-contributing-to-rust-analyzer-4c7e
+https://avishay.dev/2020/03/04/oss-contribution/
+
+Todo URL to matklad’s comment about solving a hard problem. I have a screenshot and sent it to Dima.
