@@ -1,35 +1,40 @@
 ---
 title: "Engaging volunteer developers effectively"
 description: "How to channel OSS contributions for public good"
-date: 2023-08-01T23:22:33Z
-draft: true
+date: 2023-08-05
+draft: false
 categories: posts
 tags:
  - tech
  - volunteering
  - open-source
- - organization
 ---
 
-Managing public digital services like open-source projects has greter community benefits than security costs.
+The benefits of managing public digital services like open-source projects outweigh the security costs.
 
-Public initiatives benefit from volunteering efforts. The UK Covid vaccination campaign directed the energy of thousands of volunteers to organise and administer thousands of vaccines for weeks. Park Runs take place every week across hundreds of sites - all completely run (pun intended) by volunteers. Most of these volunteers, who welcome people and do simple and effective administrative work - take someone's name, fill out a form, explain the next steps.
+Public initiatives benefit from volunteering efforts. The UK Covid vaccination campaign directed the energy of thousands of volunteers to organise and administer millions of vaccine dozes for weeks. Park Runs take place every week across hundreds of sites - all completely run (pun intended) by volunteers. Most of these volunteers, who welcome people and do simple and effective administrative work - take someone's name, fill out a form, explain the next steps. Some volunteers perform higher-level tasks - organise groups of other volunteers, triage and firefight emergent problems and steer the group towards success.
 
-413 million open-source contributions were made on GitHub according to the [[https://octoverse.github.com/][Octopus GitHub report]]. Assuming 10% of them were to projects shared by a community - we have a pool of 40 million contributions a year.
+The Government Digital Service in the UK is brilliant, but its contributor base is currently limited to employees only. There were 413 million open-source contributions on GitHub according to the [[https://octoverse.github.com/][Octopus GitHub report]]. Assuming 10% of them were to projects shared by a community - we have a pool of 40 million contributions a year. GDS could deliver their initiatives faster and surface new ideas if they tapped into this pool of contributors. Imagine spotting a bug in the booking a driving test (too soon?) web app and sending a pull request to fix it. Or even picking up an enhancement issue and adding some new functionality that your family members can use.
 
-GDS could improve its service by tapping into a huge pool of volunteers. This requires:
+This requires:
 1. Open-sourcing the projects you want people to contribute to
 2. Hiding all private data or security-sensitive details, while providing a feedback loop that enables contributors to test their changes
 3. Allocate time and effort in triaging and prioritising issues. Prioritisation can use citizen surveys.
 4. Review pull requests in a timely fashion
 5. Celebrating contributions and showcasing their impact.
 
-The first step is obvious - the repository needs to be open-sourced if you want people to know they can contribute to it. During the process of open-sourcing - a security and privacy audit should remove any sensitive information from the version control history and the codebase. This protects individuals and the organization legally and prevents simple mistakes like leaking Government-owned cloud access keys. Removing sensitive data might make some projects harder to test, so a new feedback loop needs to be established - maybe using synthetic, but representative data.
+The first step is obvious - the code repository needs to be open-sourced if you want people to know they can contribute to it. During the process of open-sourcing - a security and privacy audit should remove any sensitive information from the version control history and the codebase. This protects individuals and the organization legally and prevents simple mistakes like leaking Government-owned cloud access keys. Removing sensitive data might make some projects harder to test, so a new feedback loop needs to be established - maybe using synthetic, but representative data.
 
 Once you make the project public and secure to contribute to, the maintainers need to advertise the possibility of contributing, welcome new contributors and promote improvements that came from the volunteers.
 
-Celebrating new contributions encourages new contributors to celebrate their own work
-https://dev.to/bnjjj/what-i-learned-contributing-to-rust-analyzer-4c7e
-https://avishay.dev/2020/03/04/oss-contribution/
+I am familiar with contributing to the rust-analyzer project. The project maintainers use a has-instructions [[https://github.com/rust-lang/rust-analyzer/issues?q=label%3AE-has-instructions][issue label]].
 
-Todo URL to matklad’s comment about solving a hard problem. I have a screenshot and sent it to Dima.
+Maintainers add this tag to issues with a repro or a [[https://github.com/rust-lang/rust-analyzer/issues/7712#issuecomment-781232268][pointer to the relevant piece of the code]] in the project that fixes the problem eg.
+
+To motivate contributors matklad releases on a [[https://www.reddit.com/r/rust/comments/v9wsla/comment/ibzjalq/][=weekly cadence is a morale boost for contributors=]], which in turn encourages new contributors to [[https://dev.to/bnjjj/what-i-learned-contributing-to-rust-analyzer-4c7e][celebrate]] [[https://avishay.dev/2020/03/04/oss-contribution/][their]] own work and brings even more contributors.
+
+matklad also has a comment about solving a hard problem by writing it down and waiting for a volunteer to contribute their solution.
+
+The equivalent developer in GDS would have to spend a lot more time on architecture, triaging issues and scoping sub-problems.
+
+Overall, I think the Government Digital Service can deliver existing projects faster and surface new ideas if it taps into thousands of volunteer contributors around the UK and the rest of the world.
