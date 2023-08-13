@@ -1,18 +1,22 @@
-#+HUGO_BASE_DIR: ~/Coding/test_site/
-#+HUGO_SECTION: posts/
-#+TITLE: Devtools_pull_vs_push
+---
+title: "Developer tools that pull their weight "
+description: "Help people where they are"
+date: 2023-08-12T23:22:33Z
+draft: false
+categories: posts
+tags:
+ - tech
+ - tools
+ - lsp
+---
 
-* TODO Developer tools that pull their weight :ide:lsp:tools:@hacking:
-  :PROPERTIES:
-  :EXPORT_FILE_NAME: pull_vs_push_devtools
-  :EXPORT_DATE: 2021-08-24
-  :EXPORT_HUGO_CUSTOM_FRONT_MATTER: :description "Help people where they are"
-  :END:
-** Intro/Developer tooling is improving
+The first draft of this was written in 2021. I am leaving it largely unchanged since then to preserve my thoughts before the advent of Large Language Models and their incorporation in developer tooling.
+
+** Developer tooling is improving
 *** Industry maturing around the usefulness of multiple code checks
 We started with hacking something together, but increasingly even the less software-oriented business are converging on the importance of deep checks.
-**** TODO Try to find a timeline of software engineering practices
-what order were these introduced in:
+**** Try to find a timeline of software engineering practices
+what order were these introduced in?
 + automated testing
 + source formatters
 + linters
@@ -31,8 +35,6 @@ think carefully -> write good comments -> compile -> find bugs in prod
 think carefully -> write code -> write tests -> find memory bugs in prod
 
 I would love to see a comprehensive timeline that shows the introduction of different software engineering practices (across all languages) and some adoption milestones.
-**** Bringing more academic findings into commercial software development
-
 *** We can have nice things - rust/cargo/go/jetbrains/vscode spoilt people
 Developers' own attitude to their own tooling seems to have changed. In the 2015 Stackoverflow developer survey, C++11 was the second (75.6%) most loved language ahead of Rust (73.8%).
 https://insights.stackoverflow.com/survey/2015#techSuper
@@ -150,8 +152,6 @@ The environment where make your changes is the editor, so we should aim to bring
 the algorithms to the data, rather than bring our data (source code) to the
 algorithms (static and dynamic lints/checks/tests in CI).
 
-**** TODO xkcd drawing for write-time, compile-time, run-time
-http://cmx.io/
 *** We need a new category
 Therefore I propose a new distinction to replace static vs dynamic code analysis
 tools - pull vs push. To increase the productivity of a developer give her levers that she can easily pull. Giving her interfaces to push against is
@@ -170,23 +170,21 @@ Currently most of the existing pull interfaces are static. However, adding pull 
 
 *** (Auto)-formatting documents
 Either format in-editor or format on save
-*** refactorings
-*** go to definition
-*** linters like clang-tidy and cargo clippy
 *** Watchers
 Watchers are command line tools that run outside the editor (or in a terminal embedded in the editor), they provide a pull-like interface, where the pull lever is saving a file. The workflow starts with a developer choosing a command that they want to re-run on every change to get quick feedback on their changes. This command usually consists of running one or more tests.
 
 Most watchers wait for filesystem events and run a prepared command (often defaulting to the stock test command in the relevant language) and present results to the developer.
 
-The fact that both interpreted (python, ruby) and compiled (golang, rust notorious for long compile-times) languages boast watchers in their toolbox, suggests the usefulness of the interface.
+The fact that both interpreted (python, ruby) and compiled (golang, ocaml, rust notorious for long compile-times) languages boast watchers in their toolbox, suggests the usefulness of the interface.
 
 + https://github.com/guard/guard
 + https://pypi.org/project/pytest-watch/
 + https://crates.io/crates/cargo-watch
 + https://github.com/mitranim/gow
++ https://dune.readthedocs.io/en/stable/usage.html#watch-mode
 
 The pulling analogy falls short once we take into account the costs of changing the watch target. It involves Ctrl-C'ing the watch process and changing the command for the watcher to re-run.
-*** rust-analyzer runnables
+*** Rust-analyzer runnables
 Rust-analyzer has an LSP extension to provide a list of items that are runnable from the open document. Those runnables are rendered as clickable CodeLenses in VSCode and enable the developer to run 1 specific test or benchmark or a group thereof from her editor.
 
 Watch it in action
@@ -213,6 +211,7 @@ It could disassemble the Common Lisp into assembly in your editor? I don't quite
 **** What was it?
 **** Was it interactive i.e. in your editor?
 **** What did it enable you to do that you cannot do in other languages?
+
 ** Future pull interfaces
 How can we improve or add new write-time, pull interfaces?
 
@@ -227,7 +226,7 @@ Another business that provides a (closer-source) code completion engine that is 
 https://www.tabnine.com/
 *** Find and run related benchmarks in rust-analyzer
 **** Micro-benchmark runnables
-**** TODO Carl Cook has a post-it about instruction caches that he checks with a benchmark
+**** Carl Cook has a post-it about instruction caches that he checks with a benchmark
 Is that interactive?
 ***** TODO find the youtube video with a timestamp
 
@@ -247,10 +246,7 @@ https://marketplace.visualstudio.com/items?itemName=hediet.debug-visualizer
 
 https://github.com/vadimcn/vscode-lldb/wiki/Data-visualization
 
-*** reducer
-c-reduce
-
-*** TODO multi-platform rust-analyzer
+*** multi-platform rust-analyzer
 less about the pull interface and more about the backend that can make it fast.
 
 Aleksey Kladov talks about that RA can abstract away from the concrete FS and have the indexer run quickly on the server.
@@ -258,23 +254,6 @@ Aleksey Kladov talks about that RA can abstract away from the concrete FS and ha
 3 minutes from the start here.
 
 https://youtu.be/SaSULKoSlWI?t=845
-
-
-**** my message to clangd discourse
-what is rust-analyzer, if not the compiler front-end persevering?
-
-#+BEGIN_QUOTE
-Reading this implementation of a distributed compilation system I asked myself if this was applicable to clangd.
-https://blog.nelhage.com/post/building-llvm-in-90s/
-
-After all, what is clangd, if not the compiler front-end persevering (TM) and if that's the case, could the indexing stage not be parallelised and then collected into 1 index to serialize on disk. For the sake of argument, we could think of the first stage as mapping TUs to remote index builder-workers and the last stage as reducing/downloading all index files into one index directory on disk. I hear a certain advertising company has a really neat framework to run such workloads too.
-
-Ideally, this would have a plugin architecture, where corporate users could plugin their in-house configs for lambda-like workers and OSS developers could wire it up with AWS lambda (or the equivalent google cloud offering)
-
-What do people think? How amenable is the indexing stage of clangd to being distributed to remote index workers? How easy would it be to collect 1 index from N indexes for each individual TU?
-#+END_QUOTE
-
-***** TODO add discourse response
 
 ** An optimistic conclusion
 Developer tooling has been improving as a combination of academic developments,
