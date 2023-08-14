@@ -202,15 +202,17 @@ Once you have an interactive interface to query runnable tasks in a given contex
 
 https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/dev/lsp-extensions.md#related-tests
 
-*** TODO Get details from Terje about his favourite lisp environemt?
-I roughly remember
-#+BEGIN_QUOTE
-It could disassemble the Common Lisp into assembly in your editor? I don't quite remember
-#+END_QUOTE
+*** Programming in a REPL with a disassembler
+A coworker of mine, Terje Støback, had this to say about his favourite development environment.
 
-**** What was it?
-**** Was it interactive i.e. in your editor?
-**** What did it enable you to do that you cannot do in other languages?
+#+BEGIN_QUOTE
+SBCL + Slime in emacs is by far the most wonderful environment I’ve ever programmed in, in any language
+Common Lisp lets you annotate types for arguments/variables/return values, as well as specify per-function optimisation levels.
+You also get warnings if it tries to optimise and unbox a value but can’t do so because a code path still delivers a boxed value.
+Oh, (disassemble) is a function. Part of SBCL’s runtime system (and I’d guess other compilers too)
+It’s interactive, since you call it in your repl like anything else, and it allows you to very quickly iterate on optimising a function and seeing what the outcome of various type annotations and optimisation annotations are.
+In Slime+SBCL you don’t just write your program from the inside (while it’s running), you’re also half-way inside the compiler. All interactive, all operating on a suspended computation that doesn’t need to be rolled back, and with full transparency into every aspect of your final product.
+#+END_QUOTE
 
 ** Future pull interfaces
 How can we improve or add new write-time, pull interfaces?
