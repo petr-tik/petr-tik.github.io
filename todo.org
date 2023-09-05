@@ -8,6 +8,12 @@ CLOSED: [2019-02-23 Sat 15:52]
 CLOSED: [2019-05-10 Fri 22:18]
 Content in markdown or org, CI job to generate website, if no errors, push it to gh-pages as html
 * TODO Future nice-to-haves
+** TODO offline server mode
+Turn off wifi, run =hugo -D server= with exit code 0. Currently it fails with
+#+begin_quote
+ERROR Failed to get JSON resource "https://publish.twitter.com/oembed?dnt=false&url=https%3A%2F%2Ftwitter.com%2Fx%2Fstatus%2F1091147416592674817": Get "https://publish.twitter.com/oembed?dnt=false&url=https%3A%2F%2Ftwitter.com%2Fx%2Fstatus%2F1091147416592674817": dial tcp: lookup publish.twitter.com on 127.0.0.53:53: server misbehaving
+#+end_quote
+
 ** TODO page with all posts broken into categories
 ** TODO homepage
 **** TODO render 10 most recent posts in data descending order
