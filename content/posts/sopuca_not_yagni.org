@@ -1,0 +1,40 @@
+---
+title: "SOPUCA instead of YAGNI"
+description: "Solve Only Problems Users Care About"
+date: 2023-09-05T15:22:33Z
+draft: false
+categories: posts
+tags:
+ - tech
+ - design
+---
+
+Getting the most precise set of requirements is a good way to deliver software with great performance characteristics.
+
+I had this idea listening to Nelson Elhage's explanation for the data structure he designed [[https://www.livegrep.com/]] around.
+
+He started with the search experience he wanted - live updates every time the user presses a button.
+
+This quote got me thinking
+
+#+begin_quote
+Is searching for every HEX string something anyone ever does?
+#+end_quote
+
+Nelson exhibits curiosity and openness to new ideas with that question.
+
+What's the point of including any data structure or code path than no one ever uses?
+
+There is no point choosing a data structure that makes it easy to do things your users don't care about. Choosing such a data structure adds code that will need to be worked around when it comes to supporting features users request later. Even if you were to gate the old unused code path behind an if-else, you still pay for it at development time - when you build and test your software. You also pay for it at runtime, because that if-else will need to be checked and it might prevent the compiler from inlining some code or cause a branch misprediction.
+
+Instead of YAGNI I propose SOPUCA - Solve Only Problems Users Care About.
+
+This makes the practice of gathering requirements and prioritization even more important. I think this is where experienced professionals shine the most by humbly asking questions and allowing the users to teach them about the required workflow.
+
+Even when you have a strong intuition about what your users _might_ want based on your experience, you are better off not jumping too conclusions. When in doubt, ask more questions and listen more. You can note down your intuition/prediction and then compare it to what the users said.
+
+The opposite pattern is imagining workflows that might be useful or letting the ease of implementation determine what features will be provided to your users.
+
+You still can (and should) make your software easy to extend. I believe that's what the proponents of YAGNI have in mind. However, this extension needs to be guided by user value, not one's own excitement about the ease of implementation.
+
+I think a positively-worded, user-centered statement gives developers autonomy to design and write the software as they see fit while focusing on user needs.
