@@ -2,7 +2,7 @@
 title: "Reviewing The Box"
 description: "What software people can learn from container shippers"
 date: 2023-07-23T23:22:33Z
-draft: true
+draft: false
 categories: notes
 tags:
  - tech
@@ -83,7 +83,7 @@ McLean's hasty capital deprecation strategy must have put managers under more pr
 They are turning this job into a factory job complained New York longshoreman Peter Bell. Agreed Sidney Roger, editor of the ILWU newspaper in San Francisco, "I've heard so many men say, this is exactly what they said: 'It's no fun any longer working on the waterfront. The fun is gone.' The fun has to do with the men working together, a sense of camaraderie"
 #+end_quote
 
-Made me mindful about the immediate impacts of automation. People used to their routine and derive a sense of purpose from belonging feel a sense of loss, even when automation removed the aspects of physical labour.
+Made me mindful about the immediate impacts of automation. People are used to their routine and derive a sense of purpose feel a sense of loss, even when automation removes the aspects of physical labour.
 
 #+begin_quote
 Despite these discontents, the longshore unions' tenacious resistance to automation appeared to establish the principle that long-term workers deserved to be treated humanely as businesses embraced innovations that would eliminate their jobs. That principle was ultimately accepted in very few parts of the American economy and was never codified in law. Years of bargaining by two very different union leaders made the longshore industry a rare exception, in which employers that profited from automation were forced to share the benefits with the individuals whose work was automated away.
@@ -105,14 +105,14 @@ Four of the leading steamship lines, Sea-Land, Matson, Alaska Steamship, and Ame
 One of the advantage of being an early adopter is the ability to steer standards that will last for decades if successful. Conversely, this shows that the short-term concerns of the standardization participants can have long-term repercussions.
 
 #+begin_quote
-Through 1966, engineers around the world tested the new fittings and found a variety of shortcomings. As ne extra check, a container was put through emergency rests in Detroit, just ahead of another meeting of the iso committee. It failed, the fittings on the bottom of the test container giving way under heavy loads. When TC104 convened in London in January 1967, it was faced with the uncomfortable fact that the corner fittings it had approved in 1965 were deficient. Nine engineers were named to an ad hoc panel and told to solve the problems quickly.
+Through 1966, engineers around the world tested the new fittings and found a variety of shortcomings. As an extra check, a container was put through emergency rests in Detroit, just ahead of another meeting of the iso committee. It failed, the fittings on the bottom of the test container giving way under heavy loads. When TC104 convened in London in January 1967, it was faced with the uncomfortable fact that the corner fittings it had approved in 1965 were deficient. Nine engineers were named to an ad hoc panel and told to solve the problems quickly.
 #+end_quote
 
 End-to-end test your standard with real-world inputs. Having participated in fundamental library design, I have seen how important it is to integrate the new proposed API into an existing system and watch how it handles real traffic. I also expect the real-world to come up with unexpected use cases, which encourages me to seek contact with reality as early as possible.
 
 #+begin_quote
-For all of their earthy bluster, their businesses had survived thanks almost entirely to government coddling. On domestic routes, government policy discouraged competition among ship lines. On interna-tonal routes, rates for every commodity were fixed by conferences, a polite term for cartels, and the most important cargo, military freight, was handed out among U.S.Alag carriers without the nuisance of competitive bidding. Decisions about buying, building, or selling ships, about leasing terminals, and about sailing new routes all depended on government directives. For men who had prospered in this environment, who loved the smells of the ocean and fondly referred to their ships as
-"she," Malcom McLean's wholly unromantic interest in moving freight in boxes had little appeal. It was all well and good for visionaries to proclaim that containers were a "must," but
+For all of their earthy bluster, their businesses had survived thanks almost entirely to government coddling. On domestic routes, government policy discouraged competition among ship lines. On international routes, rates for every commodity were fixed by conferences, a polite term for cartels, and the most important cargo, military freight, was handed out among U.S.-flag carriers without the nuisance of competitive bidding. Decisions about buying, building, or selling ships, about leasing terminals, and about sailing new routes all depended on government directives. For men who had prospered in this environment, who loved the smells of the ocean and fondly referred to their ships as
+"she," Malcom McLean's wholly unromantic interest in moving freight in boxes had little appeal.
 #+end_quote
 
 I now question if people who romanticise about =the way things have always been= are just worried about progress.
@@ -139,7 +139,7 @@ I think this was an accidental by-product of containerization, not an explicit u
 + clothes
 
 #+begin_quote
-The military role was even more crucial. As a U.S.-flag Carrier, Sea-Land was entitled to carry a portion of the reight for the quarter milion U.S. soldiers in West Germany, and the military, determined to push containerisation, channeled cargo Sea-land's way.
+The military role was even more crucial. As a U.S.-flag Carrier, Sea-Land was entitled to carry a portion of the freight for the quarter milion U.S. soldiers in West Germany, and the military, determined to push containerisation, channeled cargo Sea-land's way.
 #+end_quote
 
 I wonder if Flexport has a similar role now.
