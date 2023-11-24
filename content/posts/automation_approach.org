@@ -1,0 +1,20 @@
+---
+title: "Automating reminders"
+description: "What to do when you cannot automate the output"
+date: 2023-11-24T13:22:33Z
+draft: false
+categories: posts
+tags:
+ - tech
+ - automation
+---
+
+Automate a reminder to perform manual work, if you cannot automate the output.
+
+I recently had to generate a certain configuration file from a language grammar. The language grammar was defined in a file that doesn't support programmatic access to specific sections of the file. The most expedient thing to do was to copy-paste the code from the language grammar into the output file and forget about it.
+
+This left an undeclared dependency edge between the language grammar file and the output, because I couldn't create a build target that generated the configuration programmatically.
+
+I created a build target and an executable that takes the language grammar as an input and outputs the required configuration. The executable had the necessary sections of the grammar copy-pasted into it. This has 2 advantages - the executable had an explicit dependency edge on the grammar file and the executable could check if there was any new grammar to copy into the output config.
+
+The logic generating the output config asserted that the hash of the language grammar equals to the expected (also hardcoded) hash value. This way when someone changes the grammar file without updating the expected hash value, this assertion will error out and remind the person to copy new chunks of the language grammar into the executable that generates the output.
